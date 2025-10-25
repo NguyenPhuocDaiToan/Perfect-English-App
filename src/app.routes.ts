@@ -1,4 +1,3 @@
-
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { LevelTestComponent } from './components/level-test/level-test.component';
@@ -16,5 +15,9 @@ export const APP_ROUTES: Routes = [
   { path: 'membership', component: MembershipComponent, title: 'Membership | Perfect English Grammar' },
   { path: 'for-teachers', component: TeachersComponent, title: 'For Teachers | Perfect English Grammar' },
   { path: 'login', component: LoginComponent, title: 'Login | Perfect English Grammar' },
+  { 
+    path: 'admin',
+    loadChildren: () => import('./components/admin/admin.routes').then(r => r.ADMIN_ROUTES)
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
