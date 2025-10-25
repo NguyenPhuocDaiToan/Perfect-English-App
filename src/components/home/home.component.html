@@ -1,0 +1,74 @@
+
+<div class="bg-white">
+  <!-- Hero Section -->
+  <section class="bg-blue-600 text-white">
+    <div class="container mx-auto px-6 py-20 text-center">
+      <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-4">Master English Grammar</h1>
+      <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto">Clear explanations, effective exercises, and a free level test. Your path to confident English communication starts here.</p>
+      <a routerLink="/level-test" class="bg-white text-blue-600 font-bold py-3 px-8 rounded-full hover:bg-blue-100 transition duration-300 transform hover:scale-105">
+        Take the Free Level Test
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-800">Everything You Need to Succeed</h2>
+        <p class="text-gray-600 mt-2">We provide the tools. You achieve your goals.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div class="p-6 bg-gray-50 rounded-lg shadow-sm">
+          <div class="flex justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11.494m-9-5.747h18" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Grammar Explanations</h3>
+          <p class="text-gray-600">Easy-to-understand lessons on every English grammar topic.</p>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-lg shadow-sm">
+          <div class="flex justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Practice Exercises</h3>
+          <p class="text-gray-600">Interactive exercises with instant feedback to test your knowledge.</p>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-lg shadow-sm">
+          <div class="flex justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">PDF Downloads</h3>
+          <p class="text-gray-600">Download grammar summaries to study offline, anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="bg-gray-100 py-16">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-800">What Our Students Say</h2>
+      </div>
+      @if (testimonials$ | async; as testimonials) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          @for (testimonial of testimonials; track testimonial.author) {
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <p class="text-gray-600 italic mb-4">"{{ testimonial.quote }}"</p>
+              <p class="font-bold text-gray-800">{{ testimonial.author }}</p>
+              <p class="text-sm text-gray-500">{{ testimonial.location }}</p>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-center text-gray-500">Loading testimonials...</p>
+      }
+    </div>
+  </section>
+</div>

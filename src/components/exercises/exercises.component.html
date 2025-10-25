@@ -1,0 +1,22 @@
+
+<div class="container mx-auto px-6 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-800">Grammar Exercises</h1>
+    <p class="text-lg text-gray-600 mt-2">Practice makes perfect. Test your knowledge with our exercises.</p>
+  </div>
+  @if (topics$ | async; as topics) {
+    <div class="space-y-4">
+      @for (topic of topics; track topic.title) {
+        <div class="bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-800">{{ topic.title }} Exercises</h2>
+            <p class="text-gray-500">Practice what you've learned about {{ topic.title.toLowerCase() }}.</p>
+          </div>
+          <a href="#" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition">Start</a>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="text-center text-gray-500">Loading exercises...</p>
+  }
+</div>

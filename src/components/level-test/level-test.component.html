@@ -1,0 +1,75 @@
+
+<div class="container mx-auto px-6 py-12">
+  <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8">
+    
+    @if (!isQuizFinished()) {
+      <div class="quiz-container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">English Level Test</h1>
+        <p class="text-center text-gray-500 mb-8">Find out your grammar level in just a few minutes.</p>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+          <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" [style.width.%]="progress()"></div>
+        </div>
+
+        @if (currentQuestion()) {
+          <div class="question-area">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-700 mb-6">
+              Question {{ currentQuestionIndex() + 1 }} / {{ questions().length }}: {{ currentQuestion().question }}
+            </h2>
+            <div class="space-y-4">
+              @for (option of currentQuestion().options; track $index) {
+                <button 
+                  (click)="selectAnswer($index)"
+                  [class]="userAnswers()[currentQuestionIndex()] === $index 
+                            ? 'bg-blue-500 text-white border-transparent' 
+                            : 'bg-white text-gray-700 hover:bg-gray-100'"
+                  class="w-full text-left p-4 border rounded-lg transition duration-200 text-lg">
+                  {{ option }}
+                </button>
+              }
+            </div>
+            <div class="mt-8 text-right">
+              <button 
+                (click)="nextQuestion()"
+                [disabled]="userAnswers()[currentQuestionIndex()] === -1"
+                class="px-8 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                  @if (currentQuestionIndex() < questions().length - 1) {
+                    <span>Next</span>
+                  } @else {
+                    <span>Finish Test</span>
+                  }
+              </button>
+            </div>
+          </div>
+        } @else {
+            <p class="text-center text-gray-500">Loading test...</p>
+        }
+      </div>
+    } @else {
+      <div class="results-container text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Test Complete!</h1>
+        <p class="text-lg text-gray-600 mb-6">You answered {{ score() }} out of {{ questions().length }} questions correctly.</p>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg my-8">
+          <h2 class="text-2xl font-bold text-blue-800">Your Estimated Level Is:</h2>
+          <p class="text-5xl font-extrabold text-blue-600 my-3">{{ level().name }}</p>
+          <p class="text-xl text-blue-700">{{ level().description }}</p>
+        </div>
+
+        <p class="text-gray-600 mb-8">
+          This is an estimate of your level. To improve, we recommend exploring our grammar explanations and exercises.
+        </p>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#/explanations" class="px-6 py-3 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 transition">
+              Start Learning
+            </a>
+            <button (click)="retryTest()" class="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">
+              Try Again
+            </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
