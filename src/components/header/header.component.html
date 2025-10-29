@@ -1,5 +1,5 @@
-<header class="bg-white shadow-md sticky top-0 z-50">
-  <nav class="container mx-auto px-6 py-4">
+<header class="bg-white/80 backdrop-blur-lg border-b border-slate-200/50 sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-6 py-4">
     <div class="flex items-center justify-between">
       <div class="text-2xl font-bold text-primary-600">
         <a routerLink="/" class="flex items-center space-x-2">
@@ -32,10 +32,20 @@
             @if(isDropdownOpen()) {
               <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg py-2 z-50">
                 @if (authService.currentUser()?.role === 'Admin') {
-                   <a routerLink="/admin" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">Dashboard</a>
+                   <a routerLink="/admin" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" /><path d="M12 2.252A8.014 8.014 0 0117.748 12H12V2.252z" /></svg>
+                      <span>Dashboard</span>
+                    </a>
                 }
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">My Profile</a>
-                <button (click)="logout()" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.5 5.5 0 00-5.5 5.5v.004c0 .242.158.463.39.544a7.58 7.58 0 005.11 0c.232-.08.39-.302.39-.544V17.5A5.5 5.5 0 0010 12z" clip-rule="evenodd" /></svg>
+                  <span>My Profile</span>
+                </a>
+                <div class="my-1 border-t border-gray-100"></div>
+                <button (click)="logout()" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" /></svg>
+                  <span>Logout</span>
+                </button>
               </div>
             }
           </div>

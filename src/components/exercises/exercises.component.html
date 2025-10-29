@@ -7,123 +7,125 @@
 </section>
 
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-  <!-- Filter Bar -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-4 rounded-lg border border-slate-200 mb-8">
-    <!-- Search Input -->
-    <div class="md:col-span-4">
-      <div class="relative">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
-          </svg>
+  <div class="max-w-7xl mx-auto">
+    <!-- Filter Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-4 rounded-lg border border-slate-200 mb-8">
+      <!-- Search Input -->
+      <div class="md:col-span-4">
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <input type="text" placeholder="Search practice topics..." [value]="searchTerm()" (input)="onSearch($event)" class="block w-full rounded-lg border-slate-300 bg-white py-2.5 pl-10 pr-3 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm">
         </div>
-        <input type="text" placeholder="Search practice topics..." [value]="searchTerm()" (input)="onSearch($event)" class="block w-full rounded-lg border-slate-300 bg-white py-2.5 pl-10 pr-3 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm">
+      </div>
+      <!-- Topic Filter -->
+      <div class="md:col-span-3">
+        <select (change)="onTopicChange($event)" class="w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm py-2.5">
+          <option value="All">All Topics</option>
+          @for (topic of availableTopics(); track topic.id) {
+            <option [value]="topic.id">{{ topic.title }}</option>
+          }
+        </select>
+      </div>
+      <!-- Difficulty Filter -->
+      <div class="md:col-span-5">
+        <div class="flex items-center gap-2 rounded-lg bg-slate-100 p-1">
+          <button (click)="onDifficultyChange('All')" [class]="selectedDifficulty() === 'All' ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">All</button>
+          @for (level of difficultyLevels; track level) {
+            <button (click)="onDifficultyChange(level)" [class]="selectedDifficulty() === level ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">{{ level }}</button>
+          }
+        </div>
       </div>
     </div>
-    <!-- Topic Filter -->
-    <div class="md:col-span-3">
-      <select (change)="onTopicChange($event)" class="w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm py-2.5">
-        <option value="All">All Topics</option>
-        @for (topic of availableTopics(); track topic.id) {
-          <option [value]="topic.id">{{ topic.title }}</option>
-        }
-      </select>
-    </div>
-    <!-- Difficulty Filter -->
-    <div class="md:col-span-5">
-      <div class="flex items-center gap-2 rounded-lg bg-slate-100 p-1">
-        <button (click)="onDifficultyChange('All')" [class]="selectedDifficulty() === 'All' ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">All</button>
-        @for (level of difficultyLevels; track level) {
-          <button (click)="onDifficultyChange(level)" [class]="selectedDifficulty() === level ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">{{ level }}</button>
-        }
-      </div>
-    </div>
-  </div>
 
-  <!-- Exercises Grid -->
-  @if (status() === 'loading') {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (item of [1,2,3,4,5,6]; track item) {
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 animate-pulse">
-            <div class="p-6">
-              <div class="h-4 bg-slate-200 rounded w-1/2 mb-3"></div>
-              <div class="h-5 bg-slate-300 rounded w-3/4 mb-2"></div>
-              <div class="h-3 bg-slate-200 rounded w-full mb-4"></div>
-              <div class="h-3 bg-slate-200 rounded w-full"></div>
+    <!-- Exercises Grid -->
+    @if (status() === 'loading') {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (item of [1,2,3,4,5,6]; track item) {
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 animate-pulse">
+              <div class="p-6">
+                <div class="h-4 bg-slate-200 rounded w-1/2 mb-3"></div>
+                <div class="h-5 bg-slate-300 rounded w-3/4 mb-2"></div>
+                <div class="h-3 bg-slate-200 rounded w-full mb-4"></div>
+                <div class="h-3 bg-slate-200 rounded w-full"></div>
+              </div>
+              <div class="bg-slate-50/75 p-5 border-t border-slate-100">
+                 <div class="h-8 bg-slate-200 rounded w-full"></div>
+              </div>
+          </div>
+        }
+      </div>
+    } @else if (status() === 'loaded' && exercises().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (exercise of exercises(); track exercise.id) {
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <!-- Card Content -->
+            <div class="p-6 flex-grow">
+              <span class="text-sm font-bold text-primary-700">{{ exercise.topicTitle }}</span>
+              <h3 class="text-lg font-bold text-slate-800 mt-1 mb-2">{{ exercise.title }}</h3>
+              <p class="text-slate-600 text-sm mb-4 h-10">{{ exercise.description }}</p>
             </div>
+            <!-- Card Footer -->
             <div class="bg-slate-50/75 p-5 border-t border-slate-100">
-               <div class="h-8 bg-slate-200 rounded w-full"></div>
-            </div>
-        </div>
-      }
-    </div>
-  } @else if (status() === 'loaded' && exercises().length > 0) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (exercise of exercises(); track exercise.id) {
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-          <!-- Card Content -->
-          <div class="p-6 flex-grow">
-            <span class="text-sm font-bold text-primary-700">{{ exercise.topicTitle }}</span>
-            <h3 class="text-lg font-bold text-slate-800 mt-1 mb-2">{{ exercise.title }}</h3>
-            <p class="text-slate-600 text-sm mb-4 h-10">{{ exercise.description }}</p>
-          </div>
-          <!-- Card Footer -->
-          <div class="bg-slate-50/75 p-5 border-t border-slate-100">
-            <!-- Progress Bar & Text -->
-            <div class="flex items-center justify-between mb-2">
-              <p class="text-xs font-medium text-slate-500">
+              <!-- Progress Bar & Text -->
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-medium text-slate-500">
+                  @switch (exercise.progressStatus) {
+                    @case ('Completed') { <span>Completed - Best: <span class="font-bold text-slate-700">{{ exercise.bestScore }}%</span></span> }
+                    @case ('In Progress') { <span>{{ exercise.progressPercent }}% In Progress</span> }
+                    @default { <span>Not Started</span> }
+                  }
+                </p>
+                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                    [class]="exercise.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                             exercise.difficulty === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'">
+                    {{ exercise.difficulty }}
+                </span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full" 
+                       [class]="exercise.progressStatus === 'Completed' ? 'bg-green-500' : 'bg-primary-500'"
+                       [style.width.%]="exercise.progressPercent"></div>
+              </div>
+               <!-- Action Button -->
+              <a [routerLink]="['/exercises', exercise.id]" 
+                class="w-full text-center block font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 text-sm mt-4"
+                [class]="exercise.progressStatus === 'Not Started' 
+                  ? 'bg-primary-500 text-white hover:bg-primary-600' 
+                  : 'bg-white text-primary-600 border border-primary-300 hover:bg-primary-50'">
                 @switch (exercise.progressStatus) {
-                  @case ('Completed') { <span>Completed - Best: <span class="font-bold text-slate-700">{{ exercise.bestScore }}%</span></span> }
-                  @case ('In Progress') { <span>{{ exercise.progressPercent }}% In Progress</span> }
-                  @default { <span>Not Started</span> }
+                    @case ('Completed') { <span>Practice Again ({{ exercise.bestScore }}%)</span> }
+                    @case ('In Progress') { <span>Continue Practice</span> }
+                    @default { <span>Start Practice</span> }
                 }
-              </p>
-               <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                  [class]="exercise.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                           exercise.difficulty === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'">
-                  {{ exercise.difficulty }}
-              </span>
+              </a>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-1.5">
-                <div class="h-1.5 rounded-full" 
-                     [class]="exercise.progressStatus === 'Completed' ? 'bg-green-500' : 'bg-primary-500'"
-                     [style.width.%]="exercise.progressPercent"></div>
-            </div>
-             <!-- Action Button -->
-            <a [routerLink]="['/exercises', exercise.id]" 
-              class="w-full text-center block font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 text-sm mt-4"
-              [class]="exercise.progressStatus === 'Not Started' 
-                ? 'bg-primary-500 text-white hover:bg-primary-600' 
-                : 'bg-white text-primary-600 border border-primary-300 hover:bg-primary-50'">
-              @switch (exercise.progressStatus) {
-                  @case ('Completed') { <span>Practice Again ({{ exercise.bestScore }}%)</span> }
-                  @case ('In Progress') { <span>Continue Practice</span> }
-                  @default { <span>Start Practice</span> }
-              }
-            </a>
           </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if(totalPages() > 1) {
+        <div class="mt-12">
+          <app-pagination 
+            [currentPage]="currentPage()" 
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)">
+          </app-pagination>
         </div>
       }
-    </div>
 
-    <!-- Pagination -->
-    @if(totalPages() > 1) {
-      <div class="mt-12">
-        <app-pagination 
-          [currentPage]="currentPage()" 
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)">
-        </app-pagination>
+    } @else {
+       <div class="text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-slate-800">No Exercises Found</h3>
+        <p class="mt-1 text-sm text-slate-500">No exercises match your current filters. Please try again.</p>
       </div>
     }
-
-  } @else {
-     <div class="text-center py-16">
-      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-      </svg>
-      <h3 class="mt-2 text-sm font-semibold text-slate-800">No Exercises Found</h3>
-      <p class="mt-1 text-sm text-slate-500">No exercises match your current filters. Please try again.</p>
-    </div>
-  }
+  </div>
 </div>
