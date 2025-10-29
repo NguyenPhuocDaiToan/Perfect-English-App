@@ -10,10 +10,14 @@ export class TopicService {
   private topics = signal<Topic[]>([
     { id: 1, title: 'Verb Tenses', category: 'Grammar', description: 'Learn about all English verb tenses.', status: 'Published' },
     { id: 2, title: 'Conditionals', category: 'Grammar', description: 'Master zero, first, second, third, and mixed conditional sentences.', status: 'Published' },
-    { id: 3, title: 'Travel Vocabulary', category: 'Vocabulary', description: 'Essential words and phrases for traveling abroad.', status: 'Draft' },
+    { id: 3, title: 'Travel Vocabulary', category: 'Vocabulary', description: 'Essential words and phrases for traveling abroad.', status: 'Published' },
+    { id: 4, title: 'Passive Voice', category: 'Grammar', description: 'Understand how and when to use the passive voice.', status: 'Published' },
+    { id: 5, title: 'Business Writing', category: 'Writing', description: 'Learn to write professional emails, reports, and presentations.', status: 'Published' },
+    { id: 6, title: 'Pronunciation Basics', category: 'Speaking', description: 'Tips and exercises for clearer English pronunciation.', status: 'Published' },
+    { id: 7, title: 'Phrasal Verbs', category: 'Vocabulary', description: 'Master common phrasal verbs used in everyday conversation.', status: 'Draft' },
   ]);
 
-  private nextId = signal(4);
+  private nextId = signal(8);
 
   getTopics() {
     return computed(() => this.topics());

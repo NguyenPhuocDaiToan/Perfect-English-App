@@ -26,7 +26,7 @@ export class TopicFormComponent {
   currentTopicId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
 
-  categoryOptions: Array<'Grammar' | 'Vocabulary' | 'Skills'> = ['Grammar', 'Vocabulary', 'Skills'];
+  categoryOptions: Array<'Grammar' | 'Vocabulary' | 'Skills' | 'Writing' | 'Speaking'> = ['Grammar', 'Vocabulary', 'Skills', 'Writing', 'Speaking'];
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
 
   constructor() {
