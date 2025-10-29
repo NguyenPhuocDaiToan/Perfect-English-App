@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
+import { ThemeService } from './services/theme.service';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 
@@ -10,10 +12,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ThemePickerComponent, CommonModule],
 })
 export class AppComponent {
   private router = inject(Router);
+  themeService = inject(ThemeService);
   isAdminRoute = signal(false);
 
   constructor() {
