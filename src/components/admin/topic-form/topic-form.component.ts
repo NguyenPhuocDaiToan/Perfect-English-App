@@ -5,16 +5,16 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TopicService } from '../../../services/topic.service';
 import { Topic } from '../../../models/topic.model';
 import { filter, map, switchMap } from 'rxjs/operators';
+import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 
 @Component({
   selector: 'app-topic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './topic-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicFormComponent {
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
   private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -24,6 +24,7 @@ export class TopicFormComponent {
   topicForm: FormGroup;
   isEditing = signal(false);
   currentTopicId = signal<number | null>(null);
+  saveState = signal<SaveButtonState>('idle');
 
   categoryOptions: Array<'Grammar' | 'Vocabulary' | 'Skills'> = ['Grammar', 'Vocabulary', 'Skills'];
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
@@ -57,17 +58,24 @@ export class TopicFormComponent {
   }
   
   saveTopic() {
-    if (this.topicForm.invalid) return;
+    if (this.topicForm.invalid || this.saveState() !== 'idle') return;
 
-    if (this.isEditing() && this.currentTopicId() !== null) {
-      const updatedTopic: Topic = { ...this.topicForm.value, id: this.currentTopicId()! };
-      this.topicService.updateTopic(updatedTopic).subscribe(() => {
-        this.router.navigate(['/admin/topics']);
-      });
-    } else {
-      this.topicService.addTopic(this.topicForm.value).subscribe(() => {
-        this.router.navigate(['/admin/topics']);
-      });
-    }
+    this.saveState.set('loading');
+    const saveObservable = this.isEditing() && this.currentTopicId() !== null
+      ? this.topicService.updateTopic({ ...this.topicForm.value, id: this.currentTopicId()! })
+      : this.topicService.addTopic(this.topicForm.value);
+
+    saveObservable.subscribe({
+      next: () => {
+        this.saveState.set('success');
+        setTimeout(() => {
+          this.router.navigate(['/admin/topics']);
+        }, 1500);
+      },
+      error: () => {
+        this.saveState.set('idle');
+        // Optionally: show an error message to the user
+      }
+    });
   }
 }

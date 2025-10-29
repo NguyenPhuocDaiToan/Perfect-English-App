@@ -9,16 +9,16 @@ import { BlogPost } from '../../../models/blog-post.model';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { UserService } from '../../../services/user.service';
+import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 
 @Component({
   selector: 'app-blog-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent],
   templateUrl: './blog-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlogFormComponent {
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
   private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -32,6 +32,7 @@ export class BlogFormComponent {
   blogForm: FormGroup;
   isEditing = signal(false);
   currentPostId = signal<number | null>(null);
+  saveState = signal<SaveButtonState>('idle');
 
   // Data for select dropdowns
   allTopics = this.topicService.getTopics();
@@ -76,23 +77,30 @@ export class BlogFormComponent {
   }
 
   savePost() {
-    if (this.blogForm.invalid) return;
+    if (this.blogForm.invalid || this.saveState() !== 'idle') return;
 
+    this.saveState.set('loading');
+    
     const formValue = this.blogForm.value;
     const postData = {
       ...formValue,
       tags: formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t),
     };
 
-    if (this.isEditing() && this.currentPostId() !== null) {
-      const updatedPost = { ...postData, id: this.currentPostId()! };
-      this.blogService.updateBlogPost(updatedPost).subscribe(() => {
-        this.router.navigate(['/admin/blog']);
-      });
-    } else {
-      this.blogService.addBlogPost(postData).subscribe(() => {
-        this.router.navigate(['/admin/blog']);
-      });
-    }
+    const saveObservable = this.isEditing() && this.currentPostId() !== null
+      ? this.blogService.updateBlogPost({ ...postData, id: this.currentPostId()! })
+      : this.blogService.addBlogPost(postData);
+
+    saveObservable.subscribe({
+      next: () => {
+        this.saveState.set('success');
+        setTimeout(() => {
+          this.router.navigate(['/admin/blog']);
+        }, 1500);
+      },
+      error: () => {
+        this.saveState.set('idle');
+      }
+    });
   }
 }

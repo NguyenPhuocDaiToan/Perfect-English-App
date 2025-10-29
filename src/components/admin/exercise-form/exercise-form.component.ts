@@ -8,16 +8,16 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { QuestionService } from '../../../services/question.service';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
+import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 
 @Component({
   selector: 'app-exercise-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './exercise-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseFormComponent {
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
   private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -31,6 +31,7 @@ export class ExerciseFormComponent {
   exerciseForm: FormGroup;
   isEditing = signal(false);
   currentExerciseId = signal<number | null>(null);
+  saveState = signal<SaveButtonState>('idle');
 
   // Data for selectors
   allQuestions = this.questionService.getQuestions();
@@ -98,22 +99,29 @@ export class ExerciseFormComponent {
   }
 
   saveExercise() {
-    if (this.exerciseForm.invalid) return;
+    if (this.exerciseForm.invalid || this.saveState() !== 'idle') return;
     
+    this.saveState.set('loading');
+
     const exerciseData = {
         ...this.exerciseForm.value,
         questionIds: Array.from(this.selectedQuestionIds())
     };
 
-    if (this.isEditing() && this.currentExerciseId() !== null) {
-      const finalData: Exercise = { ...exerciseData, id: this.currentExerciseId()! };
-      this.exerciseService.updateExercise(finalData).subscribe(() => {
-        this.router.navigate(['/admin/exercises']);
-      });
-    } else {
-      this.exerciseService.addExercise(exerciseData).subscribe(() => {
-        this.router.navigate(['/admin/exercises']);
-      });
-    }
+    const saveObservable = this.isEditing() && this.currentExerciseId() !== null
+        ? this.exerciseService.updateExercise({ ...exerciseData, id: this.currentExerciseId()! })
+        : this.exerciseService.addExercise(exerciseData);
+    
+    saveObservable.subscribe({
+        next: () => {
+            this.saveState.set('success');
+            setTimeout(() => {
+                this.router.navigate(['/admin/exercises']);
+            }, 1500);
+        },
+        error: () => {
+            this.saveState.set('idle');
+        }
+    });
   }
 }

@@ -3,45 +3,48 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Question, QuestionType, McqOption } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
+import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 
 @Component({
   selector: 'app-question-bank',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent],
   templateUrl: './question-bank.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionBankComponent {
   private questionService = inject(QuestionService);
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
   private fb: FormBuilder = inject(FormBuilder);
 
-  questions = this.questionService.getQuestions();
+  private allQuestions = this.questionService.getQuestions();
 
   showForm = signal(false);
   isEditing = signal(false);
   currentQuestionId = signal<number | null>(null);
+  saveState = signal<SaveButtonState>('idle');
 
   questionForm: FormGroup;
   questionTypes = Object.values(QuestionType);
   topics: Array<'Grammar' | 'Vocabulary' | 'Reading' | 'Listening'> = ['Grammar', 'Vocabulary', 'Reading', 'Listening'];
   difficulties: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
 
-  // Dropdown states
-  isTypeDropdownOpen = signal(false);
-  isTopicDropdownOpen = signal(false);
-  isDifficultyDropdownOpen = signal(false);
-
   // Filter states
+  searchTerm = signal('');
   filterTopic = signal<string>('All');
   filterType = signal<string>('All');
   filterDifficulty = signal<string>('All');
 
   filteredQuestions = computed(() => {
-    return this.questions().filter(q => 
-      (this.filterTopic() === 'All' || q.topic === this.filterTopic()) &&
-      (this.filterType() === 'All' || q.type === this.filterType()) &&
-      (this.filterDifficulty() === 'All' || q.difficulty === this.filterDifficulty())
+    const term = this.searchTerm().toLowerCase();
+    const topic = this.filterTopic();
+    const type = this.filterType();
+    const difficulty = this.filterDifficulty();
+
+    return this.allQuestions().filter(q => 
+      (q.questionText.toLowerCase().includes(term) || q.subTopic.toLowerCase().includes(term)) &&
+      (topic === 'All' || q.topic === topic) &&
+      (type === 'All' || q.type === type) &&
+      (difficulty === 'All' || q.difficulty === difficulty)
     );
   });
 
@@ -105,6 +108,7 @@ export class QuestionBankComponent {
       correctAnswer: false
     });
     this.updateFormForType(QuestionType.MCQ);
+    this.saveState.set('idle');
     this.showForm.set(true);
   }
 
@@ -120,7 +124,7 @@ export class QuestionBankComponent {
     if (question.type === QuestionType.MCQ && question.options) {
       question.options.forEach(opt => this.options.push(this.createOption(opt.text, opt.isCorrect)));
     }
-    
+    this.saveState.set('idle');
     this.showForm.set(true);
   }
 
@@ -130,20 +134,30 @@ export class QuestionBankComponent {
   }
 
   saveQuestion() {
-    if (this.questionForm.invalid) return;
+    if (this.questionForm.invalid || this.saveState() !== 'idle') return;
 
+    this.saveState.set('loading');
     const formValue = this.questionForm.value;
     const questionData = {
       ...formValue,
       tags: formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t),
     };
 
-    if (this.isEditing()) {
-      const finalData: Question = { ...questionData, id: this.currentQuestionId()! };
-      this.questionService.updateQuestion(finalData).subscribe(() => this.closeForm());
-    } else {
-      this.questionService.addQuestion(questionData).subscribe(() => this.closeForm());
-    }
+    const saveObservable = this.isEditing()
+        ? this.questionService.updateQuestion({ ...questionData, id: this.currentQuestionId()! })
+        : this.questionService.addQuestion(questionData);
+
+    saveObservable.subscribe({
+        next: () => {
+            this.saveState.set('success');
+            setTimeout(() => {
+                this.closeForm();
+            }, 1500);
+        },
+        error: () => {
+            this.saveState.set('idle');
+        }
+    });
   }
 
   deleteQuestion(id: number) {

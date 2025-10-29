@@ -8,16 +8,16 @@ import { LessonService } from '../../../services/lesson.service';
 import { Lesson } from '../../../models/lesson.model';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
+import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 
 @Component({
   selector: 'app-lesson-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
   templateUrl: './lesson-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LessonFormComponent {
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
   private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -30,6 +30,7 @@ export class LessonFormComponent {
   lessonForm: FormGroup;
   isEditing = signal(false);
   currentLessonId = signal<number | null>(null);
+  saveState = signal<SaveButtonState>('idle');
 
   // Data for select dropdowns
   allTopics = this.topicService.getTopics();
@@ -69,17 +70,23 @@ export class LessonFormComponent {
   }
 
   saveLesson() {
-    if (this.lessonForm.invalid) return;
+    if (this.lessonForm.invalid || this.saveState() !== 'idle') return;
 
-    if (this.isEditing() && this.currentLessonId() !== null) {
-      const updatedLesson: Lesson = { ...this.lessonForm.value, id: this.currentLessonId()! };
-      this.lessonService.updateLesson(updatedLesson).subscribe(() => {
-        this.router.navigate(['/admin/lessons']);
-      });
-    } else {
-      this.lessonService.addLesson(this.lessonForm.value).subscribe(() => {
-        this.router.navigate(['/admin/lessons']);
-      });
-    }
+    this.saveState.set('loading');
+    const saveObservable = this.isEditing() && this.currentLessonId() !== null
+        ? this.lessonService.updateLesson({ ...this.lessonForm.value, id: this.currentLessonId()! })
+        : this.lessonService.addLesson(this.lessonForm.value);
+
+    saveObservable.subscribe({
+        next: () => {
+            this.saveState.set('success');
+            setTimeout(() => {
+                this.router.navigate(['/admin/lessons']);
+            }, 1500);
+        },
+        error: () => {
+            this.saveState.set('idle');
+        }
+    });
   }
 }
