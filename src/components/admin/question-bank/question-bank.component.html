@@ -1,0 +1,209 @@
+<div class="flex justify-between items-center mb-8">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Question Bank</h1>
+  <button (click)="openAddForm()" class="bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200 flex items-center space-x-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+    </svg>
+    <span>Add Question</span>
+  </button>
+</div>
+
+<!-- Filters -->
+<div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+  <!-- Topic Filter -->
+  <select (change)="filterTopic.set($any($event.target).value)" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+    <option value="All">All Topics</option>
+    @for (topic of topics; track topic) { <option [value]="topic">{{topic}}</option> }
+  </select>
+  <!-- Type Filter -->
+  <select (change)="filterType.set($any($event.target).value)" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+    <option value="All">All Types</option>
+    @for (type of questionTypes; track type) { <option [value]="type">{{type}}</option> }
+  </select>
+  <!-- Difficulty Filter -->
+  <select (change)="filterDifficulty.set($any($event.target).value)" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+    <option value="All">All Difficulties</option>
+    @for (diff of difficulties; track diff) { <option [value]="diff">{{diff}}</option> }
+  </select>
+</div>
+
+<!-- Form Modal/Overlay -->
+@if (showForm()) {
+  <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 flex justify-center items-start p-4 overflow-y-auto" (click)="closeForm()">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl relative mt-12 mb-12" (click)="$event.stopPropagation()">
+      <h2 class="text-xl font-semibold text-slate-900 mb-6">{{ isEditing() ? 'Edit' : 'Add New' }} Question</h2>
+      <form [formGroup]="questionForm" (ngSubmit)="saveQuestion()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <!-- Left Column -->
+            <div class="space-y-6">
+                <!-- Topic & SubTopic -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Topic</label>
+                        <select formControlName="topic" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                            @for(opt of topics; track opt) { <option [value]="opt">{{opt}}</option> }
+                        </select>
+                    </div>
+                     <div>
+                        <label for="subTopic" class="block text-sm font-medium text-slate-700">SubTopic</label>
+                        <input type="text" id="subTopic" formControlName="subTopic" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                    </div>
+                </div>
+                <!-- Type & Difficulty -->
+                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Type</label>
+                        <select formControlName="type" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                            @for(opt of questionTypes; track opt) { <option [value]="opt">{{opt}}</option> }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Difficulty</label>
+                        <select formControlName="difficulty" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                            @for(opt of difficulties; track opt) { <option [value]="opt">{{opt}}</option> }
+                        </select>
+                    </div>
+                </div>
+                <!-- Question Text -->
+                <div>
+                    <label for="questionText" class="block text-sm font-medium text-slate-700">Question Text</label>
+                    <textarea id="questionText" formControlName="questionText" rows="4" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm"></textarea>
+                </div>
+                <!-- Dynamic Answer Area -->
+                @switch (questionForm.get('type')?.value) {
+                    @case (questionTypes[0]) { <!-- MCQ -->
+                        <div formArrayName="options">
+                            <h3 class="text-sm font-medium text-slate-700 mb-2">Options</h3>
+                            @for(option of options.controls; track $index) {
+                                <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
+                                    <input type="text" formControlName="text" placeholder="Option text" class="flex-grow rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                                    <div class="flex items-center">
+                                        <input type="radio" [name]="'isCorrect'" [value]="$index" [checked]="option.get('isCorrect')?.value" (change)="setCorrectOption($index)" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500">
+                                        <label class="ml-2 text-sm text-slate-600">Correct</label>
+                                    </div>
+                                    <button type="button" (click)="removeOption($index)" class="p-1 text-slate-400 hover:text-red-600">
+                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                </div>
+                            }
+                             <button type="button" (click)="addOption()" class="text-sm font-semibold text-primary-600 hover:text-primary-800 mt-2">+ Add Option</button>
+                        </div>
+                    }
+                    @case (questionTypes[2]) { <!-- True/False -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Correct Answer</label>
+                            <div class="mt-2 flex gap-4">
+                               <label class="flex items-center"><input type="radio" formControlName="correctAnswer" [value]="true" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span class="ml-2 text-sm text-slate-700">True</span></label>
+                               <label class="flex items-center"><input type="radio" formControlName="correctAnswer" [value]="false" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span class="ml-2 text-sm text-slate-700">False</span></label>
+                            </div>
+                        </div>
+                    }
+                }
+                 <!-- Explanation -->
+                <div>
+                    <label for="explanation" class="block text-sm font-medium text-slate-700">Explanation</label>
+                    <textarea id="explanation" formControlName="explanation" rows="3" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm"></textarea>
+                </div>
+                 <!-- Tags -->
+                 <div>
+                    <label for="tags" class="block text-sm font-medium text-slate-700">Tags (comma-separated)</label>
+                    <input type="text" id="tags" formControlName="tags" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-sm">
+                 </div>
+            </div>
+
+            <!-- Right Column - Preview -->
+            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <h3 class="text-lg font-semibold text-slate-800 mb-4">Question Preview</h3>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="font-semibold text-gray-700 mb-4">{{ questionForm.get('questionText')?.value || 'Your question will appear here...' }}</p>
+                    @switch (questionForm.get('type')?.value) {
+                        @case (questionTypes[0]) { <!-- MCQ -->
+                             <div class="space-y-3">
+                                @for (option of options.controls; track $index) {
+                                    <div class="w-full text-left p-3 border rounded-lg transition duration-200 text-gray-700">
+                                        {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @case (questionTypes[1]) { <!-- FillBlank -->
+                            <div class="border-b-2 border-gray-400 border-dotted h-8 w-1/2"></div>
+                        }
+                        @case (questionTypes[2]) { <!-- True/False -->
+                            <div class="flex space-x-4">
+                                <button class="px-6 py-2 border rounded-lg">True</button>
+                                <button class="px-6 py-2 border rounded-lg">False</button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-end space-x-4">
+          <button type="button" (click)="closeForm()" class="px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold text-sm">Cancel</button>
+          <button type="submit" [disabled]="questionForm.invalid" class="px-4 py-2 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-lg font-semibold text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-shadow">Save Question</button>
+        </div>
+      </form>
+      <button (click)="closeForm()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+  </div>
+}
+
+<div class="bg-white shadow-sm rounded-xl border border-slate-200">
+  <div class="overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-slate-200">
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Question</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Topic</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Difficulty</th>
+          <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (question of filteredQuestions(); track question.id) {
+          <tr class="border-b border-slate-200 last:border-0 hover:bg-slate-50/75 transition-colors duration-150">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-slate-800 truncate max-w-sm">{{ question.questionText }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ question.type }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                [class]="question.topic === 'Grammar' ? 'bg-blue-100 text-blue-800' :
+                         question.topic === 'Vocabulary' ? 'bg-green-100 text-green-800' :
+                         question.topic === 'Reading' ? 'bg-purple-100 text-purple-800' :
+                         'bg-cyan-100 text-cyan-800'">
+                {{ question.topic }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                [class]="question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
+                         question.difficulty === 'Medium' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'">
+                {{ question.difficulty }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex items-center justify-end space-x-2">
+                <button (click)="openEditForm(question)" class="p-2 rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary-600 transition-colors">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                </button>
+                <button (click)="deleteQuestion(question.id)" class="p-2 rounded-md text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-10 text-center text-slate-500">No questions found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

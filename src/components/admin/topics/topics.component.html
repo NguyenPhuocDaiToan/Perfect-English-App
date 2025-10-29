@@ -1,12 +1,13 @@
 <div class="flex justify-between items-center mb-8">
-  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Manage Lessons</h1>
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Manage Topics</h1>
   <a routerLink="new" class="bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200 flex items-center space-x-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
     </svg>
-    <span>Add Lesson</span>
+    <span>Add Topic</span>
   </a>
 </div>
+
 
 <div class="bg-white shadow-sm rounded-xl border border-slate-200">
   <div class="overflow-x-auto">
@@ -14,9 +15,9 @@
       <thead>
         <tr class="border-b border-slate-200">
           <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</th>
-          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Topic</th>
-          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Level</th>
-          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Exercise</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"># Lessons</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"># Exercises</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
           <th scope="col" class="relative px-6 py-3">
             <span class="sr-only">Actions</span>
@@ -24,39 +25,39 @@
         </tr>
       </thead>
       <tbody>
-        @for (lesson of lessons(); track lesson.id) {
+        @for (topic of topics(); track topic.id) {
           <tr class="border-b border-slate-200 last:border-0 hover:bg-slate-50/75 transition-colors duration-150">
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-slate-800">{{ lesson.title }}</div>
+              <div class="text-sm font-medium text-slate-800">{{ topic.title }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-slate-600">{{ getTopicName(lesson.topicId) }}</div>
+              <div class="text-sm text-slate-600">{{ topic.category }}</div>
+            </td>
+             <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-slate-600">{{ getLessonCount(topic.id)() }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-slate-600">{{ lesson.level }}</div>
+              <div class="text-sm text-slate-600">{{ getExerciseCount(topic.id)() }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-slate-600">{{ getExerciseName(lesson.exerciseId) }}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                @if (lesson.status === 'Published') {
+                @if (topic.status === 'Published') {
                     <span class="inline-flex items-center gap-x-1.5 rounded-md bg-green-100 text-green-800 px-2 py-1 text-xs font-medium">
                        <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                        {{ lesson.status }}
+                        {{ topic.status }}
                     </span>
                 } @else {
                      <span class="inline-flex items-center gap-x-1.5 rounded-md bg-amber-100 text-amber-800 px-2 py-1 text-xs font-medium">
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                        {{ lesson.status }}
+                        {{ topic.status }}
                     </span>
                 }
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end space-x-2">
-                <a [routerLink]="['edit', lesson.id]" class="p-2 rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary-600 transition-colors">
+                <a [routerLink]="['edit', topic.id]" class="p-2 rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary-600 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
                 </a>
-                <button (click)="deleteLesson(lesson.id)" class="p-2 rounded-md text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors">
+                <button (click)="deleteTopic(topic.id)" class="p-2 rounded-md text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                 </button>
               </div>
@@ -64,7 +65,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="6" class="px-6 py-10 text-center text-slate-500">No lessons found.</td>
+            <td colspan="6" class="px-6 py-10 text-center text-slate-500">No topics found.</td>
           </tr>
         }
       </tbody>

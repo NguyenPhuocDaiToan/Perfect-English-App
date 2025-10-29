@@ -8,17 +8,19 @@ import { Exercise } from '../models/exercise.model';
 })
 export class ExerciseService {
   private exercises = signal<Exercise[]>([
-    { id: 1, title: 'Present Simple - Fill in the blanks', topic: 'Verb Tenses', difficulty: 'Easy' },
-    { id: 2, title: 'Conditionals - Multiple Choice', topic: 'Conditionals', difficulty: 'Medium' },
-    { id: 3, title: 'Passive Voice - Sentence Transformation', topic: 'Passive Voice', difficulty: 'Hard' },
-    { id: 4, title: 'Modal Verbs of Obligation', topic: 'Modal Verbs', difficulty: 'Medium' },
-    { id: 5, 'title': 'Articles: a, an, the, or no article', topic: 'Articles', difficulty: 'Easy' },
+    { id: 1, title: 'Present Tense Review', description: 'A quick review of present simple and continuous.', topicId: 1, lessonId: 1, difficulty: 'Easy', timeLimit: 10, questionIds: [1, 4], status: 'Published' },
+    { id: 2, title: 'Conditionals Introduction', description: 'Test your knowledge on the first and second conditional.', topicId: 2, lessonId: 3, difficulty: 'Medium', timeLimit: 15, questionIds: [3], status: 'Published' },
+    { id: 3, title: 'Travel Vocabulary Test', description: 'Basic vocabulary for traveling.', topicId: 3, difficulty: 'Easy', timeLimit: 5, questionIds: [2], status: 'Draft' },
   ]);
   
-  private nextId = signal(6);
+  private nextId = signal(4);
 
   getExercises() {
     return computed(() => this.exercises());
+  }
+
+  getExercise(id: number) {
+    return computed(() => this.exercises().find(e => e.id === id));
   }
 
   addExercise(exercise: Omit<Exercise, 'id'>): Observable<Exercise> {

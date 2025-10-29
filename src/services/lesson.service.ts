@@ -8,17 +8,21 @@ import { Lesson } from '../models/lesson.model';
 })
 export class LessonService {
   private lessons = signal<Lesson[]>([
-    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published' },
-    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published' },
-    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published' },
-    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft' },
-    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published' },
+    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published', topicId: 1, content: 'The present simple is a verb tense with two main uses...', exerciseId: 1 },
+    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published', topicId: 1, content: 'We use the past continuous to talk about actions in progress in the past.' },
+    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published', topicId: 2, content: 'The first conditional is used for possible future events.', exerciseId: 2 },
+    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft', topicId: 2, content: 'Reported speech is how we represent the speech of other people.' },
+    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published', topicId: 1, content: 'The passive voice is used when the focus is on the action.' },
   ]);
 
   private nextId = signal(6);
 
   getLessons() {
     return computed(() => this.lessons());
+  }
+  
+  getLesson(id: number) {
+    return computed(() => this.lessons().find(l => l.id === id));
   }
 
   addLesson(lesson: Omit<Lesson, 'id'>): Observable<Lesson> {

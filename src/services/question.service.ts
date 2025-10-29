@@ -1,0 +1,94 @@
+import { Injectable, signal, computed } from '@angular/core';
+import { of, Observable } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { Question, QuestionType } from '../models/question.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class QuestionService {
+  private questions = signal<Question[]>([
+    {
+      id: 1,
+      type: QuestionType.MCQ,
+      topic: 'Grammar',
+      subTopic: 'Present Simple',
+      difficulty: 'Easy',
+      questionText: 'He _____ to the store every day.',
+      options: [
+        { text: 'go', isCorrect: false },
+        { text: 'goes', isCorrect: true },
+        { text: 'is going', isCorrect: false },
+        { text: 'went', isCorrect: false }
+      ],
+      explanation: 'For third person singular (he, she, it), we add -s or -es to the base verb in Present Simple.',
+      tags: ['tenses', 'present-simple']
+    },
+    {
+      id: 2,
+      type: QuestionType.FillBlank,
+      topic: 'Vocabulary',
+      subTopic: 'Travel',
+      difficulty: 'Easy',
+      questionText: 'A document you need to enter another country is a _____.',
+      explanation: 'A passport is an official document issued by a government, certifying the holder\'s identity and citizenship.',
+      tags: ['travel', 'documents']
+    },
+    {
+      id: 3,
+      type: QuestionType.TrueFalse,
+      topic: 'Grammar',
+      subTopic: 'Conditionals',
+      difficulty: 'Medium',
+      questionText: 'The sentence "If I were you, I would go" is grammatically correct.',
+      correctAnswer: true,
+      explanation: 'This is a correct example of the second conditional, used for hypothetical situations.',
+      tags: ['conditionals', 'subjunctive']
+    },
+    {
+      id: 4,
+      type: QuestionType.MCQ,
+      topic: 'Grammar',
+      subTopic: 'Prepositions',
+      difficulty: 'Medium',
+      questionText: 'She is interested _____ learning Spanish.',
+      options: [
+        { text: 'in', isCorrect: true },
+        { text: 'on', isCorrect: false },
+        { text: 'at', isCorrect: false },
+        { text: 'about', isCorrect: false }
+      ],
+      explanation: 'The verb "interested" is followed by the preposition "in".',
+      tags: ['prepositions']
+    }
+  ]);
+
+  private nextId = signal(5);
+
+  getQuestions() {
+    return computed(() => this.questions());
+  }
+  
+  getQuestionByIds(ids: number[]) {
+    return computed(() => this.questions().filter(q => ids.includes(q.id)));
+  }
+
+  addQuestion(question: Omit<Question, 'id'>): Observable<Question> {
+    const newQuestion: Question = { ...question, id: this.nextId() };
+    this.questions.update(questions => [...questions, newQuestion]);
+    this.nextId.update(id => id + 1);
+    return of(newQuestion).pipe(delay(500));
+  }
+
+  updateQuestion(updatedQuestion: Question): Observable<Question> {
+    this.questions.update(questions =>
+      questions.map(q => q.id === updatedQuestion.id ? updatedQuestion : q)
+    );
+    return of(updatedQuestion).pipe(delay(500));
+  }
+
+  deleteQuestion(id: number): Observable<{}> {
+    this.questions.update(questions => questions.filter(q => q.id !== id));
+    return of({}).pipe(delay(500));
+  }
+}

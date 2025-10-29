@@ -3,4 +3,7 @@ export interface Lesson {
   title: string;
   level: string;
   status: 'Published' | 'Draft';
+  topicId: number;
+  content: string;
+  exerciseId?: number;
 }

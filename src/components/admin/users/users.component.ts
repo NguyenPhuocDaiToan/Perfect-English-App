@@ -21,7 +21,6 @@ export class UsersComponent {
   currentUser = signal<User | null>(null);
   
   roleOptions: Array<'Member' | 'Teacher' | 'Admin'> = ['Member', 'Teacher', 'Admin'];
-  isRoleDropdownOpen = signal(false);
 
   // FIX: The FormBuilder was not being correctly typed when injected as a class property.
   // It's injected here directly to resolve the issue.
@@ -51,7 +50,6 @@ export class UsersComponent {
   
   closeForm() {
     this.showForm.set(false);
-    this.isRoleDropdownOpen.set(false);
   }
 
   saveUser() {
@@ -74,10 +72,5 @@ export class UsersComponent {
     if (confirm('Are you sure you want to delete this user?')) {
       this.userService.deleteUser(id).subscribe();
     }
-  }
-
-  selectRole(role: 'Member' | 'Teacher' | 'Admin') {
-    this.userForm.get('role')?.setValue(role);
-    this.isRoleDropdownOpen.set(false);
   }
 }
