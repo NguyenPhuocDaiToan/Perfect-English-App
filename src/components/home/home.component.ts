@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { TopicService } from '../../services/topic.service';
 import { BlogService } from '../../services/blog.service';
 import { UserService } from '../../services/user.service';
+import { TestimonialsComponent } from '../testimonials/testimonials.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TestimonialsComponent],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

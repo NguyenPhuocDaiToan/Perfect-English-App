@@ -6,10 +6,13 @@ import { ExercisesComponent } from './components/exercises/exercises.component';
 import { MembershipComponent } from './components/membership/membership.component';
 import { TeachersComponent } from './components/teachers/teachers.component';
 import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { BlogPostComponent } from './components/blog-post/blog-post.component';
 import { LessonDetailComponent } from './components/lesson-detail/lesson-detail.component';
 import { ExercisePlayerComponent } from './components/exercise-player/exercise-player.component';
+import { authGuard } from './guards/auth.guard';
 
 export const APP_ROUTES: Routes = [
   { path: '', component: HomeComponent, title: 'Home | Perfect English Grammar' },
@@ -23,9 +26,12 @@ export const APP_ROUTES: Routes = [
   { path: 'membership', component: MembershipComponent, title: 'Membership | Perfect English Grammar' },
   { path: 'for-teachers', component: TeachersComponent, title: 'For Teachers | Perfect English Grammar' },
   { path: 'login', component: LoginComponent, title: 'Login | Perfect English Grammar' },
+  { path: 'register', component: RegisterComponent, title: 'Register | Perfect English Grammar' },
+  { path: 'verify-email', component: VerifyEmailComponent, title: 'Verify Email | Perfect English Grammar' },
   { 
     path: 'admin',
-    loadChildren: () => import('./components/admin/admin.routes').then(r => r.ADMIN_ROUTES)
+    loadChildren: () => import('./components/admin/admin.routes').then(r => r.ADMIN_ROUTES),
+    canActivate: [authGuard]
   },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

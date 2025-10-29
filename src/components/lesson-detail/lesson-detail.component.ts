@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs/operators';
@@ -21,7 +21,6 @@ export class LessonDetailComponent {
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
   private titleService = inject(Title);
-  private location = inject(Location);
 
   lesson = signal<Lesson | undefined>(undefined);
   topic = signal<Topic | undefined>(undefined);
@@ -43,9 +42,5 @@ export class LessonDetailComponent {
         this.titleService.setTitle('Lesson Not Found | Perfect English Grammar');
       }
     });
-  }
-
-  goBack(): void {
-    this.location.back();
   }
 }

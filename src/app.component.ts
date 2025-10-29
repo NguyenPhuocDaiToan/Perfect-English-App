@@ -3,8 +3,8 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
-import { TestimonialsComponent } from './components/testimonials/testimonials.component';
 import { ThemeService } from './services/theme.service';
+import { AuthService } from './services/auth.service';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ThemePickerComponent, TestimonialsComponent, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ThemePickerComponent, CommonModule],
 })
 export class AppComponent {
   private router = inject(Router);
@@ -21,6 +21,9 @@ export class AppComponent {
   isAdminRoute = signal(false);
 
   constructor() {
+    // Eagerly instantiate AuthService to run its constructor which calls checkAuthStatus()
+    inject(AuthService); 
+    
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
