@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { BlogPost } from '../models/blog-post.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 const slugify = (text: string) => 
   text
@@ -79,13 +80,115 @@ export class BlogService {
       authorId: 4, // David P.
       topicId: 2,
       tags: ['conditionals', 'grammar', 'b2'],
-      status: 'Draft',
+      status: 'Published',
       createdAt: '2023-11-12',
       updatedAt: '2023-11-12',
+    },
+    {
+      id: 4,
+      title: 'How to Write a Professional Email',
+      slug: 'how-to-write-a-professional-email',
+      content: '<p>Content about writing professional emails...</p>',
+      excerpt: 'Learn the key phrases and structure for writing effective and professional emails in English for any business context.',
+      thumbnail: 'https://picsum.photos/seed/blog4/600/400',
+      authorId: 6,
+      tags: ['writing', 'business', 'b2'],
+      status: 'Published',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15',
+    },
+    {
+      id: 5,
+      title: 'Common Pronunciation Mistakes',
+      slug: 'common-pronunciation-mistakes',
+      content: '<p>Content about common pronunciation mistakes...</p>',
+      excerpt: 'Are you making these common English pronunciation errors? Find out and learn how to correct them with simple tips.',
+      thumbnail: 'https://picsum.photos/seed/blog5/600/400',
+      authorId: 4,
+      tags: ['speaking', 'pronunciation', 'a2'],
+      status: 'Published',
+      createdAt: '2024-02-20',
+      updatedAt: '2024-02-20',
+    },
+    {
+      id: 6,
+      title: 'Tips for Improving Your Listening Skills',
+      slug: 'tips-for-improving-your-listening-skills',
+      content: '<p>Content about listening skills...</p>',
+      excerpt: 'Listening can be the hardest skill to master. These five practical tips will help you understand native speakers better.',
+      thumbnail: 'https://picsum.photos/seed/blog6/600/400',
+      authorId: 2,
+      tags: ['listening', 'skills', 'b1'],
+      status: 'Published',
+      createdAt: '2024-03-10',
+      updatedAt: '2024-03-10',
+    },
+     {
+      id: 7,
+      title: 'The Difference Between "Will" and "Going to"',
+      slug: 'difference-between-will-and-going-to',
+      content: '<p>Content about will vs going to...</p>',
+      excerpt: 'Future tenses can be confusing. This lesson clarifies the difference between "will" and "be going to" with examples.',
+      thumbnail: 'https://picsum.photos/seed/blog7/600/400',
+      authorId: 4,
+      tags: ['grammar', 'tenses', 'a2'],
+      status: 'Published',
+      createdAt: '2024-04-01',
+      updatedAt: '2024-04-01',
+    },
+    {
+      id: 8,
+      title: 'Using Articles: A, An, The',
+      slug: 'using-articles-a-an-the',
+      content: '<p>Content about articles...</p>',
+      excerpt: 'A simple guide to using English articles correctly. Learn the rules for "a," "an," "the," and when to use no article.',
+      thumbnail: 'https://picsum.photos/seed/blog8/600/400',
+      authorId: 6,
+      tags: ['grammar', 'articles', 'a1'],
+      status: 'Published',
+      createdAt: '2024-04-22',
+      updatedAt: '2024-04-22',
+    },
+    {
+      id: 9,
+      title: 'How to Give a Great Presentation in English',
+      slug: 'how-to-give-a-great-presentation-in-english',
+      content: '<p>Content about presentations...</p>',
+      excerpt: 'Feel more confident during your next presentation with these phrases and tips for structure and delivery.',
+      thumbnail: 'https://picsum.photos/seed/blog9/600/400',
+      authorId: 2,
+      tags: ['speaking', 'business', 'b2'],
+      status: 'Published',
+      createdAt: '2024-05-18',
+      updatedAt: '2024-05-18',
     }
   ]);
 
-  private nextId = signal(4);
+  private nextId = signal(10);
+  
+  getPaginatedPosts(page: number, limit: number, filters: { searchTerm?: string }): Observable<PaginatedResponse<BlogPost>> {
+    const allPosts = this.posts().filter(p => p.status === 'Published');
+    
+    const filtered = allPosts.filter(p => 
+      filters.searchTerm ? p.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) : true
+    ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<BlogPost> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+    
+    return of(response).pipe(delay(300)); // Simulate network latency
+  }
 
   getBlogPosts() {
     return computed(() => this.posts());

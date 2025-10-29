@@ -17,12 +17,12 @@
             <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
           </svg>
         </div>
-        <input type="text" placeholder="Search practice topics..." (input)="searchTerm.set($any($event.target).value)" class="block w-full rounded-lg border-slate-300 bg-white py-2.5 pl-10 pr-3 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm">
+        <input type="text" placeholder="Search practice topics..." [value]="searchTerm()" (input)="onSearch($event)" class="block w-full rounded-lg border-slate-300 bg-white py-2.5 pl-10 pr-3 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm">
       </div>
     </div>
     <!-- Topic Filter -->
     <div class="md:col-span-3">
-      <select (change)="selectedTopic.set($any($event.target).value)" class="w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm py-2.5">
+      <select (change)="onTopicChange($event)" class="w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm py-2.5">
         <option value="All">All Topics</option>
         @for (topic of availableTopics(); track topic.id) {
           <option [value]="topic.id">{{ topic.title }}</option>
@@ -31,19 +31,35 @@
     </div>
     <!-- Difficulty Filter -->
     <div class="md:col-span-5">
-      <div class="flex items-center gap-2 rounded-lg bg-slate-200 p-1">
-        <button (click)="selectedDifficulty.set('All')" [class]="selectedDifficulty() === 'All' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-600 hover:bg-slate-300/50'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">All</button>
+      <div class="flex items-center gap-2 rounded-lg bg-slate-100 p-1">
+        <button (click)="onDifficultyChange('All')" [class]="selectedDifficulty() === 'All' ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">All</button>
         @for (level of difficultyLevels; track level) {
-          <button (click)="selectedDifficulty.set(level)" [class]="selectedDifficulty() === level ? 'bg-white shadow-sm text-primary-600' : 'text-slate-600 hover:bg-slate-300/50'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">{{ level }}</button>
+          <button (click)="onDifficultyChange(level)" [class]="selectedDifficulty() === level ? 'bg-white shadow text-primary-600' : 'text-slate-600 hover:bg-slate-200/60'" class="w-full rounded-md py-1.5 text-sm font-semibold transition-all">{{ level }}</button>
         }
       </div>
     </div>
   </div>
 
   <!-- Exercises Grid -->
-  @if (filteredExercises().length > 0) {
+  @if (status() === 'loading') {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (exercise of filteredExercises(); track exercise.id) {
+      @for (item of [1,2,3,4,5,6]; track item) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 animate-pulse">
+            <div class="p-6">
+              <div class="h-4 bg-slate-200 rounded w-1/2 mb-3"></div>
+              <div class="h-5 bg-slate-300 rounded w-3/4 mb-2"></div>
+              <div class="h-3 bg-slate-200 rounded w-full mb-4"></div>
+              <div class="h-3 bg-slate-200 rounded w-full"></div>
+            </div>
+            <div class="bg-slate-50/75 p-5 border-t border-slate-100">
+               <div class="h-8 bg-slate-200 rounded w-full"></div>
+            </div>
+        </div>
+      }
+    </div>
+  } @else if (status() === 'loaded' && exercises().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (exercise of exercises(); track exercise.id) {
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <!-- Card Content -->
           <div class="p-6 flex-grow">
@@ -89,6 +105,18 @@
         </div>
       }
     </div>
+
+    <!-- Pagination -->
+    @if(totalPages() > 1) {
+      <div class="mt-12">
+        <app-pagination 
+          [currentPage]="currentPage()" 
+          [totalPages]="totalPages()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    }
+
   } @else {
      <div class="text-center py-16">
       <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Topic } from '../models/topic.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +15,38 @@ export class TopicService {
     { id: 4, title: 'Passive Voice', category: 'Grammar', description: 'Understand how and when to use the passive voice.', status: 'Published' },
     { id: 5, title: 'Business Writing', category: 'Writing', description: 'Learn to write professional emails, reports, and presentations.', status: 'Published' },
     { id: 6, title: 'Pronunciation Basics', category: 'Speaking', description: 'Tips and exercises for clearer English pronunciation.', status: 'Published' },
-    { id: 7, title: 'Phrasal Verbs', category: 'Vocabulary', description: 'Master common phrasal verbs used in everyday conversation.', status: 'Draft' },
+    { id: 7, title: 'Phrasal Verbs', category: 'Vocabulary', description: 'Master common phrasal verbs used in everyday conversation.', status: 'Published' },
+    { id: 8, title: 'Reported Speech', category: 'Grammar', description: 'Learn how to report what other people have said.', status: 'Published' },
+    { id: 9, title: 'Punctuation Guide', category: 'Writing', description: 'A complete guide to commas, semicolons, and more.', status: 'Published' },
+    { id: 10, title: 'Modal Verbs', category: 'Grammar', description: 'Explore can, could, may, might, must, and should.', status: 'Published' },
+    { id: 11, title: 'Presentation Skills', category: 'Speaking', description: 'Tips for giving confident and effective presentations in English.', status: 'Published' },
   ]);
 
-  private nextId = signal(8);
+  private nextId = signal(12);
+  
+  getPaginatedTopics(page: number, limit: number, filters: { category: string | 'All' }): Observable<PaginatedResponse<Topic>> {
+    const allTopics = this.topics().filter(t => t.status === 'Published');
+    
+    const filtered = allTopics.filter(t => 
+      filters.category === 'All' ? true : t.category === filters.category
+    );
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<Topic> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+    
+    return of(response).pipe(delay(300));
+  }
 
   getTopics() {
     return computed(() => this.topics());

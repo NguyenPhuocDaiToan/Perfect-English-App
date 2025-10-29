@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Exercise } from '../models/exercise.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +16,45 @@ export class ExerciseService {
     { id: 5, title: 'Advanced Verb Tenses', description: 'Challenge yourself with perfect and continuous forms.', topicId: 1, difficulty: 'Hard', timeLimit: 20, questionIds: [1, 3, 4], status: 'Published' },
     { id: 6, title: 'Formal Email Phrasing', description: 'Practice using appropriate language for business emails.', topicId: 5, difficulty: 'Medium', timeLimit: 10, questionIds: [2, 4], status: 'Published' },
     { id: 7, title: 'Pronunciation Quiz: TH Sounds', description: 'Distinguish between the voiced and voiceless "th" sounds.', topicId: 6, difficulty: 'Easy', timeLimit: 5, questionIds: [3], status: 'Published' },
-    { id: 8, title: 'Phrasal Verbs Challenge', description: 'A challenging quiz on common phrasal verbs.', topicId: 7, difficulty: 'Hard', timeLimit: 15, questionIds: [1, 2, 4], status: 'Draft' },
+    { id: 8, title: 'Phrasal Verbs Challenge', description: 'A challenging quiz on common phrasal verbs.', topicId: 7, difficulty: 'Hard', timeLimit: 15, questionIds: [1, 2, 4], status: 'Published' },
+    { id: 9, title: 'Mixed Conditionals Exercise', description: 'Practice using mixed conditional sentences for past and present.', topicId: 2, difficulty: 'Hard', timeLimit: 15, questionIds: [3, 4], status: 'Published' },
+    { id: 10, title: 'Business Idioms', description: 'Learn and practice common idioms used in the workplace.', topicId: 5, difficulty: 'Medium', timeLimit: 10, questionIds: [1, 2], status: 'Published' },
   ]);
   
-  private nextId = signal(9);
+  private nextId = signal(11);
+  
+  getPaginatedExercises(
+    page: number, 
+    limit: number, 
+    filters: { searchTerm?: string, topicId?: number | 'All', difficulty?: string | 'All' }
+  ): Observable<PaginatedResponse<Exercise>> {
+    
+    const allExercises = this.exercises().filter(e => e.status === 'Published');
+
+    const filtered = allExercises.filter(ex => {
+      const termMatch = filters.searchTerm ? ex.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) : true;
+      const topicMatch = filters.topicId === 'All' || !filters.topicId ? true : ex.topicId === Number(filters.topicId);
+      const difficultyMatch = filters.difficulty === 'All' || !filters.difficulty ? true : ex.difficulty === filters.difficulty;
+      return termMatch && topicMatch && difficultyMatch;
+    });
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<Exercise> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+    
+    return of(response).pipe(delay(300));
+  }
+
 
   getExercises() {
     return computed(() => this.exercises());

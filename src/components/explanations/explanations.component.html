@@ -23,10 +23,24 @@
     </nav>
   </div>
 
-  @if (filteredTopicsWithLessons().length > 0) {
+  @if (status() === 'loading') {
+    <div class="space-y-4 max-w-5xl mx-auto animate-pulse">
+      @for (item of [1,2,3,4,5]; track item) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+           <div class="flex flex-col sm:flex-row gap-5 items-start">
+              <div class="flex-shrink-0 bg-slate-200 p-3.5 rounded-lg h-[52px] w-[52px]"></div>
+              <div class="flex-1 w-full">
+                <div class="h-5 bg-slate-300 rounded w-1/3 mb-2"></div>
+                <div class="h-4 bg-slate-200 rounded w-2/3"></div>
+              </div>
+            </div>
+        </div>
+      }
+    </div>
+  } @else if (status() === 'loaded' && topics().length > 0) {
     <div class="space-y-4 max-w-5xl mx-auto">
       <!-- Loop through each topic -->
-      @for (topic of filteredTopicsWithLessons(); track topic.id) {
+      @for (topic of topics(); track topic.id) {
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-md hover:border-primary-200">
           <!-- Topic Card Header -->
           <div
@@ -106,6 +120,16 @@
               </div>
             </div>
           </div>
+        </div>
+      }
+      <!-- Pagination -->
+      @if(totalPages() > 1) {
+        <div class="mt-8">
+            <app-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              (pageChange)="onPageChange($event)">
+            </app-pagination>
         </div>
       }
     </div>
