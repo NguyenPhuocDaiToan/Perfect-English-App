@@ -2,7 +2,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
-import { DataService, GrammarTopic } from '../../services/data.service';
+import { DataService } from '../../services/data.service';
+import { GrammarTopic } from '../../models/grammar-topic.model';
 
 @Component({
   selector: 'app-explanations',

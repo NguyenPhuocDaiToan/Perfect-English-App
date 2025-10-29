@@ -1,27 +1,74 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'Admin' | 'Member' | 'Teacher';
-  joinedDate: string;
-}
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { User } from '../../../models/user.model';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './users.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersComponent {
-  users = signal<User[]>([
-    { id: 1, name: 'Admin User', email: 'admin@example.com', role: 'Admin', joinedDate: '2023-01-15' },
-    { id: 2, name: 'Maria S.', email: 'maria.s@example.com', role: 'Member', joinedDate: '2023-03-22' },
-    { id: 3, name: 'Kenji T.', email: 'kenji.t@example.com', role: 'Member', joinedDate: '2023-05-10' },
-    { id: 4, name: 'David P.', email: 'david.p@example.com', role: 'Teacher', joinedDate: '2023-06-01' },
-    { id: 5, name: 'Jane Doe', email: 'jane.d@example.com', role: 'Member', joinedDate: '2023-08-19' },
-  ]);
+  private userService = inject(UserService);
+
+  users = this.userService.getUsers();
+
+  showForm = signal(false);
+  isEditing = signal(false);
+  currentUser = signal<User | null>(null);
+  
+  // FIX: The FormBuilder was not being correctly typed when injected as a class property.
+  // It's injected here directly to resolve the issue.
+  userForm: FormGroup = inject(FormBuilder).group({
+    name: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    role: ['Member', Validators.required],
+  });
+
+  openAddForm() {
+    this.isEditing.set(false);
+    this.currentUser.set(null);
+    this.userForm.reset({ role: 'Member' });
+    this.showForm.set(true);
+  }
+
+  openEditForm(user: User) {
+    this.isEditing.set(true);
+    this.currentUser.set(user);
+    this.userForm.setValue({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+    this.showForm.set(true);
+  }
+  
+  closeForm() {
+    this.showForm.set(false);
+  }
+
+  saveUser() {
+    if (this.userForm.invalid) {
+      return;
+    }
+
+    if (this.isEditing() && this.currentUser()) {
+      const userData: User = { 
+        ...this.currentUser()!,
+        ...this.userForm.value 
+      };
+      this.userService.updateUser(userData).subscribe(() => this.closeForm());
+    } else {
+      this.userService.addUser(this.userForm.value).subscribe(() => this.closeForm());
+    }
+  }
+
+  deleteUser(id: number) {
+    if (confirm('Are you sure you want to delete this user?')) {
+      this.userService.deleteUser(id).subscribe();
+    }
+  }
 }

@@ -1,26 +1,76 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Lesson {
-  id: number;
-  title: string;
-  level: string;
-  status: 'Published' | 'Draft';
-}
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Lesson } from '../../../models/lesson.model';
+import { LessonService } from '../../../services/lesson.service';
 
 @Component({
   selector: 'app-lessons',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './lessons.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LessonsComponent {
-  lessons = signal<Lesson[]>([
-    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published' },
-    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published' },
-    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published' },
-    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft' },
-    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published' },
-  ]);
+  private lessonService = inject(LessonService);
+
+  lessons = this.lessonService.getLessons();
+  
+  showForm = signal(false);
+  isEditing = signal(false);
+  currentLessonId = signal<number | null>(null);
+  
+  lessonForm: FormGroup;
+
+  constructor() {
+    // FIX: The FormBuilder was not being correctly typed when injected as a property.
+    // It's injected here directly to resolve the issue.
+    const fb = inject(FormBuilder);
+    this.lessonForm = fb.group({
+      title: ['', Validators.required],
+      level: ['A1', Validators.required],
+      status: ['Draft', Validators.required],
+    });
+  }
+
+  openAddForm() {
+    this.isEditing.set(false);
+    this.lessonForm.reset({ level: 'A1', status: 'Draft' });
+    this.showForm.set(true);
+  }
+
+  openEditForm(lesson: Lesson) {
+    this.isEditing.set(true);
+    this.currentLessonId.set(lesson.id);
+    this.lessonForm.setValue({
+      title: lesson.title,
+      level: lesson.level,
+      status: lesson.status,
+    });
+    this.showForm.set(true);
+  }
+  
+  closeForm() {
+    this.showForm.set(false);
+    this.currentLessonId.set(null);
+  }
+
+  saveLesson() {
+    if (this.lessonForm.invalid) {
+      return;
+    }
+
+    if (this.isEditing()) {
+      const lessonData: Lesson = { id: this.currentLessonId()!, ...this.lessonForm.value };
+      this.lessonService.updateLesson(lessonData).subscribe(() => this.closeForm());
+    } else {
+      this.lessonService.addLesson(this.lessonForm.value).subscribe(() => this.closeForm());
+    }
+  }
+
+  deleteLesson(id: number) {
+    if (confirm('Are you sure you want to delete this lesson?')) {
+      this.lessonService.deleteLesson(id).subscribe();
+    }
+  }
 }

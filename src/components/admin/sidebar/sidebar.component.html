@@ -1,30 +1,30 @@
 <!-- Static sidebar for desktop -->
 <div class="hidden md:flex md:flex-shrink-0">
   <div class="flex flex-col w-64">
-    <div class="flex items-center h-16 flex-shrink-0 px-4 bg-gray-900 text-white">
+    <div class="flex items-center h-16 flex-shrink-0 px-4 bg-primary-800 text-white">
       <a routerLink="/admin" class="text-2xl font-bold">Admin Panel</a>
     </div>
-    <div class="flex-1 flex flex-col overflow-y-auto bg-gray-800">
+    <div class="flex-1 flex flex-col overflow-y-auto bg-primary-700">
       <nav class="flex-1 px-2 py-4 space-y-1">
-        <a routerLink="/admin/dashboard" routerLinkActive="bg-gray-900 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+        <a routerLink="/admin/dashboard" routerLinkActive="bg-primary-900 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
           <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           Dashboard
         </a>
-        <a routerLink="/admin/lessons" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+        <a routerLink="/admin/lessons" routerLinkActive="bg-primary-900 text-white" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
           <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18" />
           </svg>
           Lessons
         </a>
-        <a routerLink="/admin/exercises" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+        <a routerLink="/admin/exercises" routerLinkActive="bg-primary-900 text-white" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
           <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           Exercises
         </a>
-        <a routerLink="/admin/users" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+        <a routerLink="/admin/users" routerLinkActive="bg-primary-900 text-white" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
           <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.975 5.975 0 0112 13a5.975 5.975 0 013 1.803" />
           </svg>
@@ -32,7 +32,7 @@
         </a>
       </nav>
       <div class="mt-auto p-4">
-         <a routerLink="/" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+         <a routerLink="/" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
            <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
           </svg>
@@ -44,7 +44,7 @@
 </div>
 
 <!-- Mobile menu button -->
-<div class="md:hidden p-4 bg-gray-900 flex justify-between items-center w-full fixed top-0 z-20">
+<div class="md:hidden p-4 bg-primary-800 flex justify-between items-center w-full fixed top-0 z-20">
   <a routerLink="/admin" class="text-xl font-bold text-white">Admin Panel</a>
   <button (click)="toggleMobileMenu()" class="text-white">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,15 +61,15 @@
 @if (isMobileMenuOpen()) {
   <div class="md:hidden fixed inset-0 flex z-10">
     <div class="fixed inset-0 bg-gray-600 bg-opacity-75" (click)="toggleMobileMenu()"></div>
-    <div class="relative flex-1 flex flex-col max-w-xs w-full bg-gray-800 pt-16">
+    <div class="relative flex-1 flex flex-col max-w-xs w-full bg-primary-700 pt-16">
       <nav class="flex-1 px-2 py-4 space-y-1">
-        <a routerLink="/admin/dashboard" routerLinkActive="bg-gray-900 text-white" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMobileMenu()" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Dashboard</a>
-        <a routerLink="/admin/lessons" routerLinkActive="bg-gray-900 text-white" (click)="toggleMobileMenu()" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Lessons</a>
-        <a routerLink="/admin/exercises" routerLinkActive="bg-gray-900 text-white" (click)="toggleMobileMenu()" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Exercises</a>
-        <a routerLink="/admin/users" routerLinkActive="bg-gray-900 text-white" (click)="toggleMobileMenu()" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Users</a>
+        <a routerLink="/admin/dashboard" routerLinkActive="bg-primary-900 text-white" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMobileMenu()" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Dashboard</a>
+        <a routerLink="/admin/lessons" routerLinkActive="bg-primary-900 text-white" (click)="toggleMobileMenu()" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Lessons</a>
+        <a routerLink="/admin/exercises" routerLinkActive="bg-primary-900 text-white" (click)="toggleMobileMenu()" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Exercises</a>
+        <a routerLink="/admin/users" routerLinkActive="bg-primary-900 text-white" (click)="toggleMobileMenu()" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Users</a>
       </nav>
       <div class="mt-auto p-4">
-         <a routerLink="/" (click)="toggleMobileMenu()" class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Back to Site</a>
+         <a routerLink="/" (click)="toggleMobileMenu()" class="text-primary-100 hover:bg-primary-600 hover:text-white group flex items-center px-2 py-2 text-base font-medium rounded-md">Back to Site</a>
       </div>
     </div>
   </div>

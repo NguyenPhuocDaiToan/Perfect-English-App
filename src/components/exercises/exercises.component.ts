@@ -1,7 +1,8 @@
 
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataService, GrammarTopic } from '../../services/data.service';
+import { DataService } from '../../services/data.service';
+import { GrammarTopic } from '../../models/grammar-topic.model';
 import { Observable } from 'rxjs';
 
 @Component({

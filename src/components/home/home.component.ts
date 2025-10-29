@@ -2,7 +2,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { DataService, Testimonial } from '../../services/data.service';
+import { DataService } from '../../services/data.service';
+import { Testimonial } from '../../models/testimonial.model';
 import { Observable } from 'rxjs';
 
 @Component({

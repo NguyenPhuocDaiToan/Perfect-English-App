@@ -1,9 +1,50 @@
 <div class="flex justify-between items-center mb-6">
   <h1 class="text-3xl font-bold text-gray-800">Manage Lessons</h1>
-  <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+  <button (click)="openAddForm()" class="bg-primary-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-700 transition duration-300">
     Add New Lesson
   </button>
 </div>
+
+<!-- Form Modal/Overlay -->
+@if (showForm()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center" (click)="closeForm()">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg relative" (click)="$event.stopPropagation()">
+      <h2 class="text-2xl font-bold mb-6">{{ isEditing() ? 'Edit' : 'Add' }} Lesson</h2>
+      <form [formGroup]="lessonForm" (ngSubmit)="saveLesson()">
+        <div class="space-y-4">
+          <div>
+            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" id="title" formControlName="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+          </div>
+          <div>
+            <label for="level" class="block text-sm font-medium text-gray-700">Level</label>
+            <select id="level" formControlName="level" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+              <option>A1</option>
+              <option>A2</option>
+              <option>B1</option>
+              <option>B2</option>
+              <option>C1</option>
+            </select>
+          </div>
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="status" formControlName="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+              <option>Draft</option>
+              <option>Published</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-8 flex justify-end space-x-4">
+          <button type="button" (click)="closeForm()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancel</button>
+          <button type="submit" [disabled]="lessonForm.invalid" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:bg-gray-400">Save</button>
+        </div>
+      </form>
+      <button (click)="closeForm()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+  </div>
+}
 
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
   <div class="overflow-x-auto">
@@ -13,8 +54,8 @@
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th scope="col" class="relative px-6 py-3">
-            <span class="sr-only">Edit</span>
+          <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
           </th>
         </tr>
       </thead>
@@ -39,9 +80,13 @@
                 }
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
-              <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+              <button (click)="openEditForm(lesson)" class="text-primary-600 hover:text-primary-900 mr-4">Edit</button>
+              <button (click)="deleteLesson(lesson.id)" class="text-red-600 hover:text-red-900">Delete</button>
             </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="px-6 py-4 text-center text-gray-500">No lessons found.</td>
           </tr>
         }
       </tbody>

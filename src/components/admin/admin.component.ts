@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-admin',
@@ -9,4 +10,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
   templateUrl: './admin.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminComponent {}
+export class AdminComponent {
+  themeService = inject(ThemeService);
+}

@@ -1,7 +1,8 @@
 
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataService, QuizQuestion } from '../../services/data.service';
+import { DataService } from '../../services/data.service';
+import { QuizQuestion } from '../../models/quiz-question.model';
 import { Observable } from 'rxjs';
 
 @Component({

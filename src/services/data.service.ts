@@ -1,24 +1,9 @@
 
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { of } from 'rxjs';
-
-export interface Testimonial {
-  quote: string;
-  author: string;
-  location: string;
-}
-
-export interface QuizQuestion {
-  question: string;
-  options: string[];
-  correctAnswer: number;
-}
-
-export interface GrammarTopic {
-  title: string;
-  description: string;
-  level: string;
-}
+import { Testimonial } from '../models/testimonial.model';
+import { QuizQuestion } from '../models/quiz-question.model';
+import { GrammarTopic } from '../models/grammar-topic.model';
 
 @Injectable({
   providedIn: 'root',
