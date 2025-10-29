@@ -40,7 +40,7 @@
             Back to Lessons
           </button>
           @if (lesson.exerciseId) {
-            <a routerLink="/exercises" class="w-full sm:w-auto text-center bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200">
+            <a [routerLink]="['/exercises', lesson.exerciseId]" class="w-full sm:w-auto text-center bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200">
               Go to Practice Exercise
             </a>
           }

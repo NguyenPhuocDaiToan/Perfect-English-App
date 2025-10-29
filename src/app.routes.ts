@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { BlogPostComponent } from './components/blog-post/blog-post.component';
 import { LessonDetailComponent } from './components/lesson-detail/lesson-detail.component';
+import { ExercisePlayerComponent } from './components/exercise-player/exercise-player.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', component: HomeComponent, title: 'Home | Perfect English Grammar' },
@@ -16,6 +17,7 @@ export const APP_ROUTES: Routes = [
   { path: 'explanations', component: ExplanationsComponent, title: 'Grammar Explanations | Perfect English Grammar' },
   { path: 'explanations/lesson/:lessonId', component: LessonDetailComponent },
   { path: 'exercises', component: ExercisesComponent, title: 'Grammar Exercises | Perfect English Grammar' },
+  { path: 'exercises/:id', component: ExercisePlayerComponent, title: 'Practice Exercise | Perfect English Grammar' },
   { path: 'blog', component: BlogComponent, title: 'Blog | Perfect English Grammar' },
   { path: 'blog/:slug', component: BlogPostComponent },
   { path: 'membership', component: MembershipComponent, title: 'Membership | Perfect English Grammar' },

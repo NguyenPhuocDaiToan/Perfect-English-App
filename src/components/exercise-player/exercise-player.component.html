@@ -1,0 +1,146 @@
+@if (exercise(); as exercise) {
+  <div class="bg-slate-100 min-h-[80vh]">
+    @if (quizState() === 'playing') {
+      <!-- Quiz Playing State -->
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-3xl mx-auto">
+          <!-- Header -->
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">{{ exercise.title }}</h1>
+            <p class="text-slate-500">Question {{ currentQuestionIndex() + 1 }} of {{ questions().length }}</p>
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 rounded-full h-2.5 mt-4">
+              <div class="bg-primary-600 h-2.5 rounded-full transition-all duration-500" [style.width.%]="progress()"></div>
+            </div>
+          </div>
+
+          <!-- Question Area -->
+          @if(currentQuestion(); as question) {
+            <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8">
+              <p class="text-xl font-semibold text-slate-800 mb-6">{{ question.questionText }}</p>
+              
+              <!-- Answer Options -->
+              @switch (question.type) {
+                @case (QuestionType.MCQ) {
+                  <div class="space-y-4">
+                    @for (option of question.options; track option.text) {
+                      <button 
+                        (click)="selectAnswer(question.id, option.text)"
+                        [class]="userAnswers().get(question.id) === option.text
+                                  ? 'bg-primary-500 border-primary-500 text-white ring-2 ring-primary-300' 
+                                  : 'bg-white text-slate-700 hover:bg-slate-100'"
+                        class="w-full text-left p-4 border rounded-lg transition duration-200 text-lg flex items-center">
+                         <span class="flex-grow">{{ option.text }}</span>
+                         @if(userAnswers().get(question.id) === option.text) {
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                         }
+                      </button>
+                    }
+                  </div>
+                }
+                @case (QuestionType.TrueFalse) {
+                  <div class="flex gap-4">
+                     <button 
+                        (click)="selectAnswer(question.id, true)"
+                        [class]="userAnswers().get(question.id) === true ? 'bg-primary-500 text-white' : 'bg-white hover:bg-slate-100'"
+                        class="flex-1 p-4 border rounded-lg text-lg font-semibold transition">True</button>
+                      <button 
+                        (click)="selectAnswer(question.id, false)"
+                        [class]="userAnswers().get(question.id) === false ? 'bg-primary-500 text-white' : 'bg-white hover:bg-slate-100'"
+                        class="flex-1 p-4 border rounded-lg text-lg font-semibold transition">False</button>
+                  </div>
+                }
+                @case (QuestionType.FillBlank) {
+                  <form [formGroup]="fillBlankForm" (ngSubmit)="selectAnswer(question.id, fillBlankForm.value.answer)">
+                    <input type="text" formControlName="answer" (change)="selectAnswer(question.id, $any($event.target).value)" placeholder="Type your answer here..."
+                    class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/40 text-lg p-4">
+                  </form>
+                }
+              }
+            </div>
+          }
+
+          <!-- Navigation -->
+          <div class="flex justify-between mt-8">
+            <button (click)="previousQuestion()" [disabled]="currentQuestionIndex() === 0"
+              class="px-6 py-3 bg-white text-slate-700 font-bold rounded-md border border-slate-300 hover:bg-slate-50 transition disabled:opacity-50">
+              Previous
+            </button>
+            @if (currentQuestionIndex() < questions().length - 1) {
+              <button (click)="nextQuestion()" [disabled]="!userAnswers().has(currentQuestion()?.id)"
+                class="px-6 py-3 bg-primary-600 text-white font-bold rounded-md hover:bg-primary-700 transition disabled:bg-slate-400">
+                Next
+              </button>
+            } @else {
+               <button (click)="finishExercise()" [disabled]="!userAnswers().has(currentQuestion()?.id)"
+                class="px-6 py-3 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 transition disabled:bg-slate-400">
+                Finish Exercise
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- Results State -->
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl border border-slate-200 p-8 text-center">
+            <h1 class="text-4xl font-bold text-slate-800 mb-4">Exercise Complete!</h1>
+            <p class="text-lg text-slate-600 mb-6">Here's how you did on "{{exercise.title}}".</p>
+
+            <div class="bg-primary-50 border-l-4 border-primary-500 p-6 rounded-lg my-8">
+              <h2 class="text-2xl font-bold text-primary-800">Your Score:</h2>
+              <p class="text-5xl font-extrabold text-primary-600 my-3">{{ results().score }}%</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+                <a routerLink="/exercises" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-md hover:bg-slate-300 transition">
+                  Back to All Exercises
+                </a>
+                <button (click)="startExercise()" class="px-6 py-3 bg-primary-600 text-white font-bold rounded-md hover:bg-primary-700 transition">
+                  Try Again
+                </button>
+            </div>
+        </div>
+
+        <!-- Detailed Review -->
+        <div class="max-w-4xl mx-auto mt-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Review Your Answers</h2>
+            <div class="space-y-6">
+                @for (question of questions(); track question.id) {
+                    @let result = getQuestionResult(question.id);
+                    <div class="bg-white rounded-xl shadow-sm border p-6" [class]="result?.isCorrect ? 'border-green-300' : 'border-red-300'">
+                        <p class="font-semibold text-slate-800 mb-4">{{ question.questionText }}</p>
+                        <div class="text-sm space-y-3">
+                           <div class="flex items-start p-3 rounded-lg" [class]="result?.isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Your answer: <strong class="font-bold">{{ result?.answer ?? 'Not answered' }}</strong></span>
+                           </div>
+                           @if(!result?.isCorrect) {
+                               <div class="flex items-start bg-green-50 text-green-800 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                   <span>Correct answer: <strong class="font-bold">{{ getCorrectAnswerText(question) }}</strong></span>
+                               </div>
+                           }
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-200">
+                            <p class="text-sm text-slate-600"><strong class="font-semibold text-slate-700">Explanation:</strong> {{question.explanation}}</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+      </div>
+    }
+  </div>
+} @else {
+    <div class="text-center py-20">
+      <h1 class="text-3xl font-bold text-slate-800">Loading Exercise...</h1>
+    </div>
+}
