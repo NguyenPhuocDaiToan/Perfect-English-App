@@ -20,6 +20,9 @@ export class ExercisesComponent {
   isEditing = signal(false);
   currentExerciseId = signal<number | null>(null);
   
+  difficultyOptions: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
+  isDifficultyDropdownOpen = signal(false);
+
   // FIX: The FormBuilder was not being correctly typed when injected as a class property.
   // It's injected here directly to resolve the issue.
   exerciseForm: FormGroup = inject(FormBuilder).group({
@@ -48,6 +51,7 @@ export class ExercisesComponent {
   closeForm() {
     this.showForm.set(false);
     this.currentExerciseId.set(null);
+    this.isDifficultyDropdownOpen.set(false);
   }
 
   saveExercise() {
@@ -67,5 +71,10 @@ export class ExercisesComponent {
     if (confirm('Are you sure you want to delete this exercise?')) {
       this.exerciseService.deleteExercise(id).subscribe();
     }
+  }
+
+  selectDifficulty(difficulty: 'Easy' | 'Medium' | 'Hard') {
+    this.exerciseForm.get('difficulty')?.setValue(difficulty);
+    this.isDifficultyDropdownOpen.set(false);
   }
 }
