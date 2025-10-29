@@ -1,0 +1,59 @@
+<div class="bg-white py-12">
+  @if (lesson(); as lesson) {
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Breadcrumbs -->
+      <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm font-medium text-slate-500">
+          <li><a routerLink="/" class="hover:text-primary-600">Home</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li><a routerLink="/explanations" class="hover:text-primary-600">Explanations</a></li>
+          @if (topic(); as topic) {
+            <li><span class="mx-2">/</span></li>
+            <li class="truncate" [title]="topic.title">{{ topic.title }}</li>
+          }
+          <li><span class="mx-2">/</span></li>
+          <li class="text-slate-800 truncate" aria-current="page" [title]="lesson.title">{{ lesson.title }}</li>
+        </ol>
+      </nav>
+
+      <main class="max-w-4xl mx-auto">
+        <!-- Article Header -->
+        <header class="mb-8">
+          <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full mb-4">
+            {{ lesson.level }}
+          </span>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+            {{ lesson.title }}
+          </h1>
+        </header>
+
+        <!-- Article Content -->
+        <article class="prose prose-lg prose-slate max-w-none" [innerHTML]="lesson.content"></article>
+        
+        <!-- Footer Actions -->
+        <footer class="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <button (click)="goBack()" class="font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Back to Lessons
+          </button>
+          @if (lesson.exerciseId) {
+            <a routerLink="/exercises" class="w-full sm:w-auto text-center bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200">
+              Go to Practice Exercise
+            </a>
+          }
+        </footer>
+      </main>
+    </div>
+  } @else {
+    <div class="text-center py-20">
+      <h1 class="text-3xl font-bold text-slate-800">Lesson not found</h1>
+      <p class="text-slate-600 mt-2">Sorry, we couldn't find the lesson you were looking for.</p>
+      <a routerLink="/explanations" class="mt-6 inline-block bg-primary-600 text-white font-bold py-3 px-6 rounded-md hover:bg-primary-700 transition">
+        Back to Explanations
+      </a>
+    </div>
+  }
+</div>

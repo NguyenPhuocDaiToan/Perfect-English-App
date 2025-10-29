@@ -8,11 +8,13 @@ import { TeachersComponent } from './components/teachers/teachers.component';
 import { LoginComponent } from './components/login/login.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { BlogPostComponent } from './components/blog-post/blog-post.component';
+import { LessonDetailComponent } from './components/lesson-detail/lesson-detail.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', component: HomeComponent, title: 'Home | Perfect English Grammar' },
   { path: 'level-test', component: LevelTestComponent, title: 'Level Test | Perfect English Grammar' },
   { path: 'explanations', component: ExplanationsComponent, title: 'Grammar Explanations | Perfect English Grammar' },
+  { path: 'explanations/lesson/:lessonId', component: LessonDetailComponent },
   { path: 'exercises', component: ExercisesComponent, title: 'Grammar Exercises | Perfect English Grammar' },
   { path: 'blog', component: BlogComponent, title: 'Blog | Perfect English Grammar' },
   { path: 'blog/:slug', component: BlogPostComponent },

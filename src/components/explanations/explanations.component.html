@@ -1,23 +1,78 @@
-
-<div class="container mx-auto px-6 py-12">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <!-- Header -->
   <div class="text-center mb-12">
-    <h1 class="text-4xl font-bold text-gray-800">Grammar Explanations</h1>
-    <p class="text-lg text-gray-600 mt-2">Find clear and simple explanations for every English grammar topic.</p>
+    <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Grammar Explanations</h1>
+    <p class="mt-4 text-lg text-slate-600">Find clear and simple explanations for every English grammar topic.</p>
   </div>
-  @if (topics$ | async; as topics) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (topic of topics; track topic.title) {
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
-          <div class="p-6">
-            <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{topic.level}}</span>
-            <h2 class="text-2xl font-bold text-gray-800 mt-2 mb-2">{{ topic.title }}</h2>
-            <p class="text-gray-600 mb-4">{{ topic.description }}</p>
-            <a href="#" class="font-semibold text-primary-600 hover:text-primary-800">Read more &rarr;</a>
+  
+  @if (topicsWithLessons().length > 0) {
+    <div class="space-y-6">
+      <!-- Loop through each topic -->
+      @for (topic of topicsWithLessons(); track topic.id) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <!-- Topic Card -->
+          <div 
+            class="p-6 cursor-pointer hover:bg-slate-50 transition-colors duration-200"
+            (click)="toggleTopic(topic.id)"
+            [class.bg-slate-50]="selectedTopicId() === topic.id">
+            <div class="flex flex-col sm:flex-row gap-6 items-start">
+              <div class="flex-shrink-0 bg-primary-100 text-primary-600 p-4 rounded-lg">
+                <svg [innerHTML]="getIconForCategory(topic.category)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8"></svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h2 class="text-xl font-bold text-slate-800">{{ topic.title }}</h2>
+                    <p class="text-slate-600 mt-1">{{ topic.description }}</p>
+                  </div>
+                  <div class="flex items-center gap-4 ml-4">
+                     <span class="hidden sm:inline-flex items-center gap-x-1.5 rounded-md bg-slate-100 text-slate-700 px-2.5 py-1 text-xs font-medium">
+                      {{ topic.lessons.length }} {{ topic.lessons.length === 1 ? 'Lesson' : 'Lessons' }}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                         class="w-6 h-6 text-slate-400 transition-transform duration-300"
+                         [class.rotate-180]="selectedTopicId() === topic.id">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lessons List (Collapsible) -->
+          <div 
+            class="grid grid-rows-[0fr] transition-all duration-500 ease-in-out"
+            [class.grid-rows-[1fr]]="selectedTopicId() === topic.id">
+            <div class="overflow-hidden">
+              <div class="border-t border-slate-200 p-4 sm:p-6 bg-slate-50/50 space-y-4">
+                @for (lesson of topic.lessons; track lesson.id) {
+                  <a [routerLink]="['/explanations/lesson', lesson.id]" class="block bg-white p-4 rounded-lg border border-slate-200 hover:border-primary-400 hover:shadow-sm transition-all duration-200">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <h3 class="font-semibold text-slate-800">{{ lesson.title }}</h3>
+                        <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full mt-2">{{lesson.level}}</span>
+                      </div>
+                      <span class="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600">
+                        Start Learning
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                      </span>
+                    </div>
+                  </a>
+                } @empty {
+                   <div class="text-center py-4 text-sm text-slate-500">
+                      No lessons available for this topic yet.
+                    </div>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }
     </div>
   } @else {
-    <p class="text-center text-gray-500">Loading grammar topics...</p>
+    <p class="text-center text-slate-500">No grammar topics have been published yet.</p>
   }
 </div>
