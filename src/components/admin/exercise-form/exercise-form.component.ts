@@ -17,7 +17,8 @@ import { LessonService } from '../../../services/lesson.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseFormComponent {
-  private fb = inject(FormBuilder);
+  // FIX: Explicitly type FormBuilder to prevent type inference issues.
+  private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private location = inject(Location);

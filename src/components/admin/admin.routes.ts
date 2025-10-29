@@ -13,6 +13,10 @@ import { TopicFormComponent } from './topic-form/topic-form.component';
 import { LessonFormComponent } from './lesson-form/lesson-form.component';
 import { ExerciseFormComponent } from './exercise-form/exercise-form.component';
 
+// New Blog Components
+import { BlogListComponent } from './blog-list/blog-list.component';
+import { BlogFormComponent } from './blog-form/blog-form.component';
+
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
@@ -41,6 +45,11 @@ export const ADMIN_ROUTES: Routes = [
       
       // User Routes
       { path: 'users', component: UsersComponent, title: 'Manage Users' },
+
+      // Blog Routes
+      { path: 'blog', component: BlogListComponent, title: 'Manage Blog' },
+      { path: 'blog/new', component: BlogFormComponent, title: 'Create Blog Post' },
+      { path: 'blog/edit/:id', component: BlogFormComponent, title: 'Edit Blog Post' },
     ]
   }
 ];

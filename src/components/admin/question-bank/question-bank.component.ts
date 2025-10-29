@@ -13,7 +13,8 @@ import { QuestionService } from '../../../services/question.service';
 })
 export class QuestionBankComponent {
   private questionService = inject(QuestionService);
-  private fb = inject(FormBuilder);
+  // FIX: Explicitly type FormBuilder to prevent type inference issues.
+  private fb: FormBuilder = inject(FormBuilder);
 
   questions = this.questionService.getQuestions();
 

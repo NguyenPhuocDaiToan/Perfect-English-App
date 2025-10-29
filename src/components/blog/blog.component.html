@@ -1,0 +1,32 @@
+<div class="container mx-auto px-6 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-800">Perfect English Blog</h1>
+    <p class="text-lg text-gray-600 mt-2">Articles, tips, and resources to help you master English grammar.</p>
+  </div>
+  
+  @if (publishedPosts().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (post of publishedPosts(); track post.id) {
+        <a [routerLink]="['/blog', post.slug]" class="block bg-white rounded-lg shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+          <img [src]="post.thumbnail" alt="" class="h-48 w-full object-cover">
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-2">
+                @for(tag of post.tags; track tag) {
+                     <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{tag}}</span>
+                }
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors">{{ post.title }}</h2>
+            <p class="text-gray-600 mb-4 text-sm">{{ post.excerpt }}</p>
+            <div class="flex items-center text-xs text-gray-500">
+              <span>By {{ getAuthorName(post.authorId) }}</span>
+              <span class="mx-2">&bull;</span>
+              <span>{{ post.createdAt }}</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  } @else {
+    <p class="text-center text-gray-500">No blog posts have been published yet. Check back soon!</p>
+  }
+</div>

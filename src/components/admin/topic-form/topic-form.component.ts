@@ -14,7 +14,8 @@ import { filter, map, switchMap } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicFormComponent {
-  private fb = inject(FormBuilder);
+  // FIX: Explicitly type FormBuilder to prevent type inference issues.
+  private fb: FormBuilder = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private topicService = inject(TopicService);

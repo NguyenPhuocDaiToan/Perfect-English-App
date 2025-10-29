@@ -13,6 +13,7 @@ import { UserService } from '../../../services/user.service';
 })
 export class UsersComponent {
   private userService = inject(UserService);
+  private fb: FormBuilder = inject(FormBuilder);
 
   users = this.userService.getUsers();
 
@@ -22,9 +23,8 @@ export class UsersComponent {
   
   roleOptions: Array<'Member' | 'Teacher' | 'Admin'> = ['Member', 'Teacher', 'Admin'];
 
-  // FIX: The FormBuilder was not being correctly typed when injected as a class property.
-  // It's injected here directly to resolve the issue.
-  userForm: FormGroup = inject(FormBuilder).group({
+  // FIX: Explicitly type FormBuilder injection and initialize form group.
+  userForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     role: ['Member', Validators.required],
