@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Question, QuestionType } from '../models/question.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +65,41 @@ export class QuestionService {
   ]);
 
   private nextId = signal(5);
+
+  getPaginatedQuestions(
+    page: number, 
+    limit: number, 
+    filters: { searchTerm: string, topic: string, type: string, difficulty: string }
+  ): Observable<PaginatedResponse<Question>> {
+
+    const allQuestions = this.questions();
+
+    const filtered = allQuestions.filter(q => {
+      const termMatch = filters.searchTerm 
+        ? q.questionText.toLowerCase().includes(filters.searchTerm.toLowerCase()) || q.subTopic.toLowerCase().includes(filters.searchTerm.toLowerCase())
+        : true;
+      const topicMatch = filters.topic === 'All' ? true : q.topic === filters.topic;
+      const typeMatch = filters.type === 'All' ? true : q.type === filters.type;
+      const difficultyMatch = filters.difficulty === 'All' ? true : q.difficulty === filters.difficulty;
+      return termMatch && topicMatch && typeMatch && difficultyMatch;
+    });
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<Question> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+
+    return of(response).pipe(delay(300));
+  }
 
   getQuestions() {
     return computed(() => this.questions());

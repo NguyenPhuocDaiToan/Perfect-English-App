@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -10,9 +10,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
-  isMobileMenuOpen = signal(false);
+  isMobileMenuOpen = input.required<boolean>();
+  closeMenu = output<void>();
 
-  toggleMobileMenu() {
-    this.isMobileMenuOpen.update(value => !value);
+  handleClose() {
+    this.closeMenu.emit();
   }
 }

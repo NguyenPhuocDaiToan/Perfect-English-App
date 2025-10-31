@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, PaginationComponent],
   templateUrl: './users.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -17,7 +18,14 @@ export class UsersComponent {
   private fb: FormBuilder = inject(FormBuilder);
 
   // User Data
-  private allUsers = this.userService.getUsers();
+  users = signal<User[]>([]);
+  status = signal<'loading' | 'loaded' | 'error'>('loading');
+
+  // Pagination State
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(0);
+  totalResults = signal(0);
 
   // Form State
   showForm = signal(false);
@@ -27,23 +35,19 @@ export class UsersComponent {
   
   // Select Options
   roleOptions: User['role'][] = ['Admin', 'Editor', 'Teacher', 'Student'];
-  statusOptions: User['status'][] = ['Active', 'Inactive', 'Suspended'];
+  statusOptions: User['status'][] = ['Active', 'Inactive', 'Suspended', 'Pending'];
 
   // Filtering State
   searchTerm = signal('');
   filterRole = signal<string>('All');
   filterStatus = signal<string>('All');
 
-  filteredUsers = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const role = this.filterRole();
-    const status = this.filterStatus();
-
-    return this.allUsers().filter(user => 
-      (user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term)) &&
-      (role === 'All' || user.role === role) &&
-      (status === 'All' || user.status === status)
-    );
+  resultsText = computed(() => {
+    const total = this.totalResults();
+    if (total === 0) return 'No results found';
+    const start = (this.currentPage() - 1) * this.pageSize() + 1;
+    const end = start + this.users().length - 1;
+    return `Showing ${start} to ${end} of ${total} results`;
   });
   
   userForm: FormGroup = this.fb.group({
@@ -53,6 +57,35 @@ export class UsersComponent {
     status: ['Active', Validators.required],
     avatarUrl: [''],
   });
+
+  constructor() {
+    effect(() => {
+      const page = this.currentPage();
+      const term = this.searchTerm();
+      const role = this.filterRole();
+      const status = this.filterStatus();
+      untracked(() => this.fetchUsers(page, { searchTerm: term, role, status }));
+    });
+  }
+
+  private fetchUsers(page: number, filters: { searchTerm: string, role: string, status: string }) {
+    this.status.set('loading');
+    this.userService.getPaginatedUsers(page, this.pageSize(), filters).subscribe({
+      next: response => {
+        this.users.set(response.results);
+        this.totalPages.set(response.totalPages);
+        this.totalResults.set(response.totalResults);
+        this.currentPage.set(response.page);
+        this.status.set('loaded');
+      },
+      error: () => this.status.set('error')
+    });
+  }
+
+  onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
+  onRoleChange(role: string) { this.filterRole.set(role); this.currentPage.set(1); }
+  onStatusChange(status: string) { this.filterStatus.set(status); this.currentPage.set(1); }
+  onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   openAddForm() {
     this.isEditing.set(false);
@@ -98,6 +131,7 @@ export class UsersComponent {
             this.saveState.set('success');
             setTimeout(() => {
                 this.closeForm();
+                this.refetchCurrentPage();
             }, 1500);
         },
         error: () => {
@@ -108,7 +142,21 @@ export class UsersComponent {
 
   deleteUser(id: number) {
     if (confirm('Are you sure you want to delete this user?')) {
-      this.userService.deleteUser(id).subscribe();
+      this.userService.deleteUser(id).subscribe(() => {
+        if (this.users().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+        } else {
+            this.refetchCurrentPage();
+        }
+      });
     }
+  }
+
+  private refetchCurrentPage() {
+    this.fetchUsers(this.currentPage(), { 
+      searchTerm: this.searchTerm(), 
+      role: this.filterRole(), 
+      status: this.filterStatus()
+    });
   }
 }

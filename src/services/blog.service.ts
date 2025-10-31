@@ -106,7 +106,7 @@ export class BlogService {
       thumbnail: 'https://picsum.photos/seed/blog5/600/400',
       authorId: 4,
       tags: ['speaking', 'pronunciation', 'a2'],
-      status: 'Published',
+      status: 'Draft',
       createdAt: '2024-02-20',
       updatedAt: '2024-02-20',
     },
@@ -188,6 +188,37 @@ export class BlogService {
     };
     
     return of(response).pipe(delay(300)); // Simulate network latency
+  }
+
+  getPaginatedAdminPosts(
+    page: number, 
+    limit: number, 
+    filters: { searchTerm: string, authorId: string, status: string }
+  ): Observable<PaginatedResponse<BlogPost>> {
+    const allPosts = this.posts();
+
+    const filtered = allPosts.filter(post => {
+        const termMatch = filters.searchTerm ? post.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) : true;
+        const authorMatch = filters.authorId === 'All' ? true : post.authorId === Number(filters.authorId);
+        const statusMatch = filters.status === 'All' ? true : post.status === filters.status;
+        return termMatch && authorMatch && statusMatch;
+    }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<BlogPost> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+
+    return of(response).pipe(delay(300));
   }
 
   getBlogPosts() {

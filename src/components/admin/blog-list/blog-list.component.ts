@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BlogService } from '../../../services/blog.service';
 import { UserService } from '../../../services/user.service';
 import { BlogPost } from '../../../models/blog-post.model';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PaginationComponent],
   templateUrl: './blog-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -16,8 +17,17 @@ export class BlogListComponent {
   private blogService = inject(BlogService);
   private userService = inject(UserService);
 
-  // Data Sources
-  private allPosts = this.blogService.getBlogPosts();
+  // Component State
+  posts = signal<BlogPost[]>([]);
+  status = signal<'loading' | 'loaded' | 'error'>('loading');
+
+  // Pagination State
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalPages = signal(0);
+  totalResults = signal(0);
+
+  // Data Sources for filters
   allUsers = this.userService.getUsers();
 
   // Filter options
@@ -28,22 +38,47 @@ export class BlogListComponent {
   filterAuthor = signal<string>('All');
   filterStatus = signal<string>('All');
   
+  resultsText = computed(() => {
+    const total = this.totalResults();
+    if (total === 0) return 'No results found';
+    const start = (this.currentPage() - 1) * this.pageSize() + 1;
+    const end = start + this.posts().length - 1;
+    return `Showing ${start} to ${end} of ${total} results`;
+  });
+
+  constructor() {
+    effect(() => {
+      const page = this.currentPage();
+      const term = this.searchTerm();
+      const authorId = this.filterAuthor();
+      const status = this.filterStatus();
+      untracked(() => this.fetchPosts(page, { searchTerm: term, authorId, status }));
+    });
+  }
+
+  private fetchPosts(page: number, filters: { searchTerm: string, authorId: string, status: string }) {
+    this.status.set('loading');
+    this.blogService.getPaginatedAdminPosts(page, this.pageSize(), filters).subscribe({
+      next: response => {
+        this.posts.set(response.results);
+        this.totalPages.set(response.totalPages);
+        this.totalResults.set(response.totalResults);
+        this.currentPage.set(response.page);
+        this.status.set('loaded');
+      },
+      error: () => this.status.set('error')
+    });
+  }
+
+  onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
+  onAuthorChange(authorId: string) { this.filterAuthor.set(authorId); this.currentPage.set(1); }
+  onStatusChange(status: string) { this.filterStatus.set(status); this.currentPage.set(1); }
+  onPageChange(newPage: number) { this.currentPage.set(newPage); }
+
   private usersMap = computed(() => {
     const map = new Map<number, string>();
     this.allUsers().forEach(user => map.set(user.id, user.name));
     return map;
-  });
-
-  filteredPosts = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const authorId = this.filterAuthor();
-    const status = this.filterStatus();
-
-    return this.allPosts().filter(post => 
-      (post.title.toLowerCase().includes(term)) &&
-      (authorId === 'All' || post.authorId === Number(authorId)) &&
-      (status === 'All' || post.status === status)
-    );
   });
 
   getAuthorName(authorId: number): string {
@@ -52,7 +87,17 @@ export class BlogListComponent {
 
   deletePost(id: number) {
     if (confirm('Are you sure you want to delete this blog post?')) {
-      this.blogService.deleteBlogPost(id).subscribe();
+      this.blogService.deleteBlogPost(id).subscribe(() => {
+        if (this.posts().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+        } else {
+            this.fetchPosts(this.currentPage(), { 
+                searchTerm: this.searchTerm(), 
+                authorId: this.filterAuthor(), 
+                status: this.filterStatus() 
+            });
+        }
+      });
     }
   }
 }

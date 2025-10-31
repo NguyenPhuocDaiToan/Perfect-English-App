@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { User } from '../models/user.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,40 @@ export class UserService {
   ]);
 
   private nextId = signal(7);
+
+  getPaginatedUsers(
+    page: number, 
+    limit: number, 
+    filters: { searchTerm: string, role: string, status: string }
+  ): Observable<PaginatedResponse<User>> {
+
+    const allUsers = this.users();
+
+    const filtered = allUsers.filter(user => {
+      const termMatch = filters.searchTerm 
+        ? user.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) || user.email.toLowerCase().includes(filters.searchTerm.toLowerCase())
+        : true;
+      const roleMatch = filters.role === 'All' ? true : user.role === filters.role;
+      const statusMatch = filters.status === 'All' ? true : user.status === filters.status;
+      return termMatch && roleMatch && statusMatch;
+    });
+
+    const totalResults = filtered.length;
+    const totalPages = Math.ceil(totalResults / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const results = filtered.slice(start, end);
+
+    const response: PaginatedResponse<User> = {
+      results,
+      page,
+      limit,
+      totalPages,
+      totalResults
+    };
+
+    return of(response).pipe(delay(300));
+  }
 
   getUsers() {
     return computed(() => this.users());

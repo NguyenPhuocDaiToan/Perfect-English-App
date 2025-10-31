@@ -1,8 +1,8 @@
-<div class="flex flex-col min-h-screen" [style]="themeService.themeCssVariables()">
+<div [class]="isAdminRoute() ? 'flex flex-col h-full' : 'flex flex-col min-h-screen'" [style]="themeService.themeCssVariables()">
   @if (!isAdminRoute()) {
     <app-header></app-header>
   }
-  <main class="flex-grow">
+  <main [class]="isAdminRoute() ? 'flex-1 min-h-0' : 'flex-grow'">
     <router-outlet></router-outlet>
   </main>
   @if (!isAdminRoute()) {
