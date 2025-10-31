@@ -29,7 +29,7 @@
                       </div>
                       <div>
                           <label for="subTopic" class="block text-sm font-medium text-slate-700 mb-1.5">SubTopic</label>
-                          <input type="text" id="subTopic" formControlName="subTopic" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
+                          <input type="text" id="subTopic" formControlName="subTopic" placeholder="e.g., Present Simple" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
                       </div>
                   </div>
                   <!-- Type & Difficulty -->
@@ -50,7 +50,7 @@
                   <!-- Question Text -->
                   <div>
                       <label for="questionText" class="block text-sm font-medium text-slate-700 mb-1.5">Question Text</label>
-                      <textarea id="questionText" formControlName="questionText" rows="4" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm"></textarea>
+                      <textarea id="questionText" formControlName="questionText" rows="4" placeholder="Enter the full question text here. For 'Fill in the Blank', use ___ for the blank space." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm"></textarea>
                   </div>
                   <!-- Dynamic Answer Area -->
                   @switch (questionForm.get('type')?.value) {
@@ -60,7 +60,7 @@
                               @for(option of options.controls; track $index) {
                                   <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
                                       <input type="radio" [name]="'isCorrect'" [checked]="option.get('isCorrect')?.value" (change)="setCorrectOption($index)" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0">
-                                      <input type="text" formControlName="text" placeholder="Option text" class="flex-grow rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
+                                      <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1) + ' text'" class="flex-grow rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
                                       <button type="button" (click)="removeOption($index)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-slate-100">
                                           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                       </button>
@@ -82,12 +82,12 @@
                   <!-- Explanation -->
                   <div>
                       <label for="explanation" class="block text-sm font-medium text-slate-700 mb-1.5">Explanation</label>
-                      <textarea id="explanation" formControlName="explanation" rows="3" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm"></textarea>
+                      <textarea id="explanation" formControlName="explanation" rows="3" placeholder="Explain why the correct answer is right. For 'Fill in the blank', specify the answer, e.g., The correct answer is &quot;passport&quot;." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm"></textarea>
                   </div>
                   <!-- Tags -->
                   <div>
                       <label for="tags" class="block text-sm font-medium text-slate-700 mb-1.5">Tags (comma-separated)</label>
-                      <input type="text" id="tags" formControlName="tags" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
+                      <input type="text" id="tags" formControlName="tags" placeholder="e.g., tenses, travel, b1" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
                   </div>
               </div>
 
