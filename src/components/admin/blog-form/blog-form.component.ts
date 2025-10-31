@@ -11,11 +11,13 @@ import { LessonService } from '../../../services/lesson.service';
 import { UserService } from '../../../services/user.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 @Component({
   selector: 'app-blog-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent, CKEditorModule],
   templateUrl: './blog-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,6 +36,7 @@ export class BlogFormComponent {
   isEditing = signal(false);
   currentPostId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
+  public Editor = ClassicEditor;
 
   // Data for select dropdowns
   allTopics = this.topicService.getTopics();

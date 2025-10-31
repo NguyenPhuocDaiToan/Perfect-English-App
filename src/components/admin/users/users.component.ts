@@ -72,7 +72,7 @@ export class UsersComponent {
       const role = this.filterRoleControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchUsers(page, { searchTerm: term, role, status }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchUsers(page: number, filters: { searchTerm: string, role: string, status: string }) {

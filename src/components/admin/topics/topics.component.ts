@@ -63,7 +63,7 @@ export class TopicsComponent {
       const category = this.filterCategoryControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchTopics(page, { searchTerm: term, category, status }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchTopics(page: number, filters: { searchTerm: string, category: string, status: string }) {

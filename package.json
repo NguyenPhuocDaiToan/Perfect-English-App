@@ -16,6 +16,8 @@
     "@angular/core": "^20.3.0",
     "@angular/common": "^20.3.0",
     "@angular/forms": "^20.3.7",
+    "@ckeditor/ckeditor5-angular": "9.1.0",
+    "@ckeditor/ckeditor5-build-classic": "41.4.2",
     "@angular/build": "^20.3.0",
     "@angular/cli": "^20.3.0",
     "@angular/compiler-cli": "^20.3.0",

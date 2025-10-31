@@ -66,7 +66,7 @@ export class LessonsComponent {
       const level = this.filterLevelControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchLessons(page, { searchTerm: term, topicId, level, status }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchLessons(page: number, filters: { searchTerm: string, topicId: string, level: string, status: string }) {

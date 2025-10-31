@@ -1,63 +1,129 @@
-<h1 class="text-2xl font-bold tracking-tight text-slate-800 mb-8">Dashboard</h1>
+<!-- Header -->
+<div class="mb-8">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+    Welcome back, {{ authService.currentUser()?.name?.split(' ')[0] }}!
+  </h1>
+  <p class="text-slate-600 mt-1">Here's a snapshot of your platform's activity.</p>
+</div>
 
+<!-- Stat Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
   <!-- Card 1: Total Lessons -->
-  <div class="bg-white p-6 rounded-xl shadow-md border border-slate-100">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 bg-primary-100 rounded-lg p-3">
-        <svg class="h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" stroke-width="1.5">
-           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-slate-500 truncate">Total Lessons</p>
-        <p class="text-2xl font-semibold text-slate-900">128</p>
-      </div>
+  <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+    <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
+      <svg class="h-7 w-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-slate-500">Total Lessons</p>
+      <p class="text-3xl font-semibold text-slate-900">{{ stats().lessons }}</p>
     </div>
   </div>
 
   <!-- Card 2: Total Exercises -->
-  <div class="bg-white p-6 rounded-xl shadow-md border border-slate-100">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 bg-primary-100 rounded-lg p-3">
-        <svg class="h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-        </svg>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-slate-500 truncate">Total Exercises</p>
-        <p class="text-2xl font-semibold text-slate-900">450</p>
-      </div>
+  <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+    <div class="flex-shrink-0 bg-green-100 rounded-lg p-3">
+      <svg class="h-7 w-7 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-slate-500">Total Exercises</p>
+      <p class="text-3xl font-semibold text-slate-900">{{ stats().exercises }}</p>
     </div>
   </div>
 
   <!-- Card 3: Total Users -->
-  <div class="bg-white p-6 rounded-xl shadow-md border border-slate-100">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 bg-primary-100 rounded-lg p-3">
-        <svg class="h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.663v.005zM18 7.5a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-slate-500 truncate">Total Users</p>
-        <p class="text-2xl font-semibold text-slate-900">12,345</p>
-      </div>
+  <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+    <div class="flex-shrink-0 bg-purple-100 rounded-lg p-3">
+      <svg class="h-7 w-7 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.663v.005zM18 7.5a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-slate-500">Total Users</p>
+      <p class="text-3xl font-semibold text-slate-900">{{ stats().users }}</p>
     </div>
   </div>
   
-  <!-- Card 4: New Sign-ups -->
-  <div class="bg-white p-6 rounded-xl shadow-md border border-slate-100">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 bg-primary-100 rounded-lg p-3">
-        <svg class="h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" stroke-width="1.5">
-           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-        </svg>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-slate-500 truncate">New Sign-ups (30d)</p>
-        <p class="text-2xl font-semibold text-slate-900">78</p>
-      </div>
+  <!-- Card 4: Blog Posts -->
+  <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+    <div class="flex-shrink-0 bg-amber-100 rounded-lg p-3">
+      <svg class="h-7 w-7 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 18V6.375c0-.621.504-1.125 1.125-1.125H9.375m3 0V3.375c0-.621-.504-1.125-1.125-1.125H9.375c-.621 0-1.125.504-1.125 1.125v3.375m3 0h-3" />
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-slate-500">Blog Posts</p>
+      <p class="text-3xl font-semibold text-slate-900">{{ stats().blogPosts }}</p>
     </div>
   </div>
+</div>
+
+<!-- Main Section -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Activity -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Recent Activity</h2>
+        <div class="flow-root">
+            <ul class="divide-y divide-slate-200">
+                @for(activity of recentActivities(); track $index) {
+                    <li class="py-3 sm:py-4">
+                        <a [routerLink]="activity.link" class="flex items-center space-x-4 hover:bg-slate-50 -m-2 p-2 rounded-lg transition-colors">
+                            <div class="flex-shrink-0">
+                                @switch (activity.type) {
+                                    @case ('Blog Post') {
+                                        <div class="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                            <svg class="h-5 w-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75V6.66l-2.57-2.574A.75.75 0 0011.5 3.5H5.75zM12 4.5h2.5v2.5H12V4.5z" /></svg>
+                                        </div>
+                                    }
+                                    @case ('New User') {
+                                        <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                            <svg class="h-5 w-5 text-purple-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.095a1.23 1.23 0 00.41-1.412A9.957 9.957 0 0010 12c-2.31 0-4.438.784-6.131 2.095z" /></svg>
+                                        </div>
+                                    }
+                                    @case ('Lesson') {
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-4.392l1.657-.348a6.44 6.44 0 014.271.024l.15.033.168.037a5.553 5.553 0 012.87.376l1.23.273.825.183V2.75a.75.75 0 00-1.5 0v7.652l-1.03-.228a4.053 4.053 0 00-2.148-.284l-.158-.035a5.003 5.003 0 00-3.158-.02L3.5 12.392V2.75z" /></svg>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-slate-900 truncate">{{ activity.title }}</p>
+                                <p class="text-sm text-slate-500 truncate">
+                                    {{ activity.type === 'New User' ? 'New user registered' : activity.type + ' created' }}
+                                    @if(activity.authorOrRole) {
+                                        <span> &middot; {{ activity.authorOrRole }}</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="inline-flex items-center text-xs font-normal text-slate-500">
+                                {{ activity.date | date:'MMM d' }}
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Content Overview -->
+    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Content Overview</h2>
+        <div class="space-y-4">
+            @for(item of contentOverviewData(); track item.label) {
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium text-slate-700">{{ item.label }}</span>
+                        <span class="text-sm font-medium text-slate-700">{{ item.value }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5">
+                        <div [class]="item.color" class="h-2.5 rounded-full" [style.width.%]="(item.value / maxContentValue()) * 100"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>

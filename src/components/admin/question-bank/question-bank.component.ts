@@ -88,7 +88,7 @@ export class QuestionBankComponent {
       const type = this.filterTypeControl.value ?? 'All';
       const difficulty = this.filterDifficultyControl.value ?? 'All';
       untracked(() => this.fetchQuestions(page, { searchTerm: term, topic, type, difficulty }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchQuestions(page: number, filters: { searchTerm: string, topic: string, type: string, difficulty: string }) {

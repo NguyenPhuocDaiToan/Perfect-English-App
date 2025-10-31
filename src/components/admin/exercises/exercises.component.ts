@@ -65,7 +65,7 @@ export class ExercisesComponent {
       const difficulty = this.filterDifficultyControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchExercises(page, { searchTerm: term, topicId, difficulty, status }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchExercises(page: number, filters: { searchTerm: string, topicId: string, difficulty: string, status: string }) {

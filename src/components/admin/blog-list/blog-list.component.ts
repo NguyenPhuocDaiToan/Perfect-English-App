@@ -59,7 +59,7 @@ export class BlogListComponent {
       const authorId = this.filterAuthorControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchPosts(page, { searchTerm: term, authorId, status }));
-    }, { allowSignalWrites: true });
+    });
   }
 
   private fetchPosts(page: number, filters: { searchTerm: string, authorId: string, status: string }) {
