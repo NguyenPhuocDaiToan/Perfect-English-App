@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,11 +9,12 @@ import { Lesson } from '../../../models/lesson.model';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-lesson-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent],
   templateUrl: './lesson-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,10 +40,16 @@ export class LessonFormComponent {
   levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1'];
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
 
+  // Computed options for SelectComponent
+  topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));
+  exerciseOptions = computed(() => this.allExercises().map(e => ({ value: e.id, label: e.title })));
+  levelOptionsForSelect = computed(() => this.levelOptions.map(o => ({ value: o, label: o })));
+  statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
+
   constructor() {
     this.lessonForm = this.fb.group({
       title: ['', Validators.required],
-      topicId: [null, Validators.required],
+      topicIds: [[], Validators.required],
       level: ['A1', Validators.required],
       content: ['', Validators.required],
       exerciseId: [null],
@@ -73,9 +80,17 @@ export class LessonFormComponent {
     if (this.lessonForm.invalid || this.saveState() !== 'idle') return;
 
     this.saveState.set('loading');
+    
+    // Ensure topicIds is an array of numbers
+    const formValue = this.lessonForm.value;
+    const lessonData = {
+        ...formValue,
+        // The value from the form control is already in the correct format
+    };
+    
     const saveObservable = this.isEditing() && this.currentLessonId() !== null
-        ? this.lessonService.updateLesson({ ...this.lessonForm.value, id: this.currentLessonId()! })
-        : this.lessonService.addLesson(this.lessonForm.value);
+        ? this.lessonService.updateLesson({ ...lessonData, id: this.currentLessonId()! })
+        : this.lessonService.addLesson(lessonData);
 
     saveObservable.subscribe({
         next: () => {

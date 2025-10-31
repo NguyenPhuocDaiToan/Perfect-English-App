@@ -35,8 +35,11 @@ export class LessonDetailComponent {
       this.lesson.set(foundLesson);
 
       if (foundLesson) {
-        const foundTopic = this.topicService.getTopic(foundLesson.topicId)();
-        this.topic.set(foundTopic);
+        const primaryTopicId = foundLesson.topicIds[0];
+        if (primaryTopicId) {
+          const foundTopic = this.topicService.getTopic(primaryTopicId)();
+          this.topic.set(foundTopic);
+        }
         this.titleService.setTitle(`${foundLesson.title} | Perfect English Grammar`);
       } else {
         this.titleService.setTitle('Lesson Not Found | Perfect English Grammar');

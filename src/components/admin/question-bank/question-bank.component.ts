@@ -1,15 +1,16 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
 import { Question, QuestionType, McqOption } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-question-bank',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, PaginationComponent],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, PaginationComponent, SelectComponent],
   templateUrl: './question-bank.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,11 +40,21 @@ export class QuestionBankComponent {
   topics: Array<'Grammar' | 'Vocabulary' | 'Reading' | 'Listening'> = ['Grammar', 'Vocabulary', 'Reading', 'Listening'];
   difficulties: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
 
+  // Computed options for SelectComponent filters
+  topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.topics.map(o => ({ value: o, label: o }))]);
+  typeOptions = computed(() => [{ value: 'All', label: 'All Types' }, ...this.questionTypes.map(o => ({ value: o, label: o }))]);
+  difficultyOptions = computed(() => [{ value: 'All', label: 'All Difficulties' }, ...this.difficulties.map(o => ({ value: o, label: o }))]);
+
+  // Computed options for form dropdowns
+  formTopicOptions = computed(() => this.topics.map(o => ({ value: o, label: o })));
+  formTypeOptions = computed(() => this.questionTypes.map(o => ({ value: o, label: o })));
+  formDifficultyOptions = computed(() => this.difficulties.map(o => ({ value: o, label: o })));
+
   // Filter states
   searchTerm = signal('');
-  filterTopic = signal<string>('All');
-  filterType = signal<string>('All');
-  filterDifficulty = signal<string>('All');
+  filterTopicControl = new FormControl('All');
+  filterTypeControl = new FormControl('All');
+  filterDifficultyControl = new FormControl('All');
 
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -73,11 +84,11 @@ export class QuestionBankComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const topic = this.filterTopic();
-      const type = this.filterType();
-      const difficulty = this.filterDifficulty();
+      const topic = this.filterTopicControl.value ?? 'All';
+      const type = this.filterTypeControl.value ?? 'All';
+      const difficulty = this.filterDifficultyControl.value ?? 'All';
       untracked(() => this.fetchQuestions(page, { searchTerm: term, topic, type, difficulty }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchQuestions(page: number, filters: { searchTerm: string, topic: string, type: string, difficulty: string }) {
@@ -95,9 +106,6 @@ export class QuestionBankComponent {
   }
 
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
-  onTopicChange(topic: string) { this.filterTopic.set(topic); this.currentPage.set(1); }
-  onTypeChange(type: string) { this.filterType.set(type); this.currentPage.set(1); }
-  onDifficultyChange(difficulty: string) { this.filterDifficulty.set(difficulty); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   get options(): FormArray {
@@ -210,9 +218,9 @@ export class QuestionBankComponent {
   private refetchCurrentPage() {
     this.fetchQuestions(this.currentPage(), { 
         searchTerm: this.searchTerm(), 
-        topic: this.filterTopic(), 
-        type: this.filterType(), 
-        difficulty: this.filterDifficulty()
+        topic: this.filterTopicControl.value ?? 'All', 
+        type: this.filterTypeControl.value ?? 'All', 
+        difficulty: this.filterDifficultyControl.value ?? 'All'
     });
   }
 }

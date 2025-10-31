@@ -9,11 +9,12 @@ import { QuestionService } from '../../../services/question.service';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-exercise-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent],
   templateUrl: './exercise-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -45,6 +46,12 @@ export class ExerciseFormComponent {
   difficultyOptions: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
 
+  // Computed options for SelectComponent
+  topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));
+  lessonOptions = computed(() => this.allLessons().map(l => ({ value: l.id, label: l.title })));
+  difficultyOptionsForSelect = computed(() => this.difficultyOptions.map(o => ({ value: o, label: o })));
+  statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
+
   selectedQuestions = computed(() => {
     const ids = this.selectedQuestionIds();
     return this.allQuestions().filter(q => ids.has(q.id));
@@ -54,8 +61,8 @@ export class ExerciseFormComponent {
     this.exerciseForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      topicId: [null],
-      lessonId: [null],
+      topicIds: [[]],
+      lessonIds: [[]],
       difficulty: ['Easy', Validators.required],
       timeLimit: [10, [Validators.required, Validators.min(1)]],
       status: ['Draft', Validators.required]
@@ -70,7 +77,11 @@ export class ExerciseFormComponent {
       this.currentExerciseId.set(id);
       const exercise = this.exerciseService.getExercise(id)();
       if (exercise) {
-        this.exerciseForm.patchValue(exercise);
+        this.exerciseForm.patchValue({
+          ...exercise,
+          topicIds: exercise.topicIds || [],
+          lessonIds: exercise.lessonIds || []
+        });
         this.selectedQuestionIds.set(new Set(exercise.questionIds));
       } else {
         this.router.navigate(['/admin/exercises']);
@@ -102,9 +113,9 @@ export class ExerciseFormComponent {
     if (this.exerciseForm.invalid || this.saveState() !== 'idle') return;
     
     this.saveState.set('loading');
-
+    const formValue = this.exerciseForm.value;
     const exerciseData = {
-        ...this.exerciseForm.value,
+        ...formValue,
         questionIds: Array.from(this.selectedQuestionIds())
     };
 

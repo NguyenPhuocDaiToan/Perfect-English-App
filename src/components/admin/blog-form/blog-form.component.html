@@ -33,39 +33,35 @@
             <label for="thumbnail" class="block text-sm font-medium text-slate-700 mb-1.5">Thumbnail Image URL</label>
             <input type="text" id="thumbnail" formControlName="thumbnail" placeholder="e.g., https://picsum.photos/seed/blog1/600/400" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
           </div>
-          <div>
-            <label for="authorId" class="block text-sm font-medium text-slate-700 mb-1.5">Author</label>
-            <select id="authorId" formControlName="authorId" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                <option [ngValue]="null" disabled>Select an author</option>
-                @for(user of allUsers(); track user.id) { <option [value]="user.id">{{user.name}}</option> }
-            </select>
-          </div>
+          <app-select
+            label="Author"
+            formControlName="authorId"
+            [options]="authorOptions()"
+            placeholder="Select an author">
+          </app-select>
           <div>
             <label for="tags" class="block text-sm font-medium text-slate-700 mb-1.5">Tags (comma-separated)</label>
             <input type="text" id="tags" formControlName="tags" placeholder="e.g., grammar, tenses, b1" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
           </div>
           <hr class="border-slate-200"/>
-           <div>
-            <label for="topicId" class="block text-sm font-medium text-slate-700 mb-1.5">Linked Topic (Optional)</label>
-            <select id="topicId" formControlName="topicId" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                <option [ngValue]="null">None</option>
-                @for(topic of allTopics(); track topic.id) { <option [value]="topic.id">{{topic.title}}</option> }
-            </select>
-          </div>
-           <div>
-            <label for="lessonId" class="block text-sm font-medium text-slate-700 mb-1.5">Linked Lesson (Optional)</label>
-            <select id="lessonId" formControlName="lessonId" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                <option [ngValue]="null">None</option>
-                @for(lesson of allLessons(); track lesson.id) { <option [value]="lesson.id">{{lesson.title}}</option> }
-            </select>
-          </div>
+          <app-select
+            label="Linked Topic (Optional)"
+            formControlName="topicId"
+            [options]="topicOptions()"
+            placeholder="None">
+          </app-select>
+          <app-select
+            label="Linked Lesson (Optional)"
+            formControlName="lessonId"
+            [options]="lessonOptions()"
+            placeholder="None">
+          </app-select>
           <hr class="border-slate-200"/>
-           <div>
-            <label for="status" class="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
-            <select id="status" formControlName="status" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                @for(opt of statusOptions; track opt) { <option [value]="opt">{{opt}}</option> }
-            </select>
-          </div>
+          <app-select
+            label="Status"
+            formControlName="status"
+            [options]="statusOptionsForSelect()">
+          </app-select>
         </div>
       </div>
     </div>

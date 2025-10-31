@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { Topic } from '../../../models/topic.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-topics',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, ReactiveFormsModule, SelectComponent],
   templateUrl: './topics.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,10 +35,14 @@ export class TopicsComponent {
   categoryOptions: Array<Topic['category']> = ['Grammar', 'Vocabulary', 'Skills', 'Writing', 'Speaking'];
   statusOptions: Array<Topic['status']> = ['Draft', 'Published'];
   
+  // Computed options for SelectComponent
+  categoryOptionsForSelect = computed(() => [{ value: 'All', label: 'All Categories' }, ...this.categoryOptions.map(o => ({ value: o, label: o }))]);
+  statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
+
   // Filter state
   searchTerm = signal('');
-  filterCategory = signal<string>('All');
-  filterStatus = signal<string>('All');
+  filterCategoryControl = new FormControl('All');
+  filterStatusControl = new FormControl('All');
 
   // Data sources
   private allLessons = this.lessonService.getLessons();
@@ -54,10 +60,10 @@ export class TopicsComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const category = this.filterCategory();
-      const status = this.filterStatus();
+      const category = this.filterCategoryControl.value ?? 'All';
+      const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchTopics(page, { searchTerm: term, category, status }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchTopics(page: number, filters: { searchTerm: string, category: string, status: string }) {
@@ -79,22 +85,12 @@ export class TopicsComponent {
     this.currentPage.set(1);
   }
 
-  onCategoryChange(category: string) {
-    this.filterCategory.set(category);
-    this.currentPage.set(1);
-  }
-
-  onStatusChange(status: string) {
-    this.filterStatus.set(status);
-    this.currentPage.set(1);
-  }
-
   onPageChange(newPage: number) {
     this.currentPage.set(newPage);
   }
 
-  getLessonCount = (topicId: number) => computed(() => this.allLessons().filter(l => l.topicId === topicId).length);
-  getExerciseCount = (topicId: number) => computed(() => this.allExercises().filter(e => e.topicId === topicId).length);
+  getLessonCount = (topicId: number) => computed(() => this.allLessons().filter(l => l.topicIds.includes(topicId)).length);
+  getExerciseCount = (topicId: number) => computed(() => this.allExercises().filter(e => e.topicIds?.includes(topicId)).length);
 
   deleteTopic(id: number) {
     if (confirm('Are you sure you want to delete this topic? This action cannot be undone.')) {
@@ -102,7 +98,7 @@ export class TopicsComponent {
           if (this.topics().length === 1 && this.currentPage() > 1) {
             this.currentPage.update(p => p - 1);
           } else {
-            this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategory(), status: this.filterStatus() });
+            this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategoryControl.value ?? 'All', status: this.filterStatusControl.value ?? 'All' });
           }
         });
     }

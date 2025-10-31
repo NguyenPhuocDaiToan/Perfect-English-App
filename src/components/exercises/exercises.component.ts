@@ -52,7 +52,7 @@ export class ExercisesComponent {
     private progressMap = computed(() => new Map(this.userProgress().map(p => [p.exerciseId, p])));
     
     public availableTopics = computed(() => {
-        const uniqueTopicIds = new Set(this.exerciseService.getExercises()().map(e => e.topicId).filter((id): id is number => id !== undefined));
+        const uniqueTopicIds = new Set(this.exerciseService.getExercises()().flatMap(e => e.topicIds || []).filter((id): id is number => id !== undefined));
         return this.allTopics().filter(t => uniqueTopicIds.has(t.id));
     });
 
@@ -91,7 +91,7 @@ export class ExercisesComponent {
       const topicsMap = this.topicsMap();
       const progressMap = this.progressMap();
       return exercises.map(exercise => {
-          const topic = topicsMap.get(exercise.topicId!);
+          const topic = topicsMap.get(exercise.topicIds?.[0]!);
           const progress = progressMap.get(exercise.id);
 
           let progressStatus: DisplayExercise['progressStatus'] = 'Not Started';

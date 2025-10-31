@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,11 +10,12 @@ import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { UserService } from '../../../services/user.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-blog-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent],
   templateUrl: './blog-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -40,6 +41,12 @@ export class BlogFormComponent {
   allUsers = this.userService.getUsers();
 
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+
+  // Computed options for SelectComponent
+  topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));
+  lessonOptions = computed(() => this.allLessons().map(l => ({ value: l.id, label: l.title })));
+  authorOptions = computed(() => this.allUsers().map(u => ({ value: u.id, label: u.name })));
+  statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
 
   constructor() {
     this.blogForm = this.fb.group({

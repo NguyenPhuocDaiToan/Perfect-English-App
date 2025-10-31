@@ -9,16 +9,16 @@ import { PaginatedResponse } from '../models/paginated-response.model';
 })
 export class LessonService {
   private lessons = signal<Lesson[]>([
-    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published', topicId: 1, content: 'The present simple is a verb tense with two main uses...', exerciseId: 1 },
-    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published', topicId: 1, content: 'We use the past continuous to talk about actions in progress in the past.' },
-    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published', topicId: 2, content: 'The first conditional is used for possible future events.', exerciseId: 2 },
-    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft', topicId: 8, content: 'Reported speech is how we represent the speech of other people.' },
-    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published', topicId: 4, content: 'The passive voice is used when the focus is on the action.' },
-    { id: 6, title: 'How to Write a Formal Email', level: 'B2', status: 'Published', topicId: 5, content: 'Learn the structure and phrases for professional emails.' },
-    { id: 7, title: 'The "th" Sound', level: 'A2', status: 'Published', topicId: 6, content: 'Practice the voiced and unvoiced "th" sounds.' },
-    { id: 8, title: 'Present Perfect Tense', level: 'B1', status: 'Published', topicId: 1, content: 'The present perfect connects the past with the present.'},
-    { id: 9, title: 'Writing a Cover Letter', level: 'C1', status: 'Published', topicId: 9, content: 'Structure and tips for writing an effective cover letter.'},
-    { id: 10, title: 'At the Airport', level: 'A1', status: 'Published', topicId: 3, content: 'Key vocabulary for navigating the airport.'},
+    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published', topicIds: [1], content: 'The present simple is a verb tense with two main uses...', exerciseId: 1 },
+    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published', topicIds: [1], content: 'We use the past continuous to talk about actions in progress in the past.' },
+    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published', topicIds: [2], content: 'The first conditional is used for possible future events.', exerciseId: 2 },
+    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft', topicIds: [8], content: 'Reported speech is how we represent the speech of other people.' },
+    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published', topicIds: [4], content: 'The passive voice is used when the focus is on the action.' },
+    { id: 6, title: 'How to Write a Formal Email', level: 'B2', status: 'Published', topicIds: [5, 9], content: 'Learn the structure and phrases for professional emails.' },
+    { id: 7, title: 'The "th" Sound', level: 'A2', status: 'Published', topicIds: [6], content: 'Practice the voiced and unvoiced "th" sounds.' },
+    { id: 8, title: 'Present Perfect Tense', level: 'B1', status: 'Published', topicIds: [1], content: 'The present perfect connects the past with the present.'},
+    { id: 9, title: 'Writing a Cover Letter', level: 'C1', status: 'Published', topicIds: [9, 5], content: 'Structure and tips for writing an effective cover letter.'},
+    { id: 10, title: 'At the Airport', level: 'A1', status: 'Published', topicIds: [3], content: 'Key vocabulary for navigating the airport.'},
   ]);
 
   private nextId = signal(11);
@@ -39,7 +39,7 @@ export class LessonService {
       const termMatch = filters.searchTerm 
         ? lesson.title.toLowerCase().includes(filters.searchTerm.toLowerCase())
         : true;
-      const topicMatch = filters.topicId === 'All' ? true : lesson.topicId === Number(filters.topicId);
+      const topicMatch = filters.topicId === 'All' ? true : lesson.topicIds.includes(Number(filters.topicId));
       const levelMatch = filters.level === 'All' ? true : lesson.level === filters.level;
       const statusMatch = filters.status === 'All' ? true : lesson.status === filters.status;
       return termMatch && topicMatch && levelMatch && statusMatch;

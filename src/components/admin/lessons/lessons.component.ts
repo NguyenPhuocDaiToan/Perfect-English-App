@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { LessonService } from '../../../services/lesson.service';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { Lesson } from '../../../models/lesson.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-lessons',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, ReactiveFormsModule, SelectComponent],
   templateUrl: './lessons.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,12 +37,18 @@ export class LessonsComponent {
   // Filter options
   levelOptions: Lesson['level'][] = ['A1', 'A2', 'B1', 'B2', 'C1'];
   statusOptions: Lesson['status'][] = ['Published', 'Draft'];
+  
+  // Computed options for SelectComponent
+  topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id.toString(), label: t.title }))]);
+  levelOptionsForSelect = computed(() => [{ value: 'All', label: 'All Levels' }, ...this.levelOptions.map(o => ({ value: o, label: o }))]);
+  statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
 
-  // Filter state
+
+  // Filter state (now with FormControls)
   searchTerm = signal('');
-  filterTopic = signal<string>('All');
-  filterLevel = signal<string>('All');
-  filterStatus = signal<string>('All');
+  filterTopicControl = new FormControl('All');
+  filterLevelControl = new FormControl('All');
+  filterStatusControl = new FormControl('All');
   
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -54,11 +62,11 @@ export class LessonsComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const topicId = this.filterTopic();
-      const level = this.filterLevel();
-      const status = this.filterStatus();
+      const topicId = this.filterTopicControl.value ?? 'All';
+      const level = this.filterLevelControl.value ?? 'All';
+      const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchLessons(page, { searchTerm: term, topicId, level, status }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchLessons(page: number, filters: { searchTerm: string, topicId: string, level: string, status: string }) {
@@ -79,18 +87,6 @@ export class LessonsComponent {
     this.searchTerm.set(term);
     this.currentPage.set(1);
   }
-  onTopicChange(topicId: string) {
-    this.filterTopic.set(topicId);
-    this.currentPage.set(1);
-  }
-  onLevelChange(level: string) {
-    this.filterLevel.set(level);
-    this.currentPage.set(1);
-  }
-  onStatusChange(status: string) {
-    this.filterStatus.set(status);
-    this.currentPage.set(1);
-  }
   onPageChange(newPage: number) {
     this.currentPage.set(newPage);
   }
@@ -107,8 +103,12 @@ export class LessonsComponent {
     return map;
   });
 
-  getTopicName(topicId: number): string {
-    return this.topicsMap().get(topicId) || 'N/A';
+  getTopicNames(topicIds: number[]): string {
+    if (!topicIds || topicIds.length === 0) return 'N/A';
+    return topicIds
+      .map(id => this.topicsMap().get(id) || '')
+      .filter(name => name)
+      .join(', ');
   }
 
   getExerciseName(exerciseId?: number): string {
@@ -123,9 +123,9 @@ export class LessonsComponent {
         } else {
             this.fetchLessons(this.currentPage(), { 
                 searchTerm: this.searchTerm(), 
-                topicId: this.filterTopic(), 
-                level: this.filterLevel(), 
-                status: this.filterStatus() 
+                topicId: this.filterTopicControl.value ?? 'All', 
+                level: this.filterLevelControl.value ?? 'All', 
+                status: this.filterStatusControl.value ?? 'All'
             });
         }
       });

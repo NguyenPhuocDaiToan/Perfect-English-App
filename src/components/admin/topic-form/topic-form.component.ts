@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -6,11 +6,12 @@ import { TopicService } from '../../../services/topic.service';
 import { Topic } from '../../../models/topic.model';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-topic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent],
   templateUrl: './topic-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,6 +29,9 @@ export class TopicFormComponent {
 
   categoryOptions: Array<'Grammar' | 'Vocabulary' | 'Skills' | 'Writing' | 'Speaking'> = ['Grammar', 'Vocabulary', 'Skills', 'Writing', 'Speaking'];
   statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+
+  categoryOptionsForSelect = computed(() => this.categoryOptions.map(o => ({ value: o, label: o })));
+  statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
 
   constructor() {
     this.topicForm = this.fb.group({

@@ -29,32 +29,32 @@
       <!-- Sidebar / Settings -->
       <div class="lg:col-span-1">
         <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-6">
-           <div>
-            <label for="topicId" class="block text-sm font-medium text-slate-700 mb-1.5">Topic</label>
-            <select id="topicId" formControlName="topicId" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                <option [ngValue]="null" disabled>Select a topic</option>
-                @for(topic of allTopics(); track topic.id) { <option [value]="topic.id">{{topic.title}}</option> }
-            </select>
-          </div>
-          <div>
-            <label for="level" class="block text-sm font-medium text-slate-700 mb-1.5">Level</label>
-            <select id="level" formControlName="level" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                @for(opt of levelOptions; track opt) { <option [value]="opt">{{opt}}</option> }
-            </select>
-          </div>
-           <div>
-            <label for="exerciseId" class="block text-sm font-medium text-slate-700 mb-1.5">Linked Exercise (Optional)</label>
-            <select id="exerciseId" formControlName="exerciseId" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                <option [ngValue]="null">None</option>
-                @for(ex of allExercises(); track ex.id) { <option [value]="ex.id">{{ex.title}}</option> }
-            </select>
-          </div>
-           <div>
-            <label for="status" class="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
-            <select id="status" formControlName="status" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
-                @for(opt of statusOptions; track opt) { <option [value]="opt">{{opt}}</option> }
-            </select>
-          </div>
+           <app-select
+              label="Topics"
+              formControlName="topicIds"
+              [options]="topicOptions()"
+              [multiple]="true"
+              placeholder="Select topics...">
+            </app-select>
+          
+            <app-select
+              label="Level"
+              formControlName="level"
+              [options]="levelOptionsForSelect()">
+            </app-select>
+          
+           <app-select
+              label="Linked Exercise (Optional)"
+              formControlName="exerciseId"
+              [options]="exerciseOptions()"
+              placeholder="None">
+            </app-select>
+
+           <app-select
+              label="Status"
+              formControlName="status"
+              [options]="statusOptionsForSelect()">
+            </app-select>
         </div>
       </div>
     </div>

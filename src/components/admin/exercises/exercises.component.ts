@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ExerciseService } from '../../../services/exercise.service';
 import { LessonService } from '../../../services/lesson.service';
 import { TopicService } from '../../../services/topic.service';
 import { Exercise } from '../../../models/exercise.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-exercises',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, ReactiveFormsModule, SelectComponent],
   templateUrl: './exercises.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,11 +38,16 @@ export class ExercisesComponent {
   difficultyOptions: Exercise['difficulty'][] = ['Easy', 'Medium', 'Hard'];
   statusOptions: Exercise['status'][] = ['Published', 'Draft'];
   
+  // Computed options for SelectComponent
+  topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id.toString(), label: t.title }))]);
+  difficultyOptionsForSelect = computed(() => [{ value: 'All', label: 'All Difficulties' }, ...this.difficultyOptions.map(o => ({ value: o, label: o }))]);
+  statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
+
   // Filter state
   searchTerm = signal('');
-  filterTopic = signal<string>('All');
-  filterDifficulty = signal<string>('All');
-  filterStatus = signal<string>('All');
+  filterTopicControl = new FormControl('All');
+  filterDifficultyControl = new FormControl('All');
+  filterStatusControl = new FormControl('All');
 
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -54,11 +61,11 @@ export class ExercisesComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const topicId = this.filterTopic();
-      const difficulty = this.filterDifficulty();
-      const status = this.filterStatus();
+      const topicId = this.filterTopicControl.value ?? 'All';
+      const difficulty = this.filterDifficultyControl.value ?? 'All';
+      const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchExercises(page, { searchTerm: term, topicId, difficulty, status }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchExercises(page: number, filters: { searchTerm: string, topicId: string, difficulty: string, status: string }) {
@@ -76,9 +83,6 @@ export class ExercisesComponent {
   }
   
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
-  onTopicChange(topicId: string) { this.filterTopic.set(topicId); this.currentPage.set(1); }
-  onDifficultyChange(difficulty: string) { this.filterDifficulty.set(difficulty); this.currentPage.set(1); }
-  onStatusChange(status: string) { this.filterStatus.set(status); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   private lessonsMap = computed(() => {
@@ -87,8 +91,26 @@ export class ExercisesComponent {
     return map;
   });
 
-  getLessonName(lessonId?: number): string {
-    return lessonId ? this.lessonsMap().get(lessonId) || 'N/A' : 'None';
+  private topicsMap = computed(() => {
+    const map = new Map<number, string>();
+    this.allTopics().forEach(t => map.set(t.id, t.title));
+    return map;
+  });
+
+  getLessonNames(lessonIds?: number[]): string {
+    if (!lessonIds || lessonIds.length === 0) return 'None';
+    return lessonIds
+        .map(id => this.lessonsMap().get(id) || '')
+        .filter(name => name)
+        .join(', ');
+  }
+
+  getTopicNames(topicIds?: number[]): string {
+    if (!topicIds || topicIds.length === 0) return 'None';
+    return topicIds
+        .map(id => this.topicsMap().get(id) || '')
+        .filter(name => name)
+        .join(', ');
   }
 
   deleteExercise(id: number) {
@@ -99,9 +121,9 @@ export class ExercisesComponent {
         } else {
             this.fetchExercises(this.currentPage(), { 
                 searchTerm: this.searchTerm(), 
-                topicId: this.filterTopic(), 
-                difficulty: this.filterDifficulty(), 
-                status: this.filterStatus() 
+                topicId: this.filterTopicControl.value ?? 'All', 
+                difficulty: this.filterDifficultyControl.value ?? 'All', 
+                status: this.filterStatusControl.value ?? 'All'
             });
         }
       });

@@ -1,15 +1,17 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BlogService } from '../../../services/blog.service';
 import { UserService } from '../../../services/user.service';
 import { BlogPost } from '../../../models/blog-post.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, ReactiveFormsModule, SelectComponent],
   templateUrl: './blog-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,10 +35,14 @@ export class BlogListComponent {
   // Filter options
   statusOptions: BlogPost['status'][] = ['Published', 'Draft'];
   
+  // Computed options for SelectComponent
+  authorOptions = computed(() => [{ value: 'All', label: 'All Authors' }, ...this.allUsers().map(u => ({ value: u.id.toString(), label: u.name }))]);
+  statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
+
   // Filter state
   searchTerm = signal('');
-  filterAuthor = signal<string>('All');
-  filterStatus = signal<string>('All');
+  filterAuthorControl = new FormControl('All');
+  filterStatusControl = new FormControl('All');
   
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -50,10 +56,10 @@ export class BlogListComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const authorId = this.filterAuthor();
-      const status = this.filterStatus();
+      const authorId = this.filterAuthorControl.value ?? 'All';
+      const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchPosts(page, { searchTerm: term, authorId, status }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchPosts(page: number, filters: { searchTerm: string, authorId: string, status: string }) {
@@ -71,8 +77,6 @@ export class BlogListComponent {
   }
 
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
-  onAuthorChange(authorId: string) { this.filterAuthor.set(authorId); this.currentPage.set(1); }
-  onStatusChange(status: string) { this.filterStatus.set(status); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   private usersMap = computed(() => {
@@ -93,8 +97,8 @@ export class BlogListComponent {
         } else {
             this.fetchPosts(this.currentPage(), { 
                 searchTerm: this.searchTerm(), 
-                authorId: this.filterAuthor(), 
-                status: this.filterStatus() 
+                authorId: this.filterAuthorControl.value ?? 'All', 
+                status: this.filterStatusControl.value ?? 'All'
             });
         }
       });

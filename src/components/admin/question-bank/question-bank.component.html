@@ -21,12 +21,7 @@
               <div class="space-y-6">
                   <!-- Topic & SubTopic -->
                   <div class="grid grid-cols-2 gap-4">
-                      <div>
-                          <label class="block text-sm font-medium text-slate-700 mb-1.5">Topic</label>
-                          <select formControlName="topic" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-                              @for(opt of topics; track opt) { <option [value]="opt">{{opt}}</option> }
-                          </select>
-                      </div>
+                      <app-select label="Topic" formControlName="topic" [options]="formTopicOptions()"></app-select>
                       <div>
                           <label for="subTopic" class="block text-sm font-medium text-slate-700 mb-1.5">SubTopic</label>
                           <input type="text" id="subTopic" formControlName="subTopic" placeholder="e.g., Present Simple" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
@@ -34,18 +29,8 @@
                   </div>
                   <!-- Type & Difficulty -->
                   <div class="grid grid-cols-2 gap-4">
-                      <div>
-                          <label class="block text-sm font-medium text-slate-700 mb-1.5">Type</label>
-                          <select formControlName="type" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-                              @for(opt of questionTypes; track opt) { <option [value]="opt">{{opt}}</option> }
-                          </select>
-                      </div>
-                      <div>
-                          <label class="block text-sm font-medium text-slate-700 mb-1.5">Difficulty</label>
-                          <select formControlName="difficulty" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-                              @for(opt of difficulties; track opt) { <option [value]="opt">{{opt}}</option> }
-                          </select>
-                      </div>
+                      <app-select label="Type" formControlName="type" [options]="formTypeOptions()"></app-select>
+                      <app-select label="Difficulty" formControlName="difficulty" [options]="formDifficultyOptions()"></app-select>
                   </div>
                   <!-- Question Text -->
                   <div>
@@ -150,19 +135,10 @@
               class="block w-full rounded-lg border-slate-300 py-2 pl-10 pr-3 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
         </div>
       </div>
-      <div class="flex gap-2 w-full md:w-auto">
-        <select (change)="onTopicChange($any($event.target).value)" class="w-full md:w-auto rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-          <option value="All">All Topics</option>
-          @for (topic of topics; track topic) { <option [value]="topic">{{topic}}</option> }
-        </select>
-        <select (change)="onTypeChange($any($event.target).value)" class="w-full md:w-auto rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-          <option value="All">All Types</option>
-          @for (type of questionTypes; track type) { <option [value]="type">{{type}}</option> }
-        </select>
-        <select (change)="onDifficultyChange($any($event.target).value)" class="w-full md:w-auto rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500/20 text-sm">
-          <option value="All">All Difficulties</option>
-          @for (diff of difficulties; track diff) { <option [value]="diff">{{diff}}</option> }
-        </select>
+      <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+        <app-select class="w-full md:w-32" [formControl]="filterTopicControl" [options]="topicOptions()"></app-select>
+        <app-select class="w-full md:w-40" [formControl]="filterTypeControl" [options]="typeOptions()"></app-select>
+        <app-select class="w-full md:w-32" [formControl]="filterDifficultyControl" [options]="difficultyOptions()"></app-select>
       </div>
     </div>
 

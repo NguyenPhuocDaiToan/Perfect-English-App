@@ -1,15 +1,16 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { SelectComponent } from '../../shared/select/select.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, PaginationComponent],
+  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, PaginationComponent, SelectComponent],
   templateUrl: './users.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,11 +37,17 @@ export class UsersComponent {
   // Select Options
   roleOptions: User['role'][] = ['Admin', 'Editor', 'Teacher', 'Student'];
   statusOptions: User['status'][] = ['Active', 'Inactive', 'Suspended', 'Pending'];
+  
+  // Computed options for SelectComponent
+  roleOptionsForSelect = computed(() => this.roleOptions.map(o => ({ value: o, label: o })));
+  statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
+  filterRoleOptions = computed(() => [{ value: 'All', label: 'All Roles' }, ...this.roleOptionsForSelect()]);
+  filterStatusOptions = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptionsForSelect()]);
 
   // Filtering State
   searchTerm = signal('');
-  filterRole = signal<string>('All');
-  filterStatus = signal<string>('All');
+  filterRoleControl = new FormControl('All');
+  filterStatusControl = new FormControl('All');
 
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -62,10 +69,10 @@ export class UsersComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const role = this.filterRole();
-      const status = this.filterStatus();
+      const role = this.filterRoleControl.value ?? 'All';
+      const status = this.filterStatusControl.value ?? 'All';
       untracked(() => this.fetchUsers(page, { searchTerm: term, role, status }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   private fetchUsers(page: number, filters: { searchTerm: string, role: string, status: string }) {
@@ -83,8 +90,6 @@ export class UsersComponent {
   }
 
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
-  onRoleChange(role: string) { this.filterRole.set(role); this.currentPage.set(1); }
-  onStatusChange(status: string) { this.filterStatus.set(status); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   openAddForm() {
@@ -155,8 +160,8 @@ export class UsersComponent {
   private refetchCurrentPage() {
     this.fetchUsers(this.currentPage(), { 
       searchTerm: this.searchTerm(), 
-      role: this.filterRole(), 
-      status: this.filterStatus()
+      role: this.filterRoleControl.value ?? 'All', 
+      status: this.filterStatusControl.value ?? 'All'
     });
   }
 }

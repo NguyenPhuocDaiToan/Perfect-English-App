@@ -75,7 +75,7 @@ export class ExplanationsComponent {
     return topics.map(topic => ({
       ...topic,
       lessons: lessons
-        .filter(lesson => lesson.topicId === topic.id && lesson.status === 'Published')
+        .filter(lesson => lesson.topicIds.includes(topic.id) && lesson.status === 'Published')
         .map((lesson, index): DisplayLesson => {
           const statusCycle = index % 3;
           let completionStatus: 'Completed' | 'In Progress' | 'Not Started';

@@ -1,0 +1,43 @@
+<div class="relative">
+  @if(label()) {
+    <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ label() }}</label>
+  }
+  <button type="button" (click)="toggleDropdown()" class="relative w-full cursor-default rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20 text-sm">
+    <span class="block truncate" [class.text-slate-500]="!selectedValue() || (multiple() && selectedValue()?.length === 0)">{{ displayLabel() }}</span>
+    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+      <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.24a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+      </svg>
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <ul class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+      @for (option of options(); track option.value) {
+        <li (click)="selectOption(option.value)" class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-slate-100">
+          <div class="flex items-center">
+             @if (multiple()) {
+              <span class="flex h-5 w-5 items-center justify-center rounded border mr-3" [class]="isSelected(option.value) ? 'bg-primary-600 border-primary-600' : 'border-slate-400'">
+                 @if (isSelected(option.value)) {
+                  <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" />
+                  </svg>
+                }
+              </span>
+              <span class="block truncate">{{ option.label }}</span>
+            } @else {
+              <span class="block truncate" [class.font-semibold]="isSelected(option.value)">{{ option.label }}</span>
+              @if (isSelected(option.value)) {
+                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-primary-600">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              }
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
