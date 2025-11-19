@@ -1,3 +1,4 @@
+
 export interface Lesson {
   id: number;
   title: string;
@@ -6,4 +7,5 @@ export interface Lesson {
   topicIds: number[];
   content: string;
   exerciseId?: number;
+  isPremium?: boolean; // Commercialization feature
 }

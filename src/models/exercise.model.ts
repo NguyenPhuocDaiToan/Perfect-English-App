@@ -1,3 +1,4 @@
+
 export interface Exercise {
   id: number;
   title: string;
@@ -8,4 +9,5 @@ export interface Exercise {
   status: 'Draft' | 'Published';
   topicIds?: number[];
   lessonIds?: number[];
+  isPremium?: boolean; // Monetization feature
 }

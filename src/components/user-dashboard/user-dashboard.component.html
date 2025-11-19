@@ -1,0 +1,134 @@
+
+<div class="bg-slate-50 min-h-screen pb-12">
+  <!-- Welcome Header -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <img [src]="user()?.avatarUrl" class="h-20 w-20 rounded-full border-4 border-white shadow-md" alt="Profile">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900">Welcome back, {{ user()?.name }}!</h1>
+            <p class="text-slate-500">You're on a {{ user()?.streak || 0 }} day streak! 🔥</p>
+          </div>
+        </div>
+        <div class="flex gap-6">
+             <div class="text-center">
+                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Total XP</p>
+                <p class="text-2xl font-bold text-primary-600">{{ user()?.xp || 0 }}</p>
+             </div>
+             <div class="text-center">
+                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Exercises</p>
+                <p class="text-2xl font-bold text-green-600">{{ stats().completedExercises }}</p>
+             </div>
+              <div class="text-center">
+                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Avg Score</p>
+                <p class="text-2xl font-bold text-amber-500">{{ stats().averageScore }}%</p>
+             </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Left Column: Stats & Weakness -->
+    <div class="lg:col-span-2 space-y-8">
+        
+        <!-- Skill Mastery Chart -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-6">Skill Mastery</h2>
+            <div class="space-y-5">
+                @for(skill of stats().mastery | keyvalue; track skill.key) {
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-slate-700">{{ skill.key }}</span>
+                            <span class="text-sm font-bold text-slate-700">{{ skill.value }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-3">
+                            <div class="h-3 rounded-full transition-all duration-1000" 
+                                 [class]="skill.key === 'Grammar' ? 'bg-blue-500' : skill.key === 'Vocabulary' ? 'bg-green-500' : 'bg-purple-500'"
+                                 [style.width.%]="skill.value"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Weakness Analysis -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+             <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                 </svg>
+                 Weakness Analysis
+             </h2>
+             <p class="text-slate-500 text-sm mb-4">Based on your recent performance, we recommend reviewing these topics:</p>
+             
+             @if (weakAreas().length > 0) {
+                 <div class="space-y-3">
+                     @for (weakness of weakAreas(); track weakness.exerciseId) {
+                         <div class="flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-lg">
+                             <div>
+                                 <p class="font-semibold text-slate-800">{{ weakness.exerciseTitle }}</p>
+                                 <p class="text-xs text-red-600 font-medium">Last Score: {{ weakness.score }}%</p>
+                             </div>
+                             <a [routerLink]="['/exercises', weakness.exerciseId]" class="px-3 py-1.5 bg-white border border-red-200 text-red-600 text-sm font-bold rounded hover:bg-red-50 transition">Review</a>
+                         </div>
+                     }
+                 </div>
+             } @else {
+                 <div class="p-8 text-center bg-green-50 rounded-lg border border-green-100">
+                     <p class="text-green-700 font-medium">Great job! No specific weak areas detected yet.</p>
+                 </div>
+             }
+        </div>
+    </div>
+
+    <!-- Right Column: Gamification -->
+    <div class="lg:col-span-1 space-y-8">
+        
+        <!-- Daily Goal -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Daily Goal</h2>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-3xl font-extrabold text-slate-900">{{ currentDailyProgress }}/{{ dailyGoal }}</span>
+                <span class="text-sm text-slate-500 font-medium">XP Today</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-4 mb-4">
+                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-4 rounded-full transition-all duration-1000" [style.width.%]="(currentDailyProgress / dailyGoal) * 100"></div>
+            </div>
+            <p class="text-xs text-slate-500 text-center">Complete one more exercise to hit your goal!</p>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-6">
+                 <h2 class="text-lg font-bold text-slate-800">Leaderboard</h2>
+                 <span class="text-xs font-bold bg-primary-100 text-primary-700 px-2 py-1 rounded">This Week</span>
+            </div>
+            <div class="space-y-4">
+                @for(user of leaderboard; track $index) {
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold w-4" [class.text-yellow-500]="$index === 0" [class.text-slate-400]="$index > 2">{{ $index + 1 }}</span>
+                            <img [src]="user.name === 'You' ? (this.user()?.avatarUrl) : user.avatar" class="w-8 h-8 rounded-full bg-slate-200 object-cover" alt="">
+                            <span class="text-sm font-medium text-slate-700" [class.text-primary-700]="user.name === 'You'">{{ user.name }}</span>
+                        </div>
+                        <span class="text-sm font-bold text-slate-600">{{ user.name === 'You' ? (this.user()?.xp) : user.xp }} XP</span>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Premium CTA (if free) -->
+        @if (!user()?.isPremium) {
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-lg text-white text-center">
+                <h3 class="font-bold text-lg mb-2">Upgrade to Premium</h3>
+                <p class="text-slate-300 text-sm mb-4">Get unlimited access to all exercises and advanced analytics.</p>
+                <a routerLink="/membership" class="block w-full py-2 bg-white text-slate-900 font-bold rounded-lg text-sm hover:bg-slate-100 transition">Go Pro</a>
+            </div>
+        }
+    </div>
+
+  </div>
+</div>

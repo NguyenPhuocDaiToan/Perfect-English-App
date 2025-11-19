@@ -1,3 +1,4 @@
+
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { LevelTestComponent } from './components/level-test/level-test.component';
@@ -13,6 +14,7 @@ import { BlogPostComponent } from './components/blog-post/blog-post.component';
 import { LessonDetailComponent } from './components/lesson-detail/lesson-detail.component';
 import { ExercisePlayerComponent } from './components/exercise-player/exercise-player.component';
 import { authGuard } from './guards/auth.guard';
+import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', component: HomeComponent, title: 'Home | Perfect English Grammar' },
@@ -28,6 +30,7 @@ export const APP_ROUTES: Routes = [
   { path: 'login', component: LoginComponent, title: 'Login | Perfect English Grammar' },
   { path: 'register', component: RegisterComponent, title: 'Register | Perfect English Grammar' },
   { path: 'verify-email', component: VerifyEmailComponent, title: 'Verify Email | Perfect English Grammar' },
+  { path: 'dashboard', component: UserDashboardComponent, title: 'My Dashboard | Perfect English Grammar' },
   { 
     path: 'admin',
     loadChildren: () => import('./components/admin/admin.routes').then(r => r.ADMIN_ROUTES),

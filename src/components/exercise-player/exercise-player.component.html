@@ -1,7 +1,47 @@
 
 @if (exercise(); as exercise) {
   <div class="bg-slate-100 min-h-[80vh]">
-    @if (quizState() === 'playing') {
+    @if (isLocked()) {
+        <!-- Paywall Overlay -->
+        <div class="container mx-auto px-4 py-20">
+             <div class="max-w-lg mx-auto bg-white rounded-2xl shadow-2xl border border-slate-100 p-10 text-center relative overflow-hidden">
+                <!-- Decorative Element -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                
+                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-amber-500">
+                        <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                
+                <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ exercise.title }}</h1>
+                <p class="text-lg text-slate-600 font-medium mb-6">This premium exercise is locked.</p>
+                
+                <div class="bg-slate-50 rounded-lg p-4 mb-8 text-sm text-slate-600 text-left">
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Unlimited access to all exercises
+                        </li>
+                         <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Detailed progress tracking
+                        </li>
+                         <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Priority support
+                        </li>
+                    </ul>
+                </div>
+
+                <a routerLink="/membership" class="block w-full py-3.5 px-6 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-xl transition-all shadow-lg transform hover:-translate-y-0.5 mb-4">
+                    Upgrade to Pro
+                </a>
+                <a routerLink="/exercises" class="text-slate-500 hover:text-slate-700 font-medium text-sm">Back to Exercises</a>
+            </div>
+        </div>
+
+    } @else if (quizState() === 'playing') {
       <!-- Quiz Playing State -->
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="max-w-3xl mx-auto">
@@ -112,6 +152,17 @@
       <!-- Results State -->
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl border border-slate-200 p-8 text-center">
+            
+            <!-- XP Award Animation (Gamification) -->
+             <div class="mb-6 animate-bounce">
+                <div class="inline-flex items-center justify-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-bold border border-yellow-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2 text-yellow-600">
+                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                    </svg>
+                    +{{ earnedXp() }} XP Earned!
+                </div>
+            </div>
+
             <h1 class="text-4xl font-bold text-slate-800 mb-4">Exercise Complete!</h1>
             <p class="text-lg text-slate-600 mb-6">Here's how you did on "{{exercise.title}}".</p>
 

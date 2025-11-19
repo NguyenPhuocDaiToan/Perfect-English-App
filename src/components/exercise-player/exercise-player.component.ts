@@ -7,8 +7,11 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 
 import { ExerciseService } from '../../services/exercise.service';
 import { QuestionService } from '../../services/question.service';
+import { AuthService } from '../../services/auth.service';
+import { UserProgressService } from '../../services/user-progress.service';
+
 import { Exercise } from '../../models/exercise.model';
-import { Question, McqOption, QuestionType } from '../../models/question.model';
+import { Question, QuestionType } from '../../models/question.model';
 
 type QuizState = 'playing' | 'finished';
 type UserAnswer = { questionId: number, answer: any, isCorrect: boolean };
@@ -23,10 +26,10 @@ type UserAnswer = { questionId: number, answer: any, isCorrect: boolean };
 export class ExercisePlayerComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private location = inject(Location);
   private exerciseService = inject(ExerciseService);
   private questionService = inject(QuestionService);
-  // FIX: Explicitly type FormBuilder to prevent type inference issues.
+  private authService = inject(AuthService);
+  private userProgressService = inject(UserProgressService);
   private fb: FormBuilder = inject(FormBuilder);
 
   // State
@@ -35,6 +38,10 @@ export class ExercisePlayerComponent {
   questions = signal<Question[]>([]);
   currentQuestionIndex = signal(0);
   userAnswers = signal<Map<number, any>>(new Map());
+  isLocked = signal(false);
+  
+  // Gamification State
+  earnedXp = signal(0);
 
   // Derived State
   currentQuestion = computed(() => this.questions()[this.currentQuestionIndex()]);
@@ -63,9 +70,18 @@ export class ExercisePlayerComponent {
       const exercise = this.exerciseService.getExercise(id)();
       if (exercise) {
         this.exercise.set(exercise);
-        const questions = this.questionService.getQuestionByIds(exercise.questionIds)();
-        this.questions.set(questions);
-        this.startExercise();
+        
+        // Check Paywall
+        const currentUser = this.authService.currentUser();
+        if (exercise.isPremium && (!currentUser || !currentUser.isPremium)) {
+            this.isLocked.set(true);
+        } else {
+            this.isLocked.set(false);
+            const questions = this.questionService.getQuestionByIds(exercise.questionIds)();
+            this.questions.set(questions);
+            this.startExercise();
+        }
+
       } else {
         this.router.navigate(['/exercises']);
       }
@@ -114,6 +130,22 @@ export class ExercisePlayerComponent {
   finishExercise() {
     this.calculateResults();
     this.quizState.set('finished');
+    
+    // Gamification & Progress
+    if (this.exercise() && this.authService.currentUser()) {
+        // Save Progress
+        this.userProgressService.saveProgress(this.exercise()!.id, this.results().score);
+
+        // Award XP (e.g., 10 XP per correct answer + 50 bonus for 100%)
+        const correctCount = this.results().results.filter(r => r.isCorrect).length;
+        let xp = correctCount * 10;
+        if (this.results().score === 100) xp += 50;
+        
+        this.earnedXp.set(xp);
+        
+        // Update User XP in AuthService (Mock)
+        this.authService.currentUser.update(u => u ? ({ ...u, xp: (u.xp || 0) + xp }) : null);
+    }
   }
 
   private calculateResults() {
@@ -130,7 +162,6 @@ export class ExercisePlayerComponent {
         case QuestionType.MultiSelect:
           const correctOptions = q.options?.filter(o => o.isCorrect).map(o => o.text) || [];
           const userSelected = (userAnswer as string[]) || [];
-          // Strict grading: same length and all items included
           isCorrect = correctOptions.length === userSelected.length && correctOptions.every(o => userSelected.includes(o));
           break;
         case QuestionType.TrueFalse:
@@ -173,10 +204,8 @@ export class ExercisePlayerComponent {
     }
   }
   
-  // Helper for template to check if multi-select option is selected
   isMultiSelectOptionSelected(questionId: number, optionText: string): boolean {
       const selected = this.userAnswers().get(questionId) as string[] | undefined;
       return selected ? selected.includes(optionText) : false;
   }
-
 }

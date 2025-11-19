@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
@@ -6,6 +7,7 @@ import { map } from 'rxjs/operators';
 
 import { LessonService } from '../../services/lesson.service';
 import { TopicService } from '../../services/topic.service';
+import { AuthService } from '../../services/auth.service';
 import { Lesson } from '../../models/lesson.model';
 import { Topic } from '../../models/topic.model';
 
@@ -21,9 +23,11 @@ export class LessonDetailComponent {
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
   private titleService = inject(Title);
+  authService = inject(AuthService);
 
   lesson = signal<Lesson | undefined>(undefined);
   topic = signal<Topic | undefined>(undefined);
+  isLocked = signal(false);
 
   private lessonId$ = this.route.paramMap.pipe(map(params => Number(params.get('lessonId'))));
 
@@ -35,6 +39,14 @@ export class LessonDetailComponent {
       this.lesson.set(foundLesson);
 
       if (foundLesson) {
+        // Check premium access
+        const currentUser = this.authService.currentUser();
+        if (foundLesson.isPremium && (!currentUser || !currentUser.isPremium)) {
+           this.isLocked.set(true);
+        } else {
+           this.isLocked.set(false);
+        }
+
         const primaryTopicId = foundLesson.topicIds[0];
         if (primaryTopicId) {
           const foundTopic = this.topicService.getTopic(primaryTopicId)();

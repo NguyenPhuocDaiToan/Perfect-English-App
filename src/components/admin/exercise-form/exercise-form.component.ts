@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -65,6 +66,7 @@ export class ExerciseFormComponent {
       lessonIds: [[]],
       difficulty: ['Easy', Validators.required],
       timeLimit: [10, [Validators.required, Validators.min(1)]],
+      isPremium: [false],
       status: ['Draft', Validators.required]
     });
 
