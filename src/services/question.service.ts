@@ -1,3 +1,4 @@
+
 import { Injectable, signal, computed } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -32,6 +33,7 @@ export class QuestionService {
       subTopic: 'Travel',
       difficulty: 'Easy',
       questionText: 'A document you need to enter another country is a _____.',
+      correctAnswerText: 'passport',
       explanation: 'A passport is an official document issued by a government, certifying the holder\'s identity and citizenship.',
       tags: ['travel', 'documents']
     },
@@ -61,10 +63,27 @@ export class QuestionService {
       ],
       explanation: 'The verb "interested" is followed by the preposition "in".',
       tags: ['prepositions']
+    },
+    {
+      id: 5,
+      type: QuestionType.MultiSelect,
+      topic: 'Grammar',
+      subTopic: 'Nouns',
+      difficulty: 'Medium',
+      questionText: 'Select all the uncountable nouns from the list below.',
+      options: [
+        { text: 'Information', isCorrect: true },
+        { text: 'Chair', isCorrect: false },
+        { text: 'Water', isCorrect: true },
+        { text: 'Apple', isCorrect: false },
+        { text: 'Advice', isCorrect: true }
+      ],
+      explanation: 'Information, Water, and Advice are uncountable nouns. Chair and Apple are countable.',
+      tags: ['nouns', 'countable-uncountable']
     }
   ]);
 
-  private nextId = signal(5);
+  private nextId = signal(6);
 
   getPaginatedQuestions(
     page: number, 

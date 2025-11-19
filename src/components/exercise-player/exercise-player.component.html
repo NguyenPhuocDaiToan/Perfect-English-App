@@ -1,3 +1,4 @@
+
 @if (exercise(); as exercise) {
   <div class="bg-slate-100 min-h-[80vh]">
     @if (quizState() === 'playing') {
@@ -36,6 +37,31 @@
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
                          }
+                      </button>
+                    }
+                  </div>
+                }
+                @case (QuestionType.MultiSelect) {
+                  <div class="space-y-4">
+                     <p class="text-sm text-slate-500 italic mb-2">Select all that apply.</p>
+                    @for (option of question.options; track option.text) {
+                      <button 
+                        (click)="toggleMultiSelectAnswer(question.id, option.text)"
+                        [class]="isMultiSelectOptionSelected(question.id, option.text)
+                                  ? 'bg-primary-50 border-primary-500 text-primary-800 ring-1 ring-primary-500' 
+                                  : 'bg-white text-slate-700 hover:bg-slate-100'"
+                        class="w-full text-left p-4 border rounded-lg transition duration-200 text-lg flex items-center">
+                         <div class="flex-shrink-0 mr-3">
+                             <div class="h-5 w-5 border rounded flex items-center justify-center" 
+                                  [class]="isMultiSelectOptionSelected(question.id, option.text) ? 'bg-primary-500 border-primary-500' : 'border-slate-400'">
+                                  @if(isMultiSelectOptionSelected(question.id, option.text)) {
+                                     <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                     </svg>
+                                  }
+                             </div>
+                         </div>
+                         <span class="flex-grow">{{ option.text }}</span>
                       </button>
                     }
                   </div>

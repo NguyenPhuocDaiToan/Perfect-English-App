@@ -1,5 +1,7 @@
+
 export enum QuestionType {
   MCQ = 'Multiple Choice',
+  MultiSelect = 'Multi-Select',
   FillBlank = 'Fill in the Blank',
   TrueFalse = 'True/False',
 }
@@ -16,8 +18,9 @@ export interface Question {
   subTopic: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   questionText: string;
-  options?: McqOption[]; // For MCQ
+  options?: McqOption[]; // For MCQ and MultiSelect
   correctAnswer?: boolean; // For True/False
+  correctAnswerText?: string; // For FillBlank
   explanation: string;
   tags: string[];
 }

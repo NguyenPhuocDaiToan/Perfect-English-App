@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -85,6 +86,17 @@ export class ExercisePlayerComponent {
     });
   }
   
+  toggleMultiSelectAnswer(questionId: number, optionText: string) {
+    this.userAnswers.update(answers => {
+      const current = answers.get(questionId) as string[] || [];
+      const newSelection = current.includes(optionText)
+        ? current.filter(t => t !== optionText)
+        : [...current, optionText];
+      answers.set(questionId, newSelection);
+      return new Map(answers);
+    });
+  }
+  
   nextQuestion() {
     if (this.currentQuestionIndex() < this.questions().length - 1) {
       this.currentQuestionIndex.update(i => i + 1);
@@ -115,14 +127,18 @@ export class ExercisePlayerComponent {
           const correctOption = q.options?.find(opt => opt.isCorrect);
           isCorrect = correctOption?.text === userAnswer;
           break;
+        case QuestionType.MultiSelect:
+          const correctOptions = q.options?.filter(o => o.isCorrect).map(o => o.text) || [];
+          const userSelected = (userAnswer as string[]) || [];
+          // Strict grading: same length and all items included
+          isCorrect = correctOptions.length === userSelected.length && correctOptions.every(o => userSelected.includes(o));
+          break;
         case QuestionType.TrueFalse:
           isCorrect = q.correctAnswer === userAnswer;
           break;
         case QuestionType.FillBlank:
-          // NOTE: This is a simplification. The correct answer is parsed from the explanation.
-          const answerInExplanation = q.explanation.match(/is "([^"]+)"/);
-          if (answerInExplanation && answerInExplanation[1]) {
-             isCorrect = userAnswer?.toLowerCase().trim() === answerInExplanation[1].toLowerCase().trim();
+          if (q.correctAnswerText && userAnswer) {
+             isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswerText.toLowerCase().trim();
           }
           break;
       }
@@ -146,14 +162,21 @@ export class ExercisePlayerComponent {
     switch(question.type) {
         case QuestionType.MCQ:
             return question.options?.find(o => o.isCorrect)?.text ?? 'N/A';
+        case QuestionType.MultiSelect:
+            return question.options?.filter(o => o.isCorrect).map(o => o.text).join(', ') ?? 'N/A';
         case QuestionType.TrueFalse:
             return question.correctAnswer ? 'True' : 'False';
         case QuestionType.FillBlank:
-            const answerInExplanation = question.explanation.match(/is "([^"]+)"/);
-            return answerInExplanation ? answerInExplanation[1] : 'N/A';
+            return question.correctAnswerText || 'N/A';
         default:
             return 'N/A';
     }
+  }
+  
+  // Helper for template to check if multi-select option is selected
+  isMultiSelectOptionSelected(questionId: number, optionText: string): boolean {
+      const selected = this.userAnswers().get(questionId) as string[] | undefined;
+      return selected ? selected.includes(optionText) : false;
   }
 
 }

@@ -1,6 +1,9 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Question, QuestionType, McqOption } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
@@ -52,9 +55,19 @@ export class QuestionBankComponent {
 
   // Filter states
   searchTerm = signal('');
+  searchQuery = signal(''); // Debounced term for API
+  private searchSubject = new Subject<string>();
+
   filterTopicControl = new FormControl('All');
   filterTypeControl = new FormControl('All');
   filterDifficultyControl = new FormControl('All');
+  
+  // Signals for filters to ensure effect tracking
+  filterTopic = signal('All');
+  filterType = signal('All');
+  filterDifficulty = signal('All');
+
+  QuestionType = QuestionType;
 
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -73,6 +86,7 @@ export class QuestionBankComponent {
       questionText: ['', Validators.required],
       options: this.fb.array([]),
       correctAnswer: [false], // For True/False
+      correctAnswerText: [''], // For FillBlank
       explanation: ['', Validators.required],
       tags: [''],
     });
@@ -80,13 +94,27 @@ export class QuestionBankComponent {
     this.questionForm.get('type')?.valueChanges.subscribe(type => {
       this.updateFormForType(type);
     });
+    
+    // Search Debouncing
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchQuery.set(term);
+      this.currentPage.set(1);
+    });
+
+    // Track filter changes
+    this.filterTopicControl.valueChanges.subscribe(val => { this.filterTopic.set(val ?? 'All'); this.currentPage.set(1); });
+    this.filterTypeControl.valueChanges.subscribe(val => { this.filterType.set(val ?? 'All'); this.currentPage.set(1); });
+    this.filterDifficultyControl.valueChanges.subscribe(val => { this.filterDifficulty.set(val ?? 'All'); this.currentPage.set(1); });
 
     effect(() => {
       const page = this.currentPage();
-      const term = this.searchTerm();
-      const topic = this.filterTopicControl.value ?? 'All';
-      const type = this.filterTypeControl.value ?? 'All';
-      const difficulty = this.filterDifficultyControl.value ?? 'All';
+      const term = this.searchQuery();
+      const topic = this.filterTopic();
+      const type = this.filterType();
+      const difficulty = this.filterDifficulty();
       untracked(() => this.fetchQuestions(page, { searchTerm: term, topic, type, difficulty }));
     });
   }
@@ -105,19 +133,52 @@ export class QuestionBankComponent {
     });
   }
 
-  onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
+  onSearchTermChange(term: string) {
+    this.searchTerm.set(term);
+    this.searchSubject.next(term);
+  }
+  
+  clearSearch() {
+    this.searchTerm.set('');
+    this.searchSubject.next('');
+  }
+
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   get options(): FormArray {
     return this.questionForm.get('options') as FormArray;
   }
+  
+  // Validator to ensure at least 2 options and 1 correct answer for MCQs and MultiSelect
+  private optionsValidator(control: AbstractControl): ValidationErrors | null {
+    const formArray = control as FormArray;
+    if (formArray.length < 2) {
+      return { minOptions: true };
+    }
+    const hasCorrect = formArray.controls.some(c => c.get('isCorrect')?.value === true);
+    if (!hasCorrect) {
+      return { noCorrectOption: true };
+    }
+    return null;
+  }
 
   private updateFormForType(type: QuestionType) {
+    // Reset specific validators
     this.options.clear();
-    if (type === QuestionType.MCQ) {
+    this.options.clearValidators();
+    this.questionForm.get('correctAnswerText')?.clearValidators();
+    this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
+    
+    if (type === QuestionType.MCQ || type === QuestionType.MultiSelect) {
       this.addOption();
       this.addOption();
+      this.options.setValidators(this.optionsValidator);
+    } else if (type === QuestionType.FillBlank) {
+      this.questionForm.get('correctAnswerText')?.setValidators(Validators.required);
+      this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
     }
+    
+    this.options.updateValueAndValidity();
   }
 
   createOption(text = '', isCorrect = false): FormGroup {
@@ -163,9 +224,23 @@ export class QuestionBankComponent {
     });
     
     this.options.clear();
-    if (question.type === QuestionType.MCQ && question.options) {
-      question.options.forEach(opt => this.options.push(this.createOption(opt.text, opt.isCorrect)));
+    this.options.clearValidators();
+
+    // Set validators based on the loaded question type
+    this.questionForm.get('correctAnswerText')?.clearValidators();
+
+    if (question.type === QuestionType.MCQ || question.type === QuestionType.MultiSelect) {
+      this.options.setValidators(this.optionsValidator);
+      if (question.options) {
+        question.options.forEach(opt => this.options.push(this.createOption(opt.text, opt.isCorrect)));
+      }
+    } else if (question.type === QuestionType.FillBlank) {
+      this.questionForm.get('correctAnswerText')?.setValidators(Validators.required);
     }
+
+    this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
+    this.options.updateValueAndValidity();
+    
     this.saveState.set('idle');
     this.showForm.set(true);
   }
@@ -176,13 +251,16 @@ export class QuestionBankComponent {
   }
 
   saveQuestion() {
-    if (this.questionForm.invalid || this.saveState() !== 'idle') return;
+    if (this.questionForm.invalid || this.saveState() !== 'idle') {
+        this.questionForm.markAllAsTouched();
+        return;
+    }
 
     this.saveState.set('loading');
     const formValue = this.questionForm.value;
     const questionData = {
       ...formValue,
-      tags: formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t),
+      tags: formValue.tags ? formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : [],
     };
 
     const saveObservable = this.isEditing()
@@ -217,10 +295,10 @@ export class QuestionBankComponent {
 
   private refetchCurrentPage() {
     this.fetchQuestions(this.currentPage(), { 
-        searchTerm: this.searchTerm(), 
-        topic: this.filterTopicControl.value ?? 'All', 
-        type: this.filterTypeControl.value ?? 'All', 
-        difficulty: this.filterDifficultyControl.value ?? 'All'
+        searchTerm: this.searchQuery(), 
+        topic: this.filterTopic(), 
+        type: this.filterType(), 
+        difficulty: this.filterDifficulty()
     });
   }
 }

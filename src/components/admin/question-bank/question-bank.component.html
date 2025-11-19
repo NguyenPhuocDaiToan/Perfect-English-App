@@ -1,3 +1,4 @@
+
 <div class="flex flex-col h-full">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 shrink-0">
@@ -58,10 +59,10 @@
                   <!-- Dynamic Answer Area -->
                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
                       @switch (questionForm.get('type')?.value) {
-                          @case (questionTypes[0]) { <!-- MCQ -->
+                          @case (QuestionType.MCQ) {
                               <div formArrayName="options">
                                   <div class="flex justify-between items-center mb-3">
-                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers</h3>
+                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Single Select)</h3>
                                     <button type="button" (click)="addOption()" class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
                                   </div>
                                   @for(option of options.controls; track $index) {
@@ -75,7 +76,24 @@
                                   }
                               </div>
                           }
-                          @case (questionTypes[2]) { <!-- True/False -->
+                          @case (QuestionType.MultiSelect) {
+                             <div formArrayName="options">
+                                  <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Multi Select)</h3>
+                                    <button type="button" (click)="addOption()" class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
+                                  </div>
+                                  @for(option of options.controls; track $index) {
+                                      <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
+                                          <input type="checkbox" formControlName="isCorrect" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer rounded">
+                                          <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1)" class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2">
+                                          <button type="button" (click)="removeOption($index)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors">
+                                              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                          </button>
+                                      </div>
+                                  }
+                             </div>
+                          }
+                          @case (QuestionType.TrueFalse) {
                               <div>
                                   <label class="block text-sm font-medium text-slate-700 mb-2">Correct Answer</label>
                                   <div class="flex gap-4">
@@ -84,9 +102,29 @@
                                   </div>
                               </div>
                           }
-                           @case (questionTypes[1]) {
-                              <p class="text-sm text-slate-500 italic">Use '___' (three underscores) in the question text to represent the blank.</p>
+                           @case (QuestionType.FillBlank) {
+                              <div>
+                                  <label class="block text-sm font-medium text-slate-700 mb-1.5">Correct Answer Text</label>
+                                  <input type="text" formControlName="correctAnswerText" placeholder="e.g., passport" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
+                                  <p class="text-xs text-slate-500 mt-2 italic">Use '___' (three underscores) in the question text to represent the blank.</p>
+                                  @if(questionForm.get('correctAnswerText')?.hasError('required') && questionForm.get('correctAnswerText')?.touched) {
+                                      <p class="text-xs text-red-600 mt-1">Correct answer is required.</p>
+                                  }
+                              </div>
                            }
+                      }
+                      
+                      @if (options.hasError('minOptions') && (options.touched || options.dirty)) {
+                        <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                          At least 2 options are required.
+                        </p>
+                      }
+                      @if (options.hasError('noCorrectOption') && (options.touched || options.dirty)) {
+                        <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                          Please mark at least one option as correct.
+                        </p>
                       }
                   </div>
 
@@ -110,7 +148,7 @@
                    <div class="space-y-4">
                       <p class="font-medium text-slate-800 text-lg leading-relaxed">{{ questionForm.get('questionText')?.value || 'Your question text will appear here...' }}</p>
                       @switch (questionForm.get('type')?.value) {
-                          @case (questionTypes[0]) { <!-- MCQ -->
+                          @case (QuestionType.MCQ) {
                               <div class="space-y-2">
                                   @for (option of options.controls; track $index) {
                                       <div class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
@@ -120,10 +158,20 @@
                                   }
                               </div>
                           }
-                          @case (questionTypes[1]) { <!-- FillBlank -->
+                          @case (QuestionType.MultiSelect) {
+                              <div class="space-y-2">
+                                  @for (option of options.controls; track $index) {
+                                      <div class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
+                                          <div class="h-4 w-4 rounded border border-slate-300 mr-3"></div>
+                                          {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
+                                      </div>
+                                  }
+                              </div>
+                          }
+                          @case (QuestionType.FillBlank) {
                                <input disabled type="text" placeholder="Type answer..." class="w-full rounded-lg border-slate-300 bg-white text-sm py-2.5">
                           }
-                          @case (questionTypes[2]) { <!-- True/False -->
+                          @case (QuestionType.TrueFalse) {
                               <div class="flex gap-3">
                                   <button type="button" disabled class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">True</button>
                                   <button type="button" disabled class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">False</button>
@@ -163,7 +211,14 @@
             </svg>
           </div>
           <input type="text" placeholder="Search questions..." [value]="searchTerm()" (input)="onSearchTermChange($any($event.target).value)"
-              class="block w-full rounded-md border-slate-300 py-2 pl-9 pr-3 text-sm placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all">
+              class="block w-full rounded-md border-slate-300 py-2 pl-9 pr-10 text-sm placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all">
+          @if (searchTerm()) {
+            <button (click)="clearSearch()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          }
         </div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
