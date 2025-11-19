@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Question, QuestionType, McqOption } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -21,6 +22,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 export class QuestionBankComponent {
   private questionService = inject(QuestionService);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
   private fb: FormBuilder = inject(FormBuilder);
 
   // Data
@@ -285,8 +287,15 @@ export class QuestionBankComponent {
     });
   }
 
-  deleteQuestion(id: number) {
-    if (confirm('Are you sure you want to delete this question?')) {
+  async deleteQuestion(id: number) {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete Question',
+      message: 'Are you sure you want to delete this question? This action cannot be undone.',
+      confirmText: 'Delete Question',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       this.questionService.deleteQuestion(id).subscribe({
         next: () => {
             this.toastService.show('Question deleted successfully', 'success');

@@ -7,6 +7,7 @@ import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { Topic } from '../../../models/topic.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -23,6 +24,7 @@ export class TopicsComponent {
   private lessonService = inject(LessonService);
   private exerciseService = inject(ExerciseService);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   // Component State
   topics = signal<Topic[]>([]);
@@ -98,8 +100,15 @@ export class TopicsComponent {
   getLessonCount = (topicId: number) => computed(() => this.allLessons().filter(l => l.topicIds.includes(topicId)).length);
   getExerciseCount = (topicId: number) => computed(() => this.allExercises().filter(e => e.topicIds?.includes(topicId)).length);
 
-  deleteTopic(id: number) {
-    if (confirm('Are you sure you want to delete this topic? This action cannot be undone.')) {
+  async deleteTopic(id: number) {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete Topic',
+      message: 'Are you sure you want to delete this topic? This action cannot be undone.',
+      confirmText: 'Delete Topic',
+      type: 'danger'
+    });
+
+    if (confirmed) {
         this.topicService.deleteTopic(id).subscribe({
           next: () => {
             this.toastService.show('Topic deleted successfully', 'success');

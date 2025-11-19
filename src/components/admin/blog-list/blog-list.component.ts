@@ -6,6 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BlogService } from '../../../services/blog.service';
 import { UserService } from '../../../services/user.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { BlogPost } from '../../../models/blog-post.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -21,6 +22,7 @@ export class BlogListComponent {
   private blogService = inject(BlogService);
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   // Component State
   posts = signal<BlogPost[]>([]);
@@ -95,8 +97,15 @@ export class BlogListComponent {
     return this.usersMap().get(authorId) || 'Unknown';
   }
 
-  deletePost(id: number) {
-    if (confirm('Are you sure you want to delete this blog post?')) {
+  async deletePost(id: number) {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete Blog Post',
+      message: 'Are you sure you want to delete this blog post? This action cannot be undone.',
+      confirmText: 'Delete Post',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       this.blogService.deleteBlogPost(id).subscribe({
         next: () => {
           this.toastService.show('Post deleted successfully', 'success');

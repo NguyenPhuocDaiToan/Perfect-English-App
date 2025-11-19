@@ -5,11 +5,12 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { ThemeService } from '../../services/theme.service';
 import { CommonModule } from '@angular/common';
 import { ToastComponent } from '../shared/toast/toast.component';
+import { ConfirmationModalComponent } from '../shared/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, CommonModule, ToastComponent],
+  imports: [RouterOutlet, SidebarComponent, CommonModule, ToastComponent, ConfirmationModalComponent],
   templateUrl: './admin.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

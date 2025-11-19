@@ -7,6 +7,7 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { LessonService } from '../../../services/lesson.service';
 import { TopicService } from '../../../services/topic.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { Exercise } from '../../../models/exercise.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -23,6 +24,7 @@ export class ExercisesComponent {
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   // Component State
   exercises = signal<Exercise[]>([]);
@@ -119,8 +121,15 @@ export class ExercisesComponent {
         .join(', ');
   }
 
-  deleteExercise(id: number) {
-    if (confirm('Are you sure you want to delete this exercise?')) {
+  async deleteExercise(id: number) {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete Exercise',
+      message: 'Are you sure you want to delete this exercise? This action cannot be undone.',
+      confirmText: 'Delete Exercise',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       this.exerciseService.deleteExercise(id).subscribe({
         next: () => {
           this.toastService.show('Exercise deleted successfully', 'success');

@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } 
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -19,6 +20,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 export class UsersComponent {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
   private fb: FormBuilder = inject(FormBuilder);
 
   // User Data
@@ -150,8 +152,15 @@ export class UsersComponent {
     });
   }
 
-  deleteUser(id: number) {
-    if (confirm('Are you sure you want to delete this user?')) {
+  async deleteUser(id: number) {
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      confirmText: 'Delete User',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       this.userService.deleteUser(id).subscribe({
         next: () => {
             this.toastService.show('User deleted successfully', 'success');
