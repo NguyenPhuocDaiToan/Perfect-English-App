@@ -2,6 +2,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { User } from '../models/user.model';
 import { UserService } from './user.service';
+import { UserActivityService } from './user-activity.service';
 import { Router } from '@angular/router';
 
 type AuthResult = {
@@ -15,6 +16,7 @@ type AuthResult = {
 })
 export class AuthService {
   private userService = inject(UserService);
+  private activityService = inject(UserActivityService);
   private router = inject(Router);
 
   private readonly AUTH_KEY = 'currentUser';
@@ -42,6 +44,7 @@ export class AuthService {
     const user = this.userService.getUsers()().find(u => u.email === email && u.password === password);
     
     if (!user) {
+      // Optionally log failed attempts if we had a way to identify the user attempting or just log as 'Unknown'
       return { success: false, message: 'Login failed — please check your email and password.', reason: 'invalid-credentials' };
     }
 
@@ -81,8 +84,18 @@ export class AuthService {
     this.currentUser.set(updatedUser);
     this.isLoggedIn.set(true);
     
-    // In a real app, we would update the backend here
+    // Update the backend
     this.userService.updateUser(updatedUser).subscribe();
+    
+    // Log Activity
+    this.activityService.logActivity({
+        userId: updatedUser.id,
+        userName: updatedUser.name,
+        userAvatar: updatedUser.avatarUrl,
+        action: 'Login',
+        target: 'Web App',
+        status: 'Success'
+    });
 
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(this.AUTH_KEY, JSON.stringify(updatedUser));
@@ -108,7 +121,18 @@ export class AuthService {
         xp: 0
     };
 
-    this.userService.addUser(newUser).subscribe();
+    this.userService.addUser(newUser).subscribe(user => {
+         // Log Registration Activity
+         this.activityService.logActivity({
+            userId: user.id,
+            userName: user.name,
+            userAvatar: user.avatarUrl,
+            action: 'Register',
+            target: 'Web App',
+            status: 'Success'
+        });
+    });
+    
     this.emailForVerification.set(userData.email);
     return { success: true };
   }
