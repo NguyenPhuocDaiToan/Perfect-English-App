@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -9,6 +10,7 @@ import { BlogPost } from '../../../models/blog-post.model';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { UserService } from '../../../services/user.service';
+import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -31,6 +33,7 @@ export class BlogFormComponent {
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
   private userService = inject(UserService);
+  private toastService = inject(ToastService);
 
   blogForm: FormGroup;
   isEditing = signal(false);
@@ -77,6 +80,7 @@ export class BlogFormComponent {
           tags: post.tags.join(', ')
         });
       } else {
+         this.toastService.show('Post not found', 'error');
          this.router.navigate(['/admin/blog']);
       }
     });
@@ -103,13 +107,12 @@ export class BlogFormComponent {
 
     saveObservable.subscribe({
       next: () => {
-        this.saveState.set('success');
-        setTimeout(() => {
-          this.router.navigate(['/admin/blog']);
-        }, 1500);
+        this.toastService.show(this.isEditing() ? 'Post updated successfully' : 'Post created successfully', 'success');
+        this.router.navigate(['/admin/blog']);
       },
       error: () => {
         this.saveState.set('idle');
+        this.toastService.show('Failed to save post', 'error');
       }
     });
   }

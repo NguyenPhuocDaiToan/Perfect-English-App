@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -5,6 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ExerciseService } from '../../../services/exercise.service';
 import { LessonService } from '../../../services/lesson.service';
 import { TopicService } from '../../../services/topic.service';
+import { ToastService } from '../../../services/toast.service';
 import { Exercise } from '../../../models/exercise.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -20,6 +22,7 @@ export class ExercisesComponent {
   private exerciseService = inject(ExerciseService);
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
+  private toastService = inject(ToastService);
 
   // Component State
   exercises = signal<Exercise[]>([]);
@@ -78,7 +81,10 @@ export class ExercisesComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load exercises', 'error');
+      }
     });
   }
   
@@ -115,17 +121,21 @@ export class ExercisesComponent {
 
   deleteExercise(id: number) {
     if (confirm('Are you sure you want to delete this exercise?')) {
-      this.exerciseService.deleteExercise(id).subscribe(() => {
-        if (this.exercises().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-        } else {
-            this.fetchExercises(this.currentPage(), { 
-                searchTerm: this.searchTerm(), 
-                topicId: this.filterTopicControl.value ?? 'All', 
-                difficulty: this.filterDifficultyControl.value ?? 'All', 
-                status: this.filterStatusControl.value ?? 'All'
-            });
-        }
+      this.exerciseService.deleteExercise(id).subscribe({
+        next: () => {
+          this.toastService.show('Exercise deleted successfully', 'success');
+          if (this.exercises().length === 1 && this.currentPage() > 1) {
+              this.currentPage.update(p => p - 1);
+          } else {
+              this.fetchExercises(this.currentPage(), { 
+                  searchTerm: this.searchTerm(), 
+                  topicId: this.filterTopicControl.value ?? 'All', 
+                  difficulty: this.filterDifficultyControl.value ?? 'All', 
+                  status: this.filterStatusControl.value ?? 'All'
+              });
+          }
+        },
+        error: () => this.toastService.show('Failed to delete exercise', 'error')
       });
     }
   }

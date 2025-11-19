@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -5,6 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { LessonService } from '../../../services/lesson.service';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
+import { ToastService } from '../../../services/toast.service';
 import { Lesson } from '../../../models/lesson.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -20,6 +22,7 @@ export class LessonsComponent {
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
   private exerciseService = inject(ExerciseService);
+  private toastService = inject(ToastService);
 
   // Component State
   lessons = signal<Lesson[]>([]);
@@ -79,7 +82,10 @@ export class LessonsComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load lessons', 'error');
+      }
     });
   }
 
@@ -117,17 +123,21 @@ export class LessonsComponent {
 
   deleteLesson(id: number) {
     if (confirm('Are you sure you want to delete this lesson?')) {
-      this.lessonService.deleteLesson(id).subscribe(() => {
-        if (this.lessons().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-        } else {
-            this.fetchLessons(this.currentPage(), { 
-                searchTerm: this.searchTerm(), 
-                topicId: this.filterTopicControl.value ?? 'All', 
-                level: this.filterLevelControl.value ?? 'All', 
-                status: this.filterStatusControl.value ?? 'All'
-            });
-        }
+      this.lessonService.deleteLesson(id).subscribe({
+        next: () => {
+          this.toastService.show('Lesson deleted successfully', 'success');
+          if (this.lessons().length === 1 && this.currentPage() > 1) {
+              this.currentPage.update(p => p - 1);
+          } else {
+              this.fetchLessons(this.currentPage(), { 
+                  searchTerm: this.searchTerm(), 
+                  topicId: this.filterTopicControl.value ?? 'All', 
+                  level: this.filterLevelControl.value ?? 'All', 
+                  status: this.filterStatusControl.value ?? 'All'
+              });
+          }
+        },
+        error: () => this.toastService.show('Failed to delete lesson', 'error')
       });
     }
   }

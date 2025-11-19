@@ -9,6 +9,7 @@ import { LessonService } from '../../../services/lesson.service';
 import { Lesson } from '../../../models/lesson.model';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
+import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -30,6 +31,7 @@ export class LessonFormComponent {
   private lessonService = inject(LessonService);
   private topicService = inject(TopicService);
   private exerciseService = inject(ExerciseService);
+  private toastService = inject(ToastService);
 
   lessonForm: FormGroup;
   isEditing = signal(false);
@@ -72,6 +74,7 @@ export class LessonFormComponent {
       if (lesson) {
         this.lessonForm.patchValue(lesson);
       } else {
+         this.toastService.show('Lesson not found', 'error');
          this.router.navigate(['/admin/lessons']);
       }
     });
@@ -86,11 +89,9 @@ export class LessonFormComponent {
 
     this.saveState.set('loading');
     
-    // Ensure topicIds is an array of numbers
     const formValue = this.lessonForm.value;
     const lessonData = {
         ...formValue,
-        // The value from the form control is already in the correct format
     };
     
     const saveObservable = this.isEditing() && this.currentLessonId() !== null
@@ -99,13 +100,12 @@ export class LessonFormComponent {
 
     saveObservable.subscribe({
         next: () => {
-            this.saveState.set('success');
-            setTimeout(() => {
-                this.router.navigate(['/admin/lessons']);
-            }, 1500);
+            this.toastService.show(this.isEditing() ? 'Lesson updated successfully' : 'Lesson created successfully', 'success');
+            this.router.navigate(['/admin/lessons']);
         },
         error: () => {
             this.saveState.set('idle');
+            this.toastService.show('Failed to save lesson', 'error');
         }
     });
   }

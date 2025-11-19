@@ -9,6 +9,7 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { QuestionService } from '../../../services/question.service';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
+import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
 
@@ -29,6 +30,7 @@ export class ExerciseFormComponent {
   private questionService = inject(QuestionService);
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
+  private toastService = inject(ToastService);
 
   exerciseForm: FormGroup;
   isEditing = signal(false);
@@ -86,6 +88,7 @@ export class ExerciseFormComponent {
         });
         this.selectedQuestionIds.set(new Set(exercise.questionIds));
       } else {
+        this.toastService.show('Exercise not found', 'error');
         this.router.navigate(['/admin/exercises']);
       }
     });
@@ -127,13 +130,12 @@ export class ExerciseFormComponent {
     
     saveObservable.subscribe({
         next: () => {
-            this.saveState.set('success');
-            setTimeout(() => {
-                this.router.navigate(['/admin/exercises']);
-            }, 1500);
+            this.toastService.show(this.isEditing() ? 'Exercise updated successfully' : 'Exercise created successfully', 'success');
+            this.router.navigate(['/admin/exercises']);
         },
         error: () => {
             this.saveState.set('idle');
+            this.toastService.show('Failed to save exercise', 'error');
         }
     });
   }

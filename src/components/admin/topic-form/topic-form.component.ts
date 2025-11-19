@@ -1,8 +1,10 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TopicService } from '../../../services/topic.service';
+import { ToastService } from '../../../services/toast.service';
 import { Topic } from '../../../models/topic.model';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
@@ -20,6 +22,7 @@ export class TopicFormComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private topicService = inject(TopicService);
+  private toastService = inject(ToastService);
   private location = inject(Location);
 
   topicForm: FormGroup;
@@ -52,7 +55,8 @@ export class TopicFormComponent {
       if (topic) {
         this.topicForm.patchValue(topic);
       } else {
-        // Handle topic not found, maybe navigate away
+        this.toastService.show('Topic not found', 'error');
+        this.router.navigate(['/admin/topics']);
       }
     });
   }
@@ -71,14 +75,12 @@ export class TopicFormComponent {
 
     saveObservable.subscribe({
       next: () => {
-        this.saveState.set('success');
-        setTimeout(() => {
-          this.router.navigate(['/admin/topics']);
-        }, 1500);
+        this.toastService.show(this.isEditing() ? 'Topic updated successfully' : 'Topic created successfully', 'success');
+        this.router.navigate(['/admin/topics']);
       },
       error: () => {
         this.saveState.set('idle');
-        // Optionally: show an error message to the user
+        this.toastService.show('Failed to save topic', 'error');
       }
     });
   }

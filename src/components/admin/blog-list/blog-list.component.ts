@@ -1,9 +1,11 @@
+
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BlogService } from '../../../services/blog.service';
 import { UserService } from '../../../services/user.service';
+import { ToastService } from '../../../services/toast.service';
 import { BlogPost } from '../../../models/blog-post.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -18,6 +20,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 export class BlogListComponent {
   private blogService = inject(BlogService);
   private userService = inject(UserService);
+  private toastService = inject(ToastService);
 
   // Component State
   posts = signal<BlogPost[]>([]);
@@ -72,7 +75,10 @@ export class BlogListComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load blog posts', 'error');
+      }
     });
   }
 
@@ -91,16 +97,20 @@ export class BlogListComponent {
 
   deletePost(id: number) {
     if (confirm('Are you sure you want to delete this blog post?')) {
-      this.blogService.deleteBlogPost(id).subscribe(() => {
-        if (this.posts().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-        } else {
-            this.fetchPosts(this.currentPage(), { 
-                searchTerm: this.searchTerm(), 
-                authorId: this.filterAuthorControl.value ?? 'All', 
-                status: this.filterStatusControl.value ?? 'All'
-            });
-        }
+      this.blogService.deleteBlogPost(id).subscribe({
+        next: () => {
+          this.toastService.show('Post deleted successfully', 'success');
+          if (this.posts().length === 1 && this.currentPage() > 1) {
+              this.currentPage.update(p => p - 1);
+          } else {
+              this.fetchPosts(this.currentPage(), { 
+                  searchTerm: this.searchTerm(), 
+                  authorId: this.filterAuthorControl.value ?? 'All', 
+                  status: this.filterStatusControl.value ?? 'All'
+              });
+          }
+        },
+        error: () => this.toastService.show('Failed to delete post', 'error')
       });
     }
   }

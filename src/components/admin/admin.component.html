@@ -1,9 +1,10 @@
+
 <div class="flex h-full bg-slate-100 font-sans" [style]="themeService.themeCssVariables()">
   <!-- Sidebar -->
   <app-admin-sidebar [isMobileMenuOpen]="isMobileMenuOpen()" (closeMenu)="toggleMobileMenu()"></app-admin-sidebar>
 
   <!-- Main Content Wrapper -->
-  <div class="flex flex-1 flex-col min-w-0">
+  <div class="flex flex-1 flex-col min-w-0 relative">
     
     <!-- Mobile Header -->
     <header class="md:hidden p-4 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 sticky top-0 z-20">
@@ -27,5 +28,6 @@
       </div>
     </main>
     
+    <app-toast></app-toast>
   </div>
 </div>

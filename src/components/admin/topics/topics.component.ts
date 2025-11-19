@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -5,6 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { ExerciseService } from '../../../services/exercise.service';
+import { ToastService } from '../../../services/toast.service';
 import { Topic } from '../../../models/topic.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -20,6 +22,7 @@ export class TopicsComponent {
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
   private exerciseService = inject(ExerciseService);
+  private toastService = inject(ToastService);
 
   // Component State
   topics = signal<Topic[]>([]);
@@ -76,7 +79,10 @@ export class TopicsComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load topics', 'error');
+      }
     });
   }
 
@@ -94,12 +100,16 @@ export class TopicsComponent {
 
   deleteTopic(id: number) {
     if (confirm('Are you sure you want to delete this topic? This action cannot be undone.')) {
-        this.topicService.deleteTopic(id).subscribe(() => {
-          if (this.topics().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-          } else {
-            this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategoryControl.value ?? 'All', status: this.filterStatusControl.value ?? 'All' });
-          }
+        this.topicService.deleteTopic(id).subscribe({
+          next: () => {
+            this.toastService.show('Topic deleted successfully', 'success');
+            if (this.topics().length === 1 && this.currentPage() > 1) {
+              this.currentPage.update(p => p - 1);
+            } else {
+              this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategoryControl.value ?? 'All', status: this.filterStatusControl.value ?? 'All' });
+            }
+          },
+          error: () => this.toastService.show('Failed to delete topic', 'error')
         });
     }
   }

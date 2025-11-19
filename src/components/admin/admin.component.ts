@@ -1,13 +1,15 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { ThemeService } from '../../services/theme.service';
 import { CommonModule } from '@angular/common';
+import { ToastComponent } from '../shared/toast/toast.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, CommonModule],
+  imports: [RouterOutlet, SidebarComponent, CommonModule, ToastComponent],
   templateUrl: './admin.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

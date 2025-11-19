@@ -1,8 +1,10 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
+import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -16,6 +18,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 })
 export class UsersComponent {
   private userService = inject(UserService);
+  private toastService = inject(ToastService);
   private fb: FormBuilder = inject(FormBuilder);
 
   // User Data
@@ -85,7 +88,10 @@ export class UsersComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load users', 'error');
+      }
     });
   }
 
@@ -133,26 +139,29 @@ export class UsersComponent {
 
     saveObservable.subscribe({
         next: () => {
-            this.saveState.set('success');
-            setTimeout(() => {
-                this.closeForm();
-                this.refetchCurrentPage();
-            }, 1500);
+            this.toastService.show(this.isEditing() ? 'User updated successfully' : 'User added successfully', 'success');
+            this.closeForm();
+            this.refetchCurrentPage();
         },
         error: () => {
             this.saveState.set('idle');
+            this.toastService.show('Failed to save user', 'error');
         }
     });
   }
 
   deleteUser(id: number) {
     if (confirm('Are you sure you want to delete this user?')) {
-      this.userService.deleteUser(id).subscribe(() => {
-        if (this.users().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-        } else {
-            this.refetchCurrentPage();
-        }
+      this.userService.deleteUser(id).subscribe({
+        next: () => {
+            this.toastService.show('User deleted successfully', 'success');
+            if (this.users().length === 1 && this.currentPage() > 1) {
+                this.currentPage.update(p => p - 1);
+            } else {
+                this.refetchCurrentPage();
+            }
+        },
+        error: () => this.toastService.show('Failed to delete user', 'error')
       });
     }
   }

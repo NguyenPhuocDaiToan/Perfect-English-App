@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Question, QuestionType, McqOption } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
+import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -19,6 +20,7 @@ import { SelectComponent } from '../../shared/select/select.component';
 })
 export class QuestionBankComponent {
   private questionService = inject(QuestionService);
+  private toastService = inject(ToastService);
   private fb: FormBuilder = inject(FormBuilder);
 
   // Data
@@ -129,7 +131,10 @@ export class QuestionBankComponent {
         this.currentPage.set(response.page);
         this.status.set('loaded');
       },
-      error: () => this.status.set('error')
+      error: () => {
+        this.status.set('error');
+        this.toastService.show('Failed to load questions', 'error');
+      }
     });
   }
 
@@ -269,26 +274,29 @@ export class QuestionBankComponent {
 
     saveObservable.subscribe({
         next: () => {
-            this.saveState.set('success');
-            setTimeout(() => {
-                this.closeForm();
-                this.refetchCurrentPage();
-            }, 1500);
+            this.toastService.show(this.isEditing() ? 'Question updated successfully' : 'Question added successfully', 'success');
+            this.closeForm();
+            this.refetchCurrentPage();
         },
         error: () => {
             this.saveState.set('idle');
+            this.toastService.show('Failed to save question', 'error');
         }
     });
   }
 
   deleteQuestion(id: number) {
     if (confirm('Are you sure you want to delete this question?')) {
-      this.questionService.deleteQuestion(id).subscribe(() => {
-        if (this.questions().length === 1 && this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-        } else {
-            this.refetchCurrentPage();
-        }
+      this.questionService.deleteQuestion(id).subscribe({
+        next: () => {
+            this.toastService.show('Question deleted successfully', 'success');
+            if (this.questions().length === 1 && this.currentPage() > 1) {
+                this.currentPage.update(p => p - 1);
+            } else {
+                this.refetchCurrentPage();
+            }
+        },
+        error: () => this.toastService.show('Failed to delete question', 'error')
       });
     }
   }
