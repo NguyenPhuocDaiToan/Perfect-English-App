@@ -57,16 +57,50 @@ export class UserProgressService {
               ? completed.reduce((acc, curr) => acc + (curr.bestScore || 0), 0) / completed.length 
               : 0;
           
-          // Mock mastery data based on categories
+          // Dynamic Mastery Calculation
+          const mastery: { [key: string]: number } = {
+              Grammar: 0,
+              Vocabulary: 0,
+              Skills: 0
+          };
+          
+          const counts: { [key: string]: { total: number, scoreSum: number } } = {
+             Grammar: { total: 0, scoreSum: 0 },
+             Vocabulary: { total: 0, scoreSum: 0 },
+             Skills: { total: 0, scoreSum: 0 }
+          };
+
+          const allExercises = this.exerciseService.getExercises()();
+          const allTopics = this.topicService.getTopics()();
+          const topicMap = new Map(allTopics.map(t => [t.id, t.category]));
+          const exerciseMap = new Map(allExercises.map(e => [e.id, e]));
+
+          completed.forEach(p => {
+              const exercise = exerciseMap.get(p.exerciseId);
+              if (exercise && exercise.topicIds) {
+                  exercise.topicIds.forEach(tid => {
+                      const category = topicMap.get(tid);
+                      if (category && (category === 'Grammar' || category === 'Vocabulary' || category === 'Skills')) {
+                           counts[category].total++;
+                           counts[category].scoreSum += (p.bestScore || 0);
+                      }
+                  });
+              }
+          });
+
+          Object.keys(counts).forEach(key => {
+              if (counts[key].total > 0) {
+                  mastery[key] = Math.round(counts[key].scoreSum / counts[key].total);
+              } else {
+                  mastery[key] = 0;
+              }
+          });
+          
           return {
               totalExercises: prog.length,
               completedExercises: completed.length,
               averageScore: Math.round(avgScore),
-              mastery: {
-                  Grammar: 65,
-                  Vocabulary: 40,
-                  Skills: 20
-              }
+              mastery
           };
       });
   }

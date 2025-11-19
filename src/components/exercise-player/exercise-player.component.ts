@@ -28,7 +28,7 @@ export class ExercisePlayerComponent {
   private router = inject(Router);
   private exerciseService = inject(ExerciseService);
   private questionService = inject(QuestionService);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   private userProgressService = inject(UserProgressService);
   private fb: FormBuilder = inject(FormBuilder);
 

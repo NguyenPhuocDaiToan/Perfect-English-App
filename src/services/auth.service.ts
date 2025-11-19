@@ -1,3 +1,4 @@
+
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { User } from '../models/user.model';
 import { UserService } from './user.service';
@@ -49,10 +50,42 @@ export class AuthService {
       return { success: false, message: 'Your account is not verified. Please check your email.', reason: 'pending-verification' };
     }
 
-    this.currentUser.set(user);
+    // Streak Logic
+    const today = new Date().toISOString().split('T')[0];
+    const lastLogin = user.lastLogin ? user.lastLogin.split('T')[0] : null;
+    
+    let newStreak = user.streak || 0;
+
+    if (lastLogin === today) {
+      // Already logged in today, do nothing to streak
+    } else if (lastLogin) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      if (lastLogin === yesterdayStr) {
+        newStreak++;
+      } else {
+        newStreak = 1; // Streak broken or first time
+      }
+    } else {
+      newStreak = 1; // First login ever
+    }
+
+    const updatedUser = { 
+      ...user, 
+      lastLogin: new Date().toISOString(),
+      streak: newStreak
+    };
+
+    this.currentUser.set(updatedUser);
     this.isLoggedIn.set(true);
+    
+    // In a real app, we would update the backend here
+    this.userService.updateUser(updatedUser).subscribe();
+
     if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(this.AUTH_KEY, JSON.stringify(user));
+      localStorage.setItem(this.AUTH_KEY, JSON.stringify(updatedUser));
     }
     return { success: true };
   }
@@ -69,7 +102,10 @@ export class AuthService {
         password: userData.password,
         role: 'Student',
         status: 'Pending',
-        avatarUrl: `https://picsum.photos/seed/${userData.email}/200`
+        avatarUrl: `https://picsum.photos/seed/${userData.email}/200`,
+        isPremium: false,
+        streak: 0,
+        xp: 0
     };
 
     this.userService.addUser(newUser).subscribe();

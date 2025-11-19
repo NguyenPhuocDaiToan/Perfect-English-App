@@ -8,21 +8,28 @@
           <img [src]="user()?.avatarUrl" class="h-20 w-20 rounded-full border-4 border-white shadow-md" alt="Profile">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Welcome back, {{ user()?.name }}!</h1>
-            <p class="text-slate-500">You're on a {{ user()?.streak || 0 }} day streak! 🔥</p>
+            <p class="text-slate-500 flex items-center gap-2">
+                <span class="flex items-center text-orange-600 font-bold">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-1">
+                        <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
+                    </svg>
+                    {{ user()?.streak || 0 }} Day Streak
+                </span>
+            </p>
           </div>
         </div>
-        <div class="flex gap-6">
+        <div class="flex gap-8">
              <div class="text-center">
-                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Total XP</p>
-                <p class="text-2xl font-bold text-primary-600">{{ user()?.xp || 0 }}</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">Total XP</p>
+                <p class="text-3xl font-extrabold text-primary-600">{{ user()?.xp || 0 }}</p>
              </div>
              <div class="text-center">
-                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Exercises</p>
-                <p class="text-2xl font-bold text-green-600">{{ stats().completedExercises }}</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">Completed</p>
+                <p class="text-3xl font-extrabold text-slate-700">{{ stats().completedExercises }}</p>
              </div>
               <div class="text-center">
-                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Avg Score</p>
-                <p class="text-2xl font-bold text-amber-500">{{ stats().averageScore }}%</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">Avg Score</p>
+                <p class="text-3xl font-extrabold text-amber-500">{{ stats().averageScore }}%</p>
              </div>
         </div>
       </div>
@@ -67,12 +74,12 @@
              @if (weakAreas().length > 0) {
                  <div class="space-y-3">
                      @for (weakness of weakAreas(); track weakness.exerciseId) {
-                         <div class="flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-lg">
+                         <div class="flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-lg hover:shadow-sm transition-shadow">
                              <div>
                                  <p class="font-semibold text-slate-800">{{ weakness.exerciseTitle }}</p>
                                  <p class="text-xs text-red-600 font-medium">Last Score: {{ weakness.score }}%</p>
                              </div>
-                             <a [routerLink]="['/exercises', weakness.exerciseId]" class="px-3 py-1.5 bg-white border border-red-200 text-red-600 text-sm font-bold rounded hover:bg-red-50 transition">Review</a>
+                             <a [routerLink]="['/exercises', weakness.exerciseId]" class="px-4 py-2 bg-white border border-red-200 text-red-600 text-sm font-bold rounded-lg hover:bg-red-600 hover:text-white transition-colors">Review</a>
                          </div>
                      }
                  </div>
@@ -88,31 +95,36 @@
     <div class="lg:col-span-1 space-y-8">
         
         <!-- Daily Goal -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Daily Goal</h2>
-            <div class="flex justify-between items-end mb-2">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-100 rounded-full opacity-50"></div>
+            <h2 class="text-lg font-bold text-slate-800 mb-4 relative z-10">Daily Goal</h2>
+            <div class="flex justify-between items-end mb-2 relative z-10">
                 <span class="text-3xl font-extrabold text-slate-900">{{ currentDailyProgress }}/{{ dailyGoal }}</span>
                 <span class="text-sm text-slate-500 font-medium">XP Today</span>
             </div>
-            <div class="w-full bg-slate-100 rounded-full h-4 mb-4">
-                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-4 rounded-full transition-all duration-1000" [style.width.%]="(currentDailyProgress / dailyGoal) * 100"></div>
+            <div class="w-full bg-slate-100 rounded-full h-4 mb-4 relative z-10">
+                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-4 rounded-full transition-all duration-1000 shadow-sm" [style.width.%]="(currentDailyProgress / dailyGoal) * 100"></div>
             </div>
-            <p class="text-xs text-slate-500 text-center">Complete one more exercise to hit your goal!</p>
+            <p class="text-xs text-slate-500 text-center relative z-10">Complete one more exercise to hit your goal!</p>
         </div>
 
         <!-- Leaderboard -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <div class="flex items-center justify-between mb-6">
                  <h2 class="text-lg font-bold text-slate-800">Leaderboard</h2>
-                 <span class="text-xs font-bold bg-primary-100 text-primary-700 px-2 py-1 rounded">This Week</span>
+                 <span class="text-xs font-bold bg-primary-100 text-primary-700 px-2 py-1 rounded uppercase tracking-wider">This Week</span>
             </div>
             <div class="space-y-4">
                 @for(user of leaderboard; track $index) {
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between p-2 rounded-lg" [class.bg-slate-50]="user.name === 'You'">
                         <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold w-4" [class.text-yellow-500]="$index === 0" [class.text-slate-400]="$index > 2">{{ $index + 1 }}</span>
-                            <img [src]="user.name === 'You' ? (this.user()?.avatarUrl) : user.avatar" class="w-8 h-8 rounded-full bg-slate-200 object-cover" alt="">
-                            <span class="text-sm font-medium text-slate-700" [class.text-primary-700]="user.name === 'You'">{{ user.name }}</span>
+                            <span class="text-sm font-bold w-6 text-center" 
+                                  [class.text-yellow-500]="$index === 0" 
+                                  [class.text-slate-400]="$index > 2">
+                                {{ $index + 1 }}
+                            </span>
+                            <img [src]="user.name === 'You' ? (this.user()?.avatarUrl) : user.avatar" class="w-8 h-8 rounded-full bg-slate-200 object-cover border border-slate-200" alt="">
+                            <span class="text-sm font-medium text-slate-700" [class.text-primary-700]="user.name === 'You'" [class.font-bold]="user.name === 'You'">{{ user.name }}</span>
                         </div>
                         <span class="text-sm font-bold text-slate-600">{{ user.name === 'You' ? (this.user()?.xp) : user.xp }} XP</span>
                     </div>
@@ -123,9 +135,14 @@
         <!-- Premium CTA (if free) -->
         @if (!user()?.isPremium) {
             <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl shadow-lg text-white text-center">
+                <div class="mb-3 inline-block bg-white/10 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-yellow-400">
+                      <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                    </svg>
+                </div>
                 <h3 class="font-bold text-lg mb-2">Upgrade to Premium</h3>
-                <p class="text-slate-300 text-sm mb-4">Get unlimited access to all exercises and advanced analytics.</p>
-                <a routerLink="/membership" class="block w-full py-2 bg-white text-slate-900 font-bold rounded-lg text-sm hover:bg-slate-100 transition">Go Pro</a>
+                <p class="text-slate-300 text-sm mb-4">Get unlimited access to all exercises, remove ads, and track advanced analytics.</p>
+                <a routerLink="/membership" class="block w-full py-2.5 bg-white text-slate-900 font-bold rounded-lg text-sm hover:bg-slate-100 transition shadow-md">Go Pro</a>
             </div>
         }
     </div>
