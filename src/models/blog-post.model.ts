@@ -1,3 +1,6 @@
+
+import { PublishStatus } from './constants';
+
 export interface BlogPost {
   id: number;
   title: string;
@@ -9,7 +12,7 @@ export interface BlogPost {
   topicId?: number;
   lessonId?: number;
   tags: string[];
-  status: 'Draft' | 'Published';
+  status: PublishStatus;
   createdAt: string;
   updatedAt: string;
 }

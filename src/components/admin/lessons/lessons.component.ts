@@ -11,6 +11,7 @@ import { ConfirmationService } from '../../../services/confirmation.service';
 import { Lesson } from '../../../models/lesson.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { CEFR_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-lessons',
@@ -40,8 +41,8 @@ export class LessonsComponent {
   allTopics = this.topicService.getTopics();
   
   // Filter options
-  levelOptions: Lesson['level'][] = ['A1', 'A2', 'B1', 'B2', 'C1'];
-  statusOptions: Lesson['status'][] = ['Published', 'Draft'];
+  levelOptions = CEFR_LEVELS;
+  statusOptions = PUBLISH_STATUSES;
   
   // Computed options for SelectComponent
   topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id.toString(), label: t.title }))]);

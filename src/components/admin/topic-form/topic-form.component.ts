@@ -1,14 +1,14 @@
 
-import { Component, ChangeDetectionStrategy, inject, signal, effect, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TopicService } from '../../../services/topic.service';
 import { ToastService } from '../../../services/toast.service';
-import { Topic } from '../../../models/topic.model';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { TOPIC_CATEGORIES, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-topic-form',
@@ -30,8 +30,8 @@ export class TopicFormComponent {
   currentTopicId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
 
-  categoryOptions: Array<'Grammar' | 'Vocabulary' | 'Skills' | 'Writing' | 'Speaking'> = ['Grammar', 'Vocabulary', 'Skills', 'Writing', 'Speaking'];
-  statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+  categoryOptions = TOPIC_CATEGORIES;
+  statusOptions = PUBLISH_STATUSES;
 
   categoryOptionsForSelect = computed(() => this.categoryOptions.map(o => ({ value: o, label: o })));
   statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));

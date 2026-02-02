@@ -11,6 +11,7 @@ import { ConfirmationService } from '../../../services/confirmation.service';
 import { Topic } from '../../../models/topic.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { TOPIC_CATEGORIES, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-topics',
@@ -37,8 +38,8 @@ export class TopicsComponent {
   totalResults = signal(0);
 
   // Filter options
-  categoryOptions: Array<Topic['category']> = ['Grammar', 'Vocabulary', 'Skills', 'Writing', 'Speaking'];
-  statusOptions: Array<Topic['status']> = ['Draft', 'Published'];
+  categoryOptions = TOPIC_CATEGORIES;
+  statusOptions = PUBLISH_STATUSES;
   
   // Computed options for SelectComponent
   categoryOptionsForSelect = computed(() => [{ value: 'All', label: 'All Categories' }, ...this.categoryOptions.map(o => ({ value: o, label: o }))]);

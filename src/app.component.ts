@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
+import { WhatsAppButtonComponent } from './components/shared/whatsapp-button/whatsapp-button.component';
 import { ThemeService } from './services/theme.service';
 import { AuthService } from './services/auth.service';
 import { filter } from 'rxjs/operators';
@@ -13,7 +14,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ThemePickerComponent, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ThemePickerComponent, WhatsAppButtonComponent, CommonModule],
   host: {
     '[class.h-full]': 'isAdminRoute()',
     '[class.block]': 'isAdminRoute()',

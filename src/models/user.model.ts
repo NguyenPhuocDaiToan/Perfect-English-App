@@ -1,10 +1,12 @@
 
+import { UserRole, UserStatus } from './constants';
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'Admin' | 'Editor' | 'Teacher' | 'Student';
-  status: 'Active' | 'Inactive' | 'Suspended' | 'Pending';
+  role: UserRole;
+  status: UserStatus;
   isPremium?: boolean; // Subscription status
   streak?: number; // Gamification: Days in a row
   xp?: number; // Gamification: Experience points

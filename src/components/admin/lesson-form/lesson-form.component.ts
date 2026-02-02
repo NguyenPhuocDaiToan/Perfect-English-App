@@ -6,7 +6,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, filter } from 'rxjs/operators';
 
 import { LessonService } from '../../../services/lesson.service';
-import { Lesson } from '../../../models/lesson.model';
 import { TopicService } from '../../../services/topic.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { ToastService } from '../../../services/toast.service';
@@ -14,6 +13,7 @@ import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-but
 import { SelectComponent } from '../../shared/select/select.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { CEFR_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-lesson-form',
@@ -43,8 +43,8 @@ export class LessonFormComponent {
   allTopics = this.topicService.getTopics();
   allExercises = this.exerciseService.getExercises();
 
-  levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1'];
-  statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+  levelOptions = CEFR_LEVELS;
+  statusOptions = PUBLISH_STATUSES;
 
   // Computed options for SelectComponent
   topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));

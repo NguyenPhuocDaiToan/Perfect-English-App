@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { TopicService } from '../../services/topic.service';
 import { UserProgressService } from '../../services/user-progress.service';
 import { Exercise } from '../../models/exercise.model';
 import { PaginationComponent } from '../shared/pagination/pagination.component';
+import { DIFFICULTY_LEVELS } from '../../models/constants';
 
 interface DisplayExercise extends Exercise {
   topicTitle: string;
@@ -56,7 +58,7 @@ export class ExercisesComponent {
         return this.allTopics().filter(t => uniqueTopicIds.has(t.id));
     });
 
-    public difficultyLevels: Exercise['difficulty'][] = ['Easy', 'Medium', 'Hard'];
+    public difficultyLevels = DIFFICULTY_LEVELS;
 
     constructor() {
       effect(() => {

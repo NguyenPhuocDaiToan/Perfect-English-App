@@ -73,7 +73,8 @@ export class UserProgressService {
           const allExercises = this.exerciseService.getExercises()();
           const allTopics = this.topicService.getTopics()();
           const topicMap = new Map(allTopics.map(t => [t.id, t.category]));
-          const exerciseMap = new Map(allExercises.map(e => [e.id, e]));
+          // Explicitly type the Map to prevent 'unknown' or mixed type inference errors
+          const exerciseMap = new Map<number, Exercise>(allExercises.map(e => [e.id, e]));
 
           completed.forEach(p => {
               const exercise = exerciseMap.get(p.exerciseId);

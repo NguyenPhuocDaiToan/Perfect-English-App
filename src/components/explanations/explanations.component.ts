@@ -1,3 +1,4 @@
+
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -6,8 +7,8 @@ import { LessonService } from '../../services/lesson.service';
 import { Lesson } from '../../models/lesson.model';
 import { Topic } from '../../models/topic.model';
 import { PaginationComponent } from '../shared/pagination/pagination.component';
+import { TOPIC_CATEGORIES, TopicCategory } from '../../models/constants';
 
-type TopicCategory = Topic['category'];
 type FilterCategory = 'All' | TopicCategory;
 
 interface DisplayLesson extends Lesson {
@@ -43,7 +44,7 @@ export class ExplanationsComponent {
   totalResults = signal(0);
 
   // Filtering State
-  categories: FilterCategory[] = ['All', 'Grammar', 'Vocabulary', 'Writing', 'Speaking', 'Skills'];
+  categories: FilterCategory[] = ['All', ...TOPIC_CATEGORIES];
   selectedCategory = signal<FilterCategory>('All');
   
   private allLessons = this.lessonService.getLessons();

@@ -10,6 +10,7 @@ import { ConfirmationService } from '../../../services/confirmation.service';
 import { BlogPost } from '../../../models/blog-post.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-blog-list',
@@ -38,7 +39,7 @@ export class BlogListComponent {
   allUsers = this.userService.getUsers();
 
   // Filter options
-  statusOptions: BlogPost['status'][] = ['Published', 'Draft'];
+  statusOptions = PUBLISH_STATUSES;
   
   // Computed options for SelectComponent
   authorOptions = computed(() => [{ value: 'All', label: 'All Authors' }, ...this.allUsers().map(u => ({ value: u.id.toString(), label: u.name }))]);

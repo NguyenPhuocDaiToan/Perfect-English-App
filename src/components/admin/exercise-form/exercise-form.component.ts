@@ -4,7 +4,6 @@ import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, filter } from 'rxjs/operators';
-import { Exercise } from '../../../models/exercise.model';
 import { ExerciseService } from '../../../services/exercise.service';
 import { QuestionService } from '../../../services/question.service';
 import { TopicService } from '../../../services/topic.service';
@@ -12,6 +11,7 @@ import { LessonService } from '../../../services/lesson.service';
 import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { DIFFICULTY_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-exercise-form',
@@ -46,8 +46,8 @@ export class ExerciseFormComponent {
   showQuestionSelector = signal(false);
   selectedQuestionIds = signal<Set<number>>(new Set());
   
-  difficultyOptions: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
-  statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+  difficultyOptions = DIFFICULTY_LEVELS;
+  statusOptions = PUBLISH_STATUSES;
 
   // Computed options for SelectComponent
   topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));

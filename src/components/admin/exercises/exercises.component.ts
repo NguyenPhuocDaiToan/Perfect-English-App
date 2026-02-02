@@ -11,6 +11,7 @@ import { ConfirmationService } from '../../../services/confirmation.service';
 import { Exercise } from '../../../models/exercise.model';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { DIFFICULTY_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-exercises',
@@ -40,8 +41,8 @@ export class ExercisesComponent {
   allTopics = this.topicService.getTopics();
   
   // Filter options
-  difficultyOptions: Exercise['difficulty'][] = ['Easy', 'Medium', 'Hard'];
-  statusOptions: Exercise['status'][] = ['Published', 'Draft'];
+  difficultyOptions = DIFFICULTY_LEVELS;
+  statusOptions = PUBLISH_STATUSES;
   
   // Computed options for SelectComponent
   topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id.toString(), label: t.title }))]);

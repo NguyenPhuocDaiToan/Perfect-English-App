@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, filter } from 'rxjs/operators';
 
 import { BlogService } from '../../../services/blog.service';
-import { BlogPost } from '../../../models/blog-post.model';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
 import { UserService } from '../../../services/user.service';
@@ -15,6 +14,7 @@ import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-but
 import { SelectComponent } from '../../shared/select/select.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { PUBLISH_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-blog-form',
@@ -46,7 +46,7 @@ export class BlogFormComponent {
   allLessons = this.lessonService.getLessons();
   allUsers = this.userService.getUsers();
 
-  statusOptions: Array<'Draft' | 'Published'> = ['Draft', 'Published'];
+  statusOptions = PUBLISH_STATUSES;
 
   // Computed options for SelectComponent
   topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));

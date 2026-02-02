@@ -4,13 +4,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Question, QuestionType, McqOption } from '../../../models/question.model';
+import { Question, QuestionType } from '../../../models/question.model';
 import { QuestionService } from '../../../services/question.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmationService } from '../../../services/confirmation.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { DIFFICULTY_LEVELS, QUESTION_TOPICS } from '../../../models/constants';
 
 @Component({
   selector: 'app-question-bank',
@@ -44,8 +45,8 @@ export class QuestionBankComponent {
   // Form definition
   questionForm: FormGroup;
   questionTypes = Object.values(QuestionType);
-  topics: Array<'Grammar' | 'Vocabulary' | 'Reading' | 'Listening'> = ['Grammar', 'Vocabulary', 'Reading', 'Listening'];
-  difficulties: Array<'Easy' | 'Medium' | 'Hard'> = ['Easy', 'Medium', 'Hard'];
+  topics = QUESTION_TOPICS;
+  difficulties = DIFFICULTY_LEVELS;
 
   // Computed options for SelectComponent filters
   topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.topics.map(o => ({ value: o, label: o }))]);

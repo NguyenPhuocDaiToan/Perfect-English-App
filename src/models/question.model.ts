@@ -1,4 +1,6 @@
 
+import { DifficultyLevel, QuestionTopic } from './constants';
+
 export enum QuestionType {
   MCQ = 'Multiple Choice',
   MultiSelect = 'Multi-Select',
@@ -14,9 +16,9 @@ export interface McqOption {
 export interface Question {
   id: number;
   type: QuestionType;
-  topic: 'Grammar' | 'Vocabulary' | 'Reading' | 'Listening';
+  topic: QuestionTopic;
   subTopic: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: DifficultyLevel;
   questionText: string;
   options?: McqOption[]; // For MCQ and MultiSelect
   correctAnswer?: boolean; // For True/False

@@ -9,6 +9,7 @@ import { ConfirmationService } from '../../../services/confirmation.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { SelectComponent } from '../../shared/select/select.component';
+import { USER_ROLES, USER_STATUSES } from '../../../models/constants';
 
 @Component({
   selector: 'app-users',
@@ -40,8 +41,8 @@ export class UsersComponent {
   saveState = signal<SaveButtonState>('idle');
   
   // Select Options
-  roleOptions: User['role'][] = ['Admin', 'Editor', 'Teacher', 'Student'];
-  statusOptions: User['status'][] = ['Active', 'Inactive', 'Suspended', 'Pending'];
+  roleOptions = USER_ROLES;
+  statusOptions = USER_STATUSES;
   
   // Computed options for SelectComponent
   roleOptionsForSelect = computed(() => this.roleOptions.map(o => ({ value: o, label: o })));
