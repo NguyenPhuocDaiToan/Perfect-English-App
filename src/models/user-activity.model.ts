@@ -1,7 +1,7 @@
 
 export interface UserActivity {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   userName: string;
   userAvatar: string;
   action: 'Login' | 'Register' | 'View Content' | 'Update Profile' | 'Complete Exercise' | 'Purchase';

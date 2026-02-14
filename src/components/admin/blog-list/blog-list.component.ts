@@ -40,16 +40,16 @@ export class BlogListComponent {
 
   // Filter options
   statusOptions = PUBLISH_STATUSES;
-  
+
   // Computed options for SelectComponent
-  authorOptions = computed(() => [{ value: 'All', label: 'All Authors' }, ...this.allUsers().map(u => ({ value: u.id.toString(), label: u.name }))]);
+  creatorOptions = computed(() => [{ value: 'All', label: 'All Creators' }, ...this.allUsers().map(u => ({ value: u.id.toString(), label: u.name }))]);
   statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
 
   // Filter state
   searchTerm = signal('');
-  filterAuthorControl = new FormControl('All');
+  filterCreatorControl = new FormControl('All');
   filterStatusControl = new FormControl('All');
-  
+
   resultsText = computed(() => {
     const total = this.totalResults();
     if (total === 0) return 'No results found';
@@ -62,13 +62,13 @@ export class BlogListComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const authorId = this.filterAuthorControl.value ?? 'All';
+      const createdBy = this.filterCreatorControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
-      untracked(() => this.fetchPosts(page, { searchTerm: term, authorId, status }));
+      untracked(() => this.fetchPosts(page, { searchTerm: term, createdBy, status }));
     });
   }
 
-  private fetchPosts(page: number, filters: { searchTerm: string, authorId: string, status: string }) {
+  private fetchPosts(page: number, filters: { searchTerm: string, createdBy: string, status: string }) {
     this.status.set('loading');
     this.blogService.getPaginatedAdminPosts(page, this.pageSize(), filters).subscribe({
       next: response => {
@@ -87,18 +87,11 @@ export class BlogListComponent {
 
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
-
-  private usersMap = computed(() => {
-    const map = new Map<number, string>();
-    this.allUsers().forEach(user => map.set(user.id, user.name));
-    return map;
-  });
-
-  getAuthorName(authorId: number): string {
-    return this.usersMap().get(authorId) || 'Unknown';
+  getCreatorName(createdBy: any): string {
+    return createdBy?.name || 'Unknown';
   }
 
-  async deletePost(id: number) {
+  async deletePost(id: string) {
     const confirmed = await this.confirmationService.confirm({
       title: 'Delete Blog Post',
       message: 'Are you sure you want to delete this blog post? This action cannot be undone.',
@@ -111,13 +104,13 @@ export class BlogListComponent {
         next: () => {
           this.toastService.show('Post deleted successfully', 'success');
           if (this.posts().length === 1 && this.currentPage() > 1) {
-              this.currentPage.update(p => p - 1);
+            this.currentPage.update(p => p - 1);
           } else {
-              this.fetchPosts(this.currentPage(), { 
-                  searchTerm: this.searchTerm(), 
-                  authorId: this.filterAuthorControl.value ?? 'All', 
-                  status: this.filterStatusControl.value ?? 'All'
-              });
+            this.fetchPosts(this.currentPage(), {
+              searchTerm: this.searchTerm(),
+              createdBy: this.filterCreatorControl.value ?? 'All',
+              status: this.filterStatusControl.value ?? 'All'
+            });
           }
         },
         error: () => this.toastService.show('Failed to delete post', 'error')

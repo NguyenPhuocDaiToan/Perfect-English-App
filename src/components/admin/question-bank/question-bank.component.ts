@@ -35,11 +35,11 @@ export class QuestionBankComponent {
   pageSize = signal(10);
   totalPages = signal(0);
   totalResults = signal(0);
-  
+
   // Form State
   showForm = signal(false);
   isEditing = signal(false);
-  currentQuestionId = signal<number | null>(null);
+  currentQuestionId = signal<string | null>(null);
   saveState = signal<SaveButtonState>('idle');
 
   // Form definition
@@ -48,14 +48,24 @@ export class QuestionBankComponent {
   topics = QUESTION_TOPICS;
   difficulties = DIFFICULTY_LEVELS;
 
+  questionTypeLabels: Record<QuestionType, string> = {
+    [QuestionType.MCQ]: 'Multiple Choice',
+    [QuestionType.MultiSelect]: 'Multi-Select',
+    [QuestionType.FillBlank]: 'Fill in the Blank',
+    [QuestionType.TrueFalse]: 'True/False',
+  };
+
   // Computed options for SelectComponent filters
   topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.topics.map(o => ({ value: o, label: o }))]);
-  typeOptions = computed(() => [{ value: 'All', label: 'All Types' }, ...this.questionTypes.map(o => ({ value: o, label: o }))]);
+  typeOptions = computed(() => [
+    { value: 'All', label: 'All Types' },
+    ...this.questionTypes.map(o => ({ value: o, label: this.questionTypeLabels[o as QuestionType] }))
+  ]);
   difficultyOptions = computed(() => [{ value: 'All', label: 'All Difficulties' }, ...this.difficulties.map(o => ({ value: o, label: o }))]);
 
   // Computed options for form dropdowns
   formTopicOptions = computed(() => this.topics.map(o => ({ value: o, label: o })));
-  formTypeOptions = computed(() => this.questionTypes.map(o => ({ value: o, label: o })));
+  formTypeOptions = computed(() => this.questionTypes.map(o => ({ value: o, label: this.questionTypeLabels[o as QuestionType] })));
   formDifficultyOptions = computed(() => this.difficulties.map(o => ({ value: o, label: o })));
 
   // Filter states
@@ -66,7 +76,7 @@ export class QuestionBankComponent {
   filterTopicControl = new FormControl('All');
   filterTypeControl = new FormControl('All');
   filterDifficultyControl = new FormControl('All');
-  
+
   // Signals for filters to ensure effect tracking
   filterTopic = signal('All');
   filterType = signal('All');
@@ -99,7 +109,7 @@ export class QuestionBankComponent {
     this.questionForm.get('type')?.valueChanges.subscribe(type => {
       this.updateFormForType(type);
     });
-    
+
     // Search Debouncing
     this.searchSubject.pipe(
       debounceTime(300),
@@ -145,7 +155,7 @@ export class QuestionBankComponent {
     this.searchTerm.set(term);
     this.searchSubject.next(term);
   }
-  
+
   clearSearch() {
     this.searchTerm.set('');
     this.searchSubject.next('');
@@ -156,7 +166,7 @@ export class QuestionBankComponent {
   get options(): FormArray {
     return this.questionForm.get('options') as FormArray;
   }
-  
+
   // Validator to ensure at least 2 options and 1 correct answer for MCQs and MultiSelect
   private optionsValidator(control: AbstractControl): ValidationErrors | null {
     const formArray = control as FormArray;
@@ -176,7 +186,7 @@ export class QuestionBankComponent {
     this.options.clearValidators();
     this.questionForm.get('correctAnswerText')?.clearValidators();
     this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
-    
+
     if (type === QuestionType.MCQ || type === QuestionType.MultiSelect) {
       this.addOption();
       this.addOption();
@@ -185,7 +195,7 @@ export class QuestionBankComponent {
       this.questionForm.get('correctAnswerText')?.setValidators(Validators.required);
       this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
     }
-    
+
     this.options.updateValueAndValidity();
   }
 
@@ -227,10 +237,10 @@ export class QuestionBankComponent {
     this.isEditing.set(true);
     this.currentQuestionId.set(question.id);
     this.questionForm.patchValue({
-        ...question,
-        tags: question.tags.join(', ')
+      ...question,
+      tags: question.tags.join(', ')
     });
-    
+
     this.options.clear();
     this.options.clearValidators();
 
@@ -248,7 +258,7 @@ export class QuestionBankComponent {
 
     this.questionForm.get('correctAnswerText')?.updateValueAndValidity();
     this.options.updateValueAndValidity();
-    
+
     this.saveState.set('idle');
     this.showForm.set(true);
   }
@@ -260,35 +270,47 @@ export class QuestionBankComponent {
 
   saveQuestion() {
     if (this.questionForm.invalid || this.saveState() !== 'idle') {
-        this.questionForm.markAllAsTouched();
-        return;
+      this.questionForm.markAllAsTouched();
+      return;
     }
 
     this.saveState.set('loading');
     const formValue = this.questionForm.value;
-    const questionData = {
+    const questionData: any = {
       ...formValue,
       tags: formValue.tags ? formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : [],
     };
 
+    // Clean up fields based on type to avoid validation errors
+    if (questionData.type === QuestionType.MCQ || questionData.type === QuestionType.MultiSelect) {
+      delete questionData.correctAnswer;
+      delete questionData.correctAnswerText;
+    } else if (questionData.type === QuestionType.TrueFalse) {
+      delete questionData.options;
+      delete questionData.correctAnswerText;
+    } else if (questionData.type === QuestionType.FillBlank) {
+      delete questionData.options;
+      delete questionData.correctAnswer;
+    }
+
     const saveObservable = this.isEditing()
-        ? this.questionService.updateQuestion({ ...questionData, id: this.currentQuestionId()! })
-        : this.questionService.addQuestion(questionData);
+      ? this.questionService.updateQuestion({ ...questionData, id: this.currentQuestionId()! })
+      : this.questionService.addQuestion(questionData);
 
     saveObservable.subscribe({
-        next: () => {
-            this.toastService.show(this.isEditing() ? 'Question updated successfully' : 'Question added successfully', 'success');
-            this.closeForm();
-            this.refetchCurrentPage();
-        },
-        error: () => {
-            this.saveState.set('idle');
-            this.toastService.show('Failed to save question', 'error');
-        }
+      next: () => {
+        this.toastService.show(this.isEditing() ? 'Question updated successfully' : 'Question added successfully', 'success');
+        this.closeForm();
+        this.refetchCurrentPage();
+      },
+      error: () => {
+        this.saveState.set('idle');
+        this.toastService.show('Failed to save question', 'error');
+      }
     });
   }
 
-  async deleteQuestion(id: number) {
+  async deleteQuestion(id: string) {
     const confirmed = await this.confirmationService.confirm({
       title: 'Delete Question',
       message: 'Are you sure you want to delete this question? This action cannot be undone.',
@@ -299,12 +321,12 @@ export class QuestionBankComponent {
     if (confirmed) {
       this.questionService.deleteQuestion(id).subscribe({
         next: () => {
-            this.toastService.show('Question deleted successfully', 'success');
-            if (this.questions().length === 1 && this.currentPage() > 1) {
-                this.currentPage.update(p => p - 1);
-            } else {
-                this.refetchCurrentPage();
-            }
+          this.toastService.show('Question deleted successfully', 'success');
+          if (this.questions().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+          } else {
+            this.refetchCurrentPage();
+          }
         },
         error: () => this.toastService.show('Failed to delete question', 'error')
       });
@@ -312,11 +334,11 @@ export class QuestionBankComponent {
   }
 
   private refetchCurrentPage() {
-    this.fetchQuestions(this.currentPage(), { 
-        searchTerm: this.searchQuery(), 
-        topic: this.filterTopic(), 
-        type: this.filterType(), 
-        difficulty: this.filterDifficulty()
+    this.fetchQuestions(this.currentPage(), {
+      searchTerm: this.searchQuery(),
+      topic: this.filterTopic(),
+      type: this.filterType(),
+      difficulty: this.filterDifficulty()
     });
   }
 }

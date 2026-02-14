@@ -1,5 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -38,14 +39,15 @@ export class ExercisesComponent {
   totalResults = signal(0);
 
   // Data sources
-  allTopics = this.topicService.getTopics();
-  
+  allTopics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
+  allLessons = toSignal(this.lessonService.getAllLessonsForSelect(), { initialValue: [] });
+
   // Filter options
   difficultyOptions = DIFFICULTY_LEVELS;
   statusOptions = PUBLISH_STATUSES;
-  
+
   // Computed options for SelectComponent
-  topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id.toString(), label: t.title }))]);
+  topicOptions = computed(() => [{ value: 'All', label: 'All Topics' }, ...this.allTopics().map(t => ({ value: t.id, label: t.title }))]);
   difficultyOptionsForSelect = computed(() => [{ value: 'All', label: 'All Difficulties' }, ...this.difficultyOptions.map(o => ({ value: o, label: o }))]);
   statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
 
@@ -67,14 +69,14 @@ export class ExercisesComponent {
     effect(() => {
       const page = this.currentPage();
       const term = this.searchTerm();
-      const topicId = this.filterTopicControl.value ?? 'All';
+      const topic = this.filterTopicControl.value ?? 'All';
       const difficulty = this.filterDifficultyControl.value ?? 'All';
       const status = this.filterStatusControl.value ?? 'All';
-      untracked(() => this.fetchExercises(page, { searchTerm: term, topicId, difficulty, status }));
+      untracked(() => this.fetchExercises(page, { searchTerm: term, topic, difficulty, status }));
     });
   }
 
-  private fetchExercises(page: number, filters: { searchTerm: string, topicId: string, difficulty: string, status: string }) {
+  private fetchExercises(page: number, filters: { searchTerm: string, topic: string, difficulty: string, status: string }) {
     this.status.set('loading');
     this.exerciseService.getPaginatedAdminExercises(page, this.pageSize(), filters).subscribe({
       next: response => {
@@ -90,39 +92,39 @@ export class ExercisesComponent {
       }
     });
   }
-  
+
   onSearchTermChange(term: string) { this.searchTerm.set(term); this.currentPage.set(1); }
   onPageChange(newPage: number) { this.currentPage.set(newPage); }
 
   private lessonsMap = computed(() => {
-    const map = new Map<number, string>();
-    this.lessonService.getLessons()().forEach(l => map.set(l.id, l.title));
+    const map = new Map<string, string>();
+    this.allLessons().forEach(l => map.set(l.id, l.title));
     return map;
   });
 
   private topicsMap = computed(() => {
-    const map = new Map<number, string>();
+    const map = new Map<string, string>();
     this.allTopics().forEach(t => map.set(t.id, t.title));
     return map;
   });
 
-  getLessonNames(lessonIds?: number[]): string {
-    if (!lessonIds || lessonIds.length === 0) return 'None';
-    return lessonIds
-        .map(id => this.lessonsMap().get(id) || '')
-        .filter(name => name)
-        .join(', ');
+  getLessonNames(lessons?: string[]): string {
+    if (!lessons || lessons.length === 0) return 'None';
+    return lessons
+      .map(id => this.lessonsMap().get(id) || '')
+      .filter(name => name)
+      .join(', ');
   }
 
-  getTopicNames(topicIds?: number[]): string {
-    if (!topicIds || topicIds.length === 0) return 'None';
-    return topicIds
-        .map(id => this.topicsMap().get(id) || '')
-        .filter(name => name)
-        .join(', ');
+  getTopicNames(topics?: string[]): string {
+    if (!topics || topics.length === 0) return 'None';
+    return topics
+      .map(id => this.topicsMap().get(id) || '')
+      .filter(name => name)
+      .join(', ');
   }
 
-  async deleteExercise(id: number) {
+  async deleteExercise(id: string) {
     const confirmed = await this.confirmationService.confirm({
       title: 'Delete Exercise',
       message: 'Are you sure you want to delete this exercise? This action cannot be undone.',
@@ -135,14 +137,14 @@ export class ExercisesComponent {
         next: () => {
           this.toastService.show('Exercise deleted successfully', 'success');
           if (this.exercises().length === 1 && this.currentPage() > 1) {
-              this.currentPage.update(p => p - 1);
+            this.currentPage.update(p => p - 1);
           } else {
-              this.fetchExercises(this.currentPage(), { 
-                  searchTerm: this.searchTerm(), 
-                  topicId: this.filterTopicControl.value ?? 'All', 
-                  difficulty: this.filterDifficultyControl.value ?? 'All', 
-                  status: this.filterStatusControl.value ?? 'All'
-              });
+            this.fetchExercises(this.currentPage(), {
+              searchTerm: this.searchTerm(),
+              topic: this.filterTopicControl.value ?? 'All',
+              difficulty: this.filterDifficultyControl.value ?? 'All',
+              status: this.filterStatusControl.value ?? 'All'
+            });
           }
         },
         error: () => this.toastService.show('Failed to delete exercise', 'error')

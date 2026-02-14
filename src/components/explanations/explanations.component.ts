@@ -1,5 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TopicService } from '../../services/topic.service';
@@ -35,7 +36,7 @@ export class ExplanationsComponent {
   status = signal<'loading' | 'loaded' | 'error'>('loading');
 
   // Accordion State
-  selectedTopicId = signal<number | null>(null);
+  selectedTopicId = signal<string | null>(null);
 
   // Pagination State
   currentPage = signal(1);
@@ -46,8 +47,8 @@ export class ExplanationsComponent {
   // Filtering State
   categories: FilterCategory[] = ['All', ...TOPIC_CATEGORIES];
   selectedCategory = signal<FilterCategory>('All');
-  
-  private allLessons = this.lessonService.getLessons();
+
+  private allLessons = toSignal(this.lessonService.getPublicLessons(), { initialValue: [] });
 
   constructor() {
     effect(() => {
@@ -76,7 +77,7 @@ export class ExplanationsComponent {
     return topics.map(topic => ({
       ...topic,
       lessons: lessons
-        .filter(lesson => lesson.topicIds.includes(topic.id) && lesson.status === 'Published')
+        .filter(lesson => lesson.topics.includes(topic.id) && lesson.status === 'Published')
         .map((lesson, index): DisplayLesson => {
           const statusCycle = index % 3;
           let completionStatus: 'Completed' | 'In Progress' | 'Not Started';
@@ -97,14 +98,14 @@ export class ExplanationsComponent {
     this.currentPage.set(1);
     this.selectedTopicId.set(null); // Close any open accordion
   }
-  
+
   onPageChange(newPage: number) {
     this.currentPage.set(newPage);
     this.selectedTopicId.set(null);
     document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  toggleTopic(topicId: number) {
-    this.selectedTopicId.update(currentId => (currentId === topicId ? null : topicId));
+  toggleTopic(topic: string) {
+    this.selectedTopicId.update(currentId => (currentId === topic ? null : topic));
   }
 }

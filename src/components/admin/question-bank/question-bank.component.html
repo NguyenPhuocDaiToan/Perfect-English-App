@@ -1,4 +1,3 @@
-
 <div class="flex flex-col h-full">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 shrink-0">
@@ -6,9 +5,11 @@
       <h1 class="text-2xl font-bold tracking-tight text-slate-900">Question Bank</h1>
       <p class="text-sm text-slate-500 mt-1">Central repository for all quiz questions.</p>
     </div>
-    <button (click)="openAddForm()" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+    <button (click)="openAddForm()"
+      class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        <path
+          d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
       </svg>
       <span>Add Question</span>
     </button>
@@ -16,220 +17,283 @@
 
   <!-- Form Modal -->
   @if (showForm()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-       <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closeForm()"></div>
-       <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]" (click)="$event.stopPropagation()">
-          <!-- Modal Header -->
-          <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 z-10">
-            <div>
-               <h2 class="text-lg font-semibold text-slate-900">{{ isEditing() ? 'Edit Question' : 'Add New Question' }}</h2>
-               <p class="text-sm text-slate-500 mt-0.5">Configure the question details below.</p>
-            </div>
-             <button (click)="closeForm()" class="text-slate-400 hover:text-slate-600 bg-transparent hover:bg-slate-50 rounded-lg p-2 transition-colors">
-              <span class="sr-only">Close</span>
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closeForm()"></div>
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]"
+      (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 z-10">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">{{ isEditing() ? 'Edit Question' : 'Add New Question' }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Configure the question details below.</p>
+        </div>
+        <button (click)="closeForm()"
+          class="text-slate-400 hover:text-slate-600 bg-transparent hover:bg-slate-50 rounded-lg p-2 transition-colors">
+          <span class="sr-only">Close</span>
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-          <!-- Modal Body -->
-          <div class="flex-1 overflow-y-auto p-6 bg-white">
-            <form [formGroup]="questionForm" id="questionForm" (ngSubmit)="saveQuestion()">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                <!-- Left Column -->
-                <div class="space-y-5">
-                  <!-- Topic & SubTopic -->
-                  <div class="grid grid-cols-2 gap-4">
-                      <app-select label="Topic" formControlName="topic" [options]="formTopicOptions()"></app-select>
-                      <div>
-                          <label for="subTopic" class="block text-sm font-medium text-slate-700 mb-1.5">SubTopic</label>
-                          <input type="text" id="subTopic" formControlName="subTopic" placeholder="e.g., Present Simple" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
-                      </div>
-                  </div>
-                  <!-- Type & Difficulty -->
-                  <div class="grid grid-cols-2 gap-4">
-                      <app-select label="Type" formControlName="type" [options]="formTypeOptions()"></app-select>
-                      <app-select label="Difficulty" formControlName="difficulty" [options]="formDifficultyOptions()"></app-select>
-                  </div>
-                  <!-- Question Text -->
-                  <div>
-                      <label for="questionText" class="block text-sm font-medium text-slate-700 mb-1.5">Question Text</label>
-                      <textarea id="questionText" formControlName="questionText" rows="3" placeholder="Enter question text here..." class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"></textarea>
-                  </div>
-                  
-                  <!-- Dynamic Answer Area -->
-                   <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                      @switch (questionForm.get('type')?.value) {
-                          @case (QuestionType.MCQ) {
-                              <div formArrayName="options">
-                                  <div class="flex justify-between items-center mb-3">
-                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Single Select)</h3>
-                                    <button type="button" (click)="addOption()" class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
-                                  </div>
-                                  @for(option of options.controls; track $index) {
-                                      <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
-                                          <input type="radio" [name]="'isCorrect'" [checked]="option.get('isCorrect')?.value" (change)="setCorrectOption($index)" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer">
-                                          <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1)" class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2">
-                                          <button type="button" (click)="removeOption($index)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors">
-                                              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                                          </button>
-                                      </div>
-                                  }
-                              </div>
-                          }
-                          @case (QuestionType.MultiSelect) {
-                             <div formArrayName="options">
-                                  <div class="flex justify-between items-center mb-3">
-                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Multi Select)</h3>
-                                    <button type="button" (click)="addOption()" class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
-                                  </div>
-                                  @for(option of options.controls; track $index) {
-                                      <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
-                                          <input type="checkbox" formControlName="isCorrect" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer rounded">
-                                          <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1)" class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2">
-                                          <button type="button" (click)="removeOption($index)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors">
-                                              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                                          </button>
-                                      </div>
-                                  }
-                             </div>
-                          }
-                          @case (QuestionType.TrueFalse) {
-                              <div>
-                                  <label class="block text-sm font-medium text-slate-700 mb-2">Correct Answer</label>
-                                  <div class="flex gap-4">
-                                    <label class="flex items-center cursor-pointer"><input type="radio" formControlName="correctAnswer" [value]="true" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span class="ml-2 text-sm text-slate-700 font-medium">True</span></label>
-                                    <label class="flex items-center cursor-pointer"><input type="radio" formControlName="correctAnswer" [value]="false" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span class="ml-2 text-sm text-slate-700 font-medium">False</span></label>
-                                  </div>
-                              </div>
-                          }
-                           @case (QuestionType.FillBlank) {
-                              <div>
-                                  <label class="block text-sm font-medium text-slate-700 mb-1.5">Correct Answer Text</label>
-                                  <input type="text" formControlName="correctAnswerText" placeholder="e.g., passport" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
-                                  <p class="text-xs text-slate-500 mt-2 italic">Use '___' (three underscores) in the question text to represent the blank.</p>
-                                  @if(questionForm.get('correctAnswerText')?.hasError('required') && questionForm.get('correctAnswerText')?.touched) {
-                                      <p class="text-xs text-red-600 mt-1">Correct answer is required.</p>
-                                  }
-                              </div>
-                           }
-                      }
-                      
-                      @if (options.hasError('minOptions') && (options.touched || options.dirty)) {
-                        <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                          At least 2 options are required.
-                        </p>
-                      }
-                      @if (options.hasError('noCorrectOption') && (options.touched || options.dirty)) {
-                        <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                          Please mark at least one option as correct.
-                        </p>
-                      }
-                  </div>
-
-                   <!-- Explanation & Tags -->
-                   <div>
-                      <label for="explanation" class="block text-sm font-medium text-slate-700 mb-1.5">Explanation</label>
-                      <textarea id="explanation" formControlName="explanation" rows="2" placeholder="Explain why..." class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"></textarea>
-                  </div>
-                  <div>
-                      <label for="tags" class="block text-sm font-medium text-slate-700 mb-1.5">Tags</label>
-                      <input type="text" id="tags" formControlName="tags" placeholder="e.g., tenses, travel" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
-                  </div>
-                </div>
-
-                <!-- Right Column - Preview -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide">Preview</h3>
-                    <span class="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded">Student View</span>
-                  </div>
-                   <div class="space-y-4">
-                      <p class="font-medium text-slate-800 text-lg leading-relaxed">{{ questionForm.get('questionText')?.value || 'Your question text will appear here...' }}</p>
-                      @switch (questionForm.get('type')?.value) {
-                          @case (QuestionType.MCQ) {
-                              <div class="space-y-2">
-                                  @for (option of options.controls; track $index) {
-                                      <div class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
-                                          <div class="h-4 w-4 rounded-full border border-slate-300 mr-3"></div>
-                                          {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
-                                      </div>
-                                  }
-                              </div>
-                          }
-                          @case (QuestionType.MultiSelect) {
-                              <div class="space-y-2">
-                                  @for (option of options.controls; track $index) {
-                                      <div class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
-                                          <div class="h-4 w-4 rounded border border-slate-300 mr-3"></div>
-                                          {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
-                                      </div>
-                                  }
-                              </div>
-                          }
-                          @case (QuestionType.FillBlank) {
-                               <input disabled type="text" placeholder="Type answer..." class="w-full rounded-lg border-slate-300 bg-white text-sm py-2.5">
-                          }
-                          @case (QuestionType.TrueFalse) {
-                              <div class="flex gap-3">
-                                  <button type="button" disabled class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">True</button>
-                                  <button type="button" disabled class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">False</button>
-                              </div>
-                          }
-                      }
-                  </div>
-                  <div class="mt-6 pt-4 border-t border-slate-200/60">
-                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wide mb-1">Explanation</p>
-                    <p class="text-sm text-slate-600 italic">{{ questionForm.get('explanation')?.value || 'Explanation text will appear here after answering...' }}</p>
-                  </div>
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-6 bg-white">
+        <form [formGroup]="questionForm" id="questionForm" (ngSubmit)="saveQuestion()">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+            <!-- Left Column -->
+            <div class="space-y-5">
+              <!-- Topic & SubTopic -->
+              <div class="grid grid-cols-2 gap-4">
+                <app-select label="Topic" formControlName="topic" [options]="formTopicOptions()"></app-select>
+                <div>
+                  <label for="subTopic" class="block text-sm font-medium text-slate-700 mb-1.5">SubTopic</label>
+                  <input type="text" id="subTopic" formControlName="subTopic" placeholder="e.g., Present Simple"
+                    class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
                 </div>
               </div>
-            </form>
-          </div>
+              <!-- Type & Difficulty -->
+              <div class="grid grid-cols-2 gap-4">
+                <app-select label="Type" formControlName="type" [options]="formTypeOptions()"></app-select>
+                <app-select label="Difficulty" formControlName="difficulty"
+                  [options]="formDifficultyOptions()"></app-select>
+              </div>
+              <!-- Question Text -->
+              <div>
+                <label for="questionText" class="block text-sm font-medium text-slate-700 mb-1.5">Question Text</label>
+                <textarea id="questionText" formControlName="questionText" rows="3"
+                  placeholder="Enter question text here..."
+                  class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"></textarea>
+              </div>
 
-          <!-- Modal Footer -->
-          <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
-            <button type="button" (click)="closeForm()" class="px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-50 font-medium text-sm shadow-sm transition-all">Cancel</button>
-            <div class="w-40">
-              <app-save-button [state]="saveState()" [isDisabled]="questionForm.invalid" [idleLabel]="isEditing() ? 'Save Question' : 'Add Question'"></app-save-button>
+              <!-- Dynamic Answer Area -->
+              <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                @switch (questionForm.get('type')?.value) {
+                @case (QuestionType.MCQ) {
+                <div formArrayName="options">
+                  <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Single Select)</h3>
+                    <button type="button" (click)="addOption()"
+                      class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
+                  </div>
+                  @for(option of options.controls; track $index) {
+                  <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
+                    <input type="radio" [name]="'isCorrect'" [checked]="option.get('isCorrect')?.value"
+                      (change)="setCorrectOption($index)"
+                      class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer">
+                    <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1)"
+                      class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2">
+                    <button type="button" (click)="removeOption($index)"
+                      class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors">
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  }
+                </div>
+                }
+                @case (QuestionType.MultiSelect) {
+                <div formArrayName="options">
+                  <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Answers (Multi Select)</h3>
+                    <button type="button" (click)="addOption()"
+                      class="text-xs font-semibold text-primary-600 hover:text-primary-800">+ Add Option</button>
+                  </div>
+                  @for(option of options.controls; track $index) {
+                  <div [formGroupName]="$index" class="flex items-center gap-2 mb-2">
+                    <input type="checkbox" formControlName="isCorrect"
+                      class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer rounded">
+                    <input type="text" formControlName="text" [placeholder]="'Option ' + ($index + 1)"
+                      class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2">
+                    <button type="button" (click)="removeOption($index)"
+                      class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors">
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  }
+                </div>
+                }
+                @case (QuestionType.TrueFalse) {
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Correct Answer</label>
+                  <div class="flex gap-4">
+                    <label class="flex items-center cursor-pointer"><input type="radio" formControlName="correctAnswer"
+                        [value]="true" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span
+                        class="ml-2 text-sm text-slate-700 font-medium">True</span></label>
+                    <label class="flex items-center cursor-pointer"><input type="radio" formControlName="correctAnswer"
+                        [value]="false" class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"><span
+                        class="ml-2 text-sm text-slate-700 font-medium">False</span></label>
+                  </div>
+                </div>
+                }
+                @case (QuestionType.FillBlank) {
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1.5">Correct Answer Text</label>
+                  <input type="text" formControlName="correctAnswerText" placeholder="e.g., passport"
+                    class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
+                  <p class="text-xs text-slate-500 mt-2 italic">Use '___' (three underscores) in the question text to
+                    represent the blank.</p>
+                  @if(questionForm.get('correctAnswerText')?.hasError('required') &&
+                  questionForm.get('correctAnswerText')?.touched) {
+                  <p class="text-xs text-red-600 mt-1">Correct answer is required.</p>
+                  }
+                </div>
+                }
+                }
+
+                @if (options.hasError('minOptions') && (options.touched || options.dirty)) {
+                <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  At least 2 options are required.
+                </p>
+                }
+                @if (options.hasError('noCorrectOption') && (options.touched || options.dirty)) {
+                <p class="text-xs text-red-600 mt-2 font-medium flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  Please mark at least one option as correct.
+                </p>
+                }
+              </div>
+
+              <!-- Explanation & Tags -->
+              <div>
+                <label for="explanation" class="block text-sm font-medium text-slate-700 mb-1.5">Explanation</label>
+                <textarea id="explanation" formControlName="explanation" rows="2" placeholder="Explain why..."
+                  class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"></textarea>
+              </div>
+              <div>
+                <label for="tags" class="block text-sm font-medium text-slate-700 mb-1.5">Tags</label>
+                <input type="text" id="tags" formControlName="tags" placeholder="e.g., tenses, travel"
+                  class="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2.5">
+              </div>
+            </div>
+
+            <!-- Right Column - Preview -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide">Preview</h3>
+                <span class="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded">Student
+                  View</span>
+              </div>
+              <div class="space-y-4">
+                <p class="font-medium text-slate-800 text-lg leading-relaxed">{{ questionForm.get('questionText')?.value
+                  || 'Your question text will appear here...' }}</p>
+                @switch (questionForm.get('type')?.value) {
+                @case (QuestionType.MCQ) {
+                <div class="space-y-2">
+                  @for (option of options.controls; track $index) {
+                  <div
+                    class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
+                    <div class="h-4 w-4 rounded-full border border-slate-300 mr-3"></div>
+                    {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
+                  </div>
+                  }
+                </div>
+                }
+                @case (QuestionType.MultiSelect) {
+                <div class="space-y-2">
+                  @for (option of options.controls; track $index) {
+                  <div
+                    class="w-full text-left p-3 border rounded-lg bg-white text-slate-700 text-sm hover:border-primary-300 transition-colors cursor-pointer flex items-center shadow-sm">
+                    <div class="h-4 w-4 rounded border border-slate-300 mr-3"></div>
+                    {{ option.get('text')?.value || 'Option ' + ($index + 1) }}
+                  </div>
+                  }
+                </div>
+                }
+                @case (QuestionType.FillBlank) {
+                <input disabled type="text" placeholder="Type answer..."
+                  class="w-full rounded-lg border-slate-300 bg-white text-sm py-2.5">
+                }
+                @case (QuestionType.TrueFalse) {
+                <div class="flex gap-3">
+                  <button type="button" disabled
+                    class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">True</button>
+                  <button type="button" disabled
+                    class="flex-1 py-2 border rounded-lg bg-white text-sm font-medium text-slate-600 shadow-sm">False</button>
+                </div>
+                }
+                }
+              </div>
+              <div class="mt-6 pt-4 border-t border-slate-200/60">
+                <p class="text-xs text-slate-400 uppercase font-bold tracking-wide mb-1">Explanation</p>
+                <p class="text-sm text-slate-600 italic">{{ questionForm.get('explanation')?.value || 'Explanation text
+                  will appear here after answering...' }}</p>
+              </div>
             </div>
           </div>
-       </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
+        <button type="button" (click)="closeForm()"
+          class="px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-50 font-medium text-sm shadow-sm transition-all">Cancel</button>
+        <div class="w-40">
+          <app-save-button (click)="saveQuestion()" [state]="saveState()" [isDisabled]="questionForm.invalid"
+            [idleLabel]="isEditing() ? 'Save Question' : 'Add Question'"></app-save-button>
+        </div>
+      </div>
     </div>
+  </div>
   }
 
   <!-- Main Content Card -->
   <div class="bg-white shadow-sm rounded-xl border border-slate-200 flex-1 min-h-0 flex flex-col overflow-hidden">
     <!-- Toolbar -->
-    <div class="px-6 py-4 border-b border-slate-200 flex flex-col lg:flex-row gap-4 justify-between items-center shrink-0 bg-white">
+    <div
+      class="px-6 py-4 border-b border-slate-200 flex flex-col lg:flex-row gap-4 justify-between items-center shrink-0 bg-white">
       <div class="w-full lg:w-80">
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+            <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          <input type="text" placeholder="Search questions..." [value]="searchTerm()" (input)="onSearchTermChange($any($event.target).value)"
-              class="block w-full rounded-md border-slate-300 py-2 pl-9 pr-10 text-sm placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all">
+          <input type="text" placeholder="Search questions..." [value]="searchTerm()"
+            (input)="onSearchTermChange($any($event.target).value)"
+            class="block w-full rounded-md border-slate-300 py-2 pl-9 pr-10 text-sm placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all">
           @if (searchTerm()) {
-            <button (click)="clearSearch()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
+          <button (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
           }
         </div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
         <div class="w-full sm:w-32">
-            <app-select [formControl]="filterTopicControl" [options]="topicOptions()" placeholder="Topic"></app-select>
+          <app-select [formControl]="filterTopicControl" [options]="topicOptions()" placeholder="Topic"></app-select>
         </div>
         <div class="w-full sm:w-40">
-            <app-select [formControl]="filterTypeControl" [options]="typeOptions()" placeholder="Type"></app-select>
+          <app-select [formControl]="filterTypeControl" [options]="typeOptions()" placeholder="Type"></app-select>
         </div>
         <div class="w-full sm:w-32">
-            <app-select [formControl]="filterDifficultyControl" [options]="difficultyOptions()" placeholder="Difficulty"></app-select>
+          <app-select [formControl]="filterDifficultyControl" [options]="difficultyOptions()"
+            placeholder="Difficulty"></app-select>
         </div>
       </div>
     </div>
@@ -239,94 +303,127 @@
       <table class="min-w-full text-left text-sm whitespace-nowrap">
         <thead class="sticky top-0 bg-slate-50 z-10">
           <tr>
-            <th scope="col" class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">Question</th>
-            <th scope="col" class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
-            <th scope="col" class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">Topic</th>
-            <th scope="col" class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">Difficulty</th>
-            <th scope="col" class="px-6 py-3 border-b border-slate-200 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th scope="col"
+              class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              Question</th>
+            <th scope="col"
+              class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              Type</th>
+            <th scope="col"
+              class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              Topic</th>
+            <th scope="col"
+              class="px-6 py-3 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              Difficulty</th>
+            <th scope="col"
+              class="px-6 py-3 border-b border-slate-200 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+              Actions</th>
           </tr>
         </thead>
         @if (status() === 'loading') {
-          <tbody class="bg-white">
-            @for (item of [1,2,3,4,5]; track item) {
-              <tr class="animate-pulse">
-                <td class="px-6 py-4"><div class="h-4 bg-slate-100 rounded w-3/4"></div></td>
-                <td class="px-6 py-4"><div class="h-4 bg-slate-100 rounded w-24"></div></td>
-                <td class="px-6 py-4"><div class="h-5 bg-slate-100 rounded w-20"></div></td>
-                <td class="px-6 py-4"><div class="h-5 bg-slate-100 rounded w-16"></div></td>
-                <td class="px-6 py-4"><div class="h-8 w-8 bg-slate-100 rounded float-right"></div></td>
-              </tr>
-            }
-          </tbody>
+        <tbody class="bg-white">
+          @for (item of [1,2,3,4,5]; track item) {
+          <tr class="animate-pulse">
+            <td class="px-6 py-4">
+              <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="h-4 bg-slate-100 rounded w-24"></div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="h-5 bg-slate-100 rounded w-20"></div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="h-5 bg-slate-100 rounded w-16"></div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="h-8 w-8 bg-slate-100 rounded float-right"></div>
+            </td>
+          </tr>
+          }
+        </tbody>
         } @else {
-          <tbody class="divide-y divide-slate-100 bg-white">
-            @for (question of questions(); track question.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors group">
-                <td class="px-6 py-4">
-                  <div class="font-medium text-slate-900 truncate max-w-md" [title]="question.questionText">{{ question.questionText }}</div>
-                  <div class="text-xs text-slate-500 mt-0.5">{{ question.tags.join(', ') }}</div>
-                </td>
-                <td class="px-6 py-4 text-slate-500 text-sm">
-                  {{ question.type }}
-                </td>
-                <td class="px-6 py-4">
-                   <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
-                    [class]="question.topic === 'Grammar' ? 'bg-blue-50 text-blue-700 ring-blue-600/20' :
+        <tbody class="divide-y divide-slate-100 bg-white">
+          @for (question of questions(); track question.id) {
+          <tr class="hover:bg-slate-50/80 transition-colors group">
+            <td class="px-6 py-4">
+              <div class="font-medium text-slate-900 truncate max-w-md" [title]="question.questionText">{{
+                question.questionText }}</div>
+              <div class="text-xs text-slate-500 mt-0.5">{{ question.tags.join(', ') }}</div>
+            </td>
+            <td class="px-6 py-4 text-slate-500 text-sm">
+              {{ questionTypeLabels[question.type] }}
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset" [class]="question.topic === 'Grammar' ? 'bg-blue-50 text-blue-700 ring-blue-600/20' :
                             question.topic === 'Vocabulary' ? 'bg-green-50 text-green-700 ring-green-600/20' :
                             'bg-purple-50 text-purple-700 ring-purple-600/20'">
-                    {{ question.topic }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
-                    [class]="question.difficulty === 'Easy' ? 'bg-green-50 text-green-700 ring-green-600/20' : 
+                {{ question.topic }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                [class]="question.difficulty === 'Easy' ? 'bg-green-50 text-green-700 ring-green-600/20' : 
                             question.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 ring-amber-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'">
-                    {{ question.difficulty }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button (click)="openEditForm(question)" class="p-1.5 rounded-md text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors" title="Edit">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
-                    </button>
-                    <button (click)="deleteQuestion(question.id)" class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="px-6 py-24 text-center">
-                   <div class="flex flex-col items-center justify-center">
-                     <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                     </div>
-                     <h3 class="text-slate-900 font-medium">No questions found</h3>
-                     <p class="text-slate-500 text-sm mt-1 max-w-xs">Build your question bank to create diverse quizzes.</p>
-                     <button (click)="openAddForm()" class="mt-4 text-primary-600 hover:text-primary-700 text-sm font-medium">Add New Question</button>
-                   </div>
-                </td>
-              </tr>
-            }
-          </tbody>
+                {{ question.difficulty }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="openEditForm(question)"
+                  class="p-1.5 rounded-md text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                  title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                    <path fill-rule="evenodd"
+                      d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <button (click)="deleteQuestion(question.id)"
+                  class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-24 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 class="text-slate-900 font-medium">No questions found</h3>
+                <p class="text-slate-500 text-sm mt-1 max-w-xs">Build your question bank to create diverse quizzes.</p>
+                <button (click)="openAddForm()"
+                  class="mt-4 text-primary-600 hover:text-primary-700 text-sm font-medium">Add New Question</button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
         }
       </table>
     </div>
-    
+
     <!-- Footer -->
     <div class="border-t border-slate-200 bg-slate-50 px-6 py-4 flex items-center justify-between shrink-0">
       <div class="text-sm text-slate-500">
         {{ resultsText() }}
       </div>
       @if (totalPages() > 1) {
-        <app-pagination
-          [currentPage]="currentPage()"
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)">
-        </app-pagination>
+      <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)">
+      </app-pagination>
       }
     </div>
   </div>

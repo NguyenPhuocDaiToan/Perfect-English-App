@@ -1,13 +1,16 @@
 
 import { CEFRLevel, PublishStatus } from './constants';
 
+import { Topic } from './topic.model';
+import { Exercise } from './exercise.model';
+
 export interface Lesson {
-  id: number;
+  id: string;
   title: string;
   level: CEFRLevel;
   status: PublishStatus;
-  topicIds: number[];
+  topics: (string | Topic)[];
   content: string;
-  exerciseId?: number;
+  exercise?: string | Exercise | null;
   isPremium?: boolean; // Commercialization feature
 }

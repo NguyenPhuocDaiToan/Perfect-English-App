@@ -40,28 +40,32 @@ export class LoginComponent {
     if (this.loginForm.invalid) {
       return;
     }
-    
+
     this.loginState.set('loading');
     this.errorMessage.set('');
 
     const { email, password } = this.loginForm.value;
-    
-    // Simulate network delay
-    setTimeout(() => {
-      const result = this.authService.login(email, password);
 
-      if (result.success) {
-        this.loginState.set('success');
-        setTimeout(() => this.redirectToDashboard(), 800);
-      } else {
-        this.loginState.set('error');
-        this.errorMessage.set(result.message || 'An unknown error occurred.');
-        // If account is pending verification, redirect to the verify page
-        if (result.reason === 'pending-verification') {
+    this.authService.login(email, password).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.loginState.set('success');
+          // No need to setTimeout, but keeping small delay for UX if desired or just direct redirect
+          setTimeout(() => this.redirectToDashboard(), 500);
+        } else {
+          this.loginState.set('error');
+          this.errorMessage.set(result.message || 'An unknown error occurred.');
+
+          if (result.reason === 'pending-verification') {
             setTimeout(() => this.router.navigate(['/verify-email']), 1000);
+          }
         }
+      },
+      error: () => {
+        this.loginState.set('error');
+        this.errorMessage.set('Network error or server unreachable.');
       }
-    }, 500);
+    });
   }
 
   private redirectToDashboard() {

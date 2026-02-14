@@ -29,12 +29,6 @@ export class BlogComponent {
 
   // Filtering State
   searchTerm = signal('');
-  
-  private usersMap = computed(() => {
-    const map = new Map<number, string>();
-    this.userService.getUsers()().forEach(user => map.set(user.id, user.name));
-    return map;
-  });
 
   constructor() {
     effect(() => {
@@ -43,7 +37,7 @@ export class BlogComponent {
       untracked(() => this.fetchPosts(page, term));
     });
   }
-  
+
   private fetchPosts(page: number, searchTerm: string) {
     this.status.set('loading');
     this.blogService.getPaginatedPosts(page, this.pageSize(), { searchTerm }).subscribe({
@@ -69,16 +63,16 @@ export class BlogComponent {
     document.querySelector('.post-grid')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  getAuthorName(authorId: number): string {
-    return this.usersMap().get(authorId) || 'Unknown';
+  getCreatorName(createdBy: any): string {
+    return createdBy?.name || 'Unknown';
   }
 
-  getAuthorAvatar(authorId: number): string {
-    return this.userService.getUsers()().find(u => u.id === authorId)?.avatarUrl || '';
+  getCreatorAvatar(createdBy: any): string {
+    return createdBy?.avatarUrl || '';
   }
 
   getTagColor(tag: string): string {
-     switch (tag.toLowerCase()) {
+    switch (tag.toLowerCase()) {
       case 'grammar':
       case 'tenses':
       case 'conditionals':
@@ -88,13 +82,13 @@ export class BlogComponent {
         return 'bg-green-100 text-green-800';
       case 'writing':
       case 'business':
-         return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800';
       case 'speaking':
       case 'pronunciation':
         return 'bg-purple-100 text-purple-800';
       case 'tips':
       case 'skills':
-         return 'bg-pink-100 text-pink-800';
+        return 'bg-pink-100 text-pink-800';
       default:
         return 'bg-slate-100 text-slate-700';
     }

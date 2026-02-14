@@ -40,9 +40,9 @@ Nội dung lý thuyết.
 | `title` | `string` | Tiêu đề bài học. |
 | `level` | `CEFRLevel` | 'A1' - 'C1'. |
 | `status` | `PublishStatus`| Trạng thái xuất bản. |
-| `topicIds` | `number[]` | Liên kết đến nhiều Topic (Many-to-Many). |
+| `topics` | `number[]` | Liên kết đến nhiều Topic (Many-to-Many). |
 | `content` | `string` | Nội dung HTML (từ CKEditor). |
-| `exerciseId` | `number?` | ID bài tập đi kèm (Optional). |
+| `exercise` | `number?` | ID bài tập đi kèm (Optional). |
 | `isPremium` | `boolean` | `true` nếu bài học chỉ dành cho VIP. |
 
 ## 4. Question (Ngân hàng câu hỏi)
@@ -68,11 +68,11 @@ Tập hợp các câu hỏi để người dùng làm.
 |-------|------|-------------|
 | `id` | `number` | Unique Identifier. |
 | `title` | `string` | Tên bài tập. |
-| `questionIds`| `number[]` | Danh sách ID các câu hỏi trong bài tập này. |
+| `questions`| `number[]` | Danh sách ID các câu hỏi trong bài tập này. |
 | `timeLimit` | `number` | Thời gian làm bài (phút). |
 | `difficulty` | `DifficultyLevel`| Độ khó tổng quan. |
-| `topicIds` | `number[]` | Liên kết Topic. |
-| `lessonIds` | `number[]` | Liên kết Lesson (bài tập củng cố bài học). |
+| `topics` | `number[]` | Liên kết Topic. |
+| `lessons` | `number[]` | Liên kết Lesson (bài tập củng cố bài học). |
 
 ## 6. BlogPost (Bài viết Blog)
 Tin tức hoặc mẹo học tập.
@@ -92,7 +92,7 @@ Lưu trữ kết quả làm bài của người dùng.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `exerciseId` | `number` | ID bài tập. |
+| `exercise` | `number` | ID bài tập. |
 | `status` | `string` | 'In Progress', 'Completed'. |
 | `bestScore` | `number` | Điểm cao nhất đạt được (0-100). |
 | `lastPlayedAt`| `Date` | Thời gian làm bài gần nhất. |

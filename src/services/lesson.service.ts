@@ -1,88 +1,70 @@
-
-import { Injectable, signal, computed } from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Lesson } from '../models/lesson.model';
 import { PaginatedResponse } from '../models/paginated-response.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LessonService {
-  private lessons = signal<Lesson[]>([
-    { id: 1, title: 'Present Simple Tense', level: 'A1', status: 'Published', topicIds: [1], content: 'The present simple is a verb tense with two main uses...', exerciseId: 1, isPremium: false },
-    { id: 2, title: 'Past Continuous Tense', level: 'A2', status: 'Published', topicIds: [1], content: 'We use the past continuous to talk about actions in progress in the past.', isPremium: false },
-    { id: 3, title: 'First Conditional', level: 'B1', status: 'Published', topicIds: [2], content: 'The first conditional is used for possible future events.', exerciseId: 2, isPremium: false },
-    { id: 4, title: 'Reported Speech', level: 'B2', status: 'Draft', topicIds: [8], content: 'Reported speech is how we represent the speech of other people.', isPremium: true },
-    { id: 5, title: 'Passive Voice Advanced', level: 'C1', status: 'Published', topicIds: [4], content: 'The passive voice is used when the focus is on the action.', isPremium: true },
-    { id: 6, title: 'How to Write a Formal Email', level: 'B2', status: 'Published', topicIds: [5, 9], content: 'Learn the structure and phrases for professional emails.', isPremium: true },
-    { id: 7, title: 'The "th" Sound', level: 'A2', status: 'Published', topicIds: [6], content: 'Practice the voiced and unvoiced "th" sounds.', isPremium: false },
-    { id: 8, title: 'Present Perfect Tense', level: 'B1', status: 'Published', topicIds: [1], content: 'The present perfect connects the past with the present.', isPremium: true},
-    { id: 9, title: 'Writing a Cover Letter', level: 'C1', status: 'Published', topicIds: [9, 5], content: 'Structure and tips for writing an effective cover letter.', isPremium: true},
-    { id: 10, title: 'At the Airport', level: 'A1', status: 'Published', topicIds: [3], content: 'Key vocabulary for navigating the airport.', isPremium: false},
-  ]);
+  private http = inject(HttpClient);
+  private readonly API_URL = `${environment.apiUrl}/lessons`;
 
-  private nextId = signal(11);
+  getAllLessonsForSelect(): Observable<Lesson[]> {
+    return this.getPaginatedLessons(1, 100, { searchTerm: '', topic: 'All', level: 'All', status: 'All' }).pipe(
+      map(response => response.results)
+    );
+  }
 
-  getLessons() {
-    return computed(() => this.lessons());
+  getPublicLessons(): Observable<Lesson[]> {
+    return this.http.get<PaginatedResponse<Lesson>>(`${environment.apiUrl}/public/lessons?limit=100`).pipe(
+      map(response => response.results)
+    );
   }
 
   getPaginatedLessons(
-    page: number, 
-    limit: number, 
-    filters: { searchTerm: string, topicId: string, level: string, status: string }
+    page: number,
+    limit: number,
+    filters: { searchTerm: string, topic: string, level: string, status: string }
   ): Observable<PaginatedResponse<Lesson>> {
-    
-    const allLessons = this.lessons();
+    let params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit)
+      .set('populate', 'topics;exercise');
 
-    const filtered = allLessons.filter(lesson => {
-      const termMatch = filters.searchTerm 
-        ? lesson.title.toLowerCase().includes(filters.searchTerm.toLowerCase())
-        : true;
-      const topicMatch = filters.topicId === 'All' ? true : lesson.topicIds.includes(Number(filters.topicId));
-      const levelMatch = filters.level === 'All' ? true : lesson.level === filters.level;
-      const statusMatch = filters.status === 'All' ? true : lesson.status === filters.status;
-      return termMatch && topicMatch && levelMatch && statusMatch;
-    });
+    if (filters.searchTerm) {
+      params = params.set('search', filters.searchTerm);
+    }
+    if (filters.topic && filters.topic !== 'All') {
+      params = params.set('topic', filters.topic);
+    }
+    if (filters.level && filters.level !== 'All') {
+      params = params.set('level', filters.level);
+    }
+    if (filters.status && filters.status !== 'All') {
+      params = params.set('status', filters.status);
+    }
 
-    const totalResults = filtered.length;
-    const totalPages = Math.ceil(totalResults / limit);
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const results = filtered.slice(start, end);
-
-    const response: PaginatedResponse<Lesson> = {
-      results,
-      page,
-      limit,
-      totalPages,
-      totalResults
-    };
-    
-    return of(response).pipe(delay(300));
+    return this.http.get<PaginatedResponse<Lesson>>(this.API_URL, { params });
   }
-  
-  getLesson(id: number) {
-    return computed(() => this.lessons().find(l => l.id === id));
+
+  getLesson(id: string): Observable<Lesson> {
+    return this.http.get<Lesson>(`${environment.apiUrl}/public/lessons/${id}`);
   }
 
   addLesson(lesson: Omit<Lesson, 'id'>): Observable<Lesson> {
-    const newLesson: Lesson = { ...lesson, id: this.nextId() };
-    this.lessons.update(lessons => [...lessons, newLesson]);
-    this.nextId.update(id => id + 1);
-    return of(newLesson).pipe(delay(500)); // Simulate network latency
+    return this.http.post<Lesson>(this.API_URL, lesson);
   }
 
   updateLesson(updatedLesson: Lesson): Observable<Lesson> {
-    this.lessons.update(lessons => 
-      lessons.map(lesson => lesson.id === updatedLesson.id ? updatedLesson : lesson)
-    );
-    return of(updatedLesson).pipe(delay(500));
+    const { id, ...data } = updatedLesson;
+    return this.http.patch<Lesson>(`${this.API_URL}/${id}`, data);
   }
 
-  deleteLesson(id: number): Observable<{}> {
-    this.lessons.update(lessons => lessons.filter(lesson => lesson.id !== id));
-    return of({}).pipe(delay(500));
+  deleteLesson(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 }

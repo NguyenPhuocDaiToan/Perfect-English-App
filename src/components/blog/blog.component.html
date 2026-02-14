@@ -3,19 +3,19 @@
     <!-- Hero Section with Search -->
     <section class="text-center mb-12">
       <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">Learning Hub</h1>
-      <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Articles, tips, and resources to help you master English grammar.</p>
+      <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Articles, tips, and resources to help you master English
+        grammar.</p>
       <div class="mt-8 max-w-lg mx-auto">
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+              fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          <input 
-            type="search" 
-            placeholder="Search articles..."
-            [value]="searchTerm()"
-            (input)="onSearch($event)"
+          <input type="search" placeholder="Search articles..." [value]="searchTerm()" (input)="onSearch($event)"
             class="block w-full rounded-full border-slate-300 bg-white py-3.5 pl-11 pr-5 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 text-base">
         </div>
       </div>
@@ -24,63 +24,67 @@
     <!-- Posts Grid -->
     <div class="post-grid max-w-7xl mx-auto">
       @if (status() === 'loading') {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          @for (item of [1,2,3,4,5,6]; track item) {
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 animate-pulse">
-              <div class="h-48 w-full bg-slate-200"></div>
-              <div class="p-6">
-                <div class="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
-                <div class="h-3 bg-slate-200 rounded w-full mb-2"></div>
-                <div class="h-3 bg-slate-200 rounded w-5/6"></div>
-              </div>
-            </div>
-          }
-        </div>
-      } @else if (status() === 'loaded' && posts().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          @for (post of posts(); track post.id) {
-            <a [routerLink]="['/blog', post.slug]" class="block bg-white rounded-xl shadow-sm overflow-hidden group transform hover:-translate-y-1.5 transition-transform duration-300 border border-slate-200 hover:shadow-lg hover:border-primary-300">
-              <div class="h-48 overflow-hidden">
-                 <img [src]="post.thumbnail" [alt]="post.title" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300">
-              </div>
-              <div class="p-6 flex flex-col flex-grow">
-                <div class="flex-grow">
-                  <div class="flex flex-wrap gap-2 mb-3">
-                    @for(tag of post.tags; track tag) {
-                      <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full" [class]="getTagColor(tag)">{{tag}}</span>
-                    }
-                  </div>
-                  <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors h-14">{{ post.title }}</h3>
-                  <p class="text-slate-600 text-sm h-20 overflow-hidden">{{ post.excerpt }}</p>
-                </div>
-                <div class="flex items-center text-xs text-slate-500 border-t border-slate-100 mt-4 pt-4">
-                  <img [src]="getAuthorAvatar(post.authorId)" class="h-7 w-7 rounded-full object-cover mr-2" [alt]="getAuthorName(post.authorId)">
-                  <span>By {{ getAuthorName(post.authorId) }}</span>
-                  <span class="mx-2">&bull;</span>
-                  <span>{{ post.createdAt }}</span>
-                </div>
-              </div>
-            </a>
-          }
-        </div>
-         <!-- Pagination -->
-        @if(totalPages() > 1) {
-          <div class="mt-12">
-            <app-pagination 
-              [currentPage]="currentPage()" 
-              [totalPages]="totalPages()"
-              (pageChange)="onPageChange($event)">
-            </app-pagination>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (item of [1,2,3,4,5,6]; track item) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 animate-pulse">
+          <div class="h-48 w-full bg-slate-200"></div>
+          <div class="p-6">
+            <div class="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
+            <div class="h-3 bg-slate-200 rounded w-full mb-2"></div>
+            <div class="h-3 bg-slate-200 rounded w-5/6"></div>
           </div>
-        }
-      } @else {
-        <div class="text-center py-16">
-            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <h3 class="mt-2 text-sm font-semibold text-slate-800">No Articles Found</h3>
-            <p class="mt-1 text-sm text-slate-500">No articles match your search. Please try different keywords.</p>
         </div>
+        }
+      </div>
+      } @else if (status() === 'loaded' && posts().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (post of posts(); track post.id) {
+        <a [routerLink]="['/blog', post.slug]"
+          class="block bg-white rounded-xl shadow-sm overflow-hidden group transform hover:-translate-y-1.5 transition-transform duration-300 border border-slate-200 hover:shadow-lg hover:border-primary-300">
+          <div class="h-48 overflow-hidden">
+            <img [src]="post.thumbnail" [alt]="post.title"
+              class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex-grow">
+              <div class="flex flex-wrap gap-2 mb-3">
+                @for(tag of post.tags; track tag) {
+                <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full"
+                  [class]="getTagColor(tag)">{{tag}}</span>
+                }
+              </div>
+              <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors h-14">{{
+                post.title }}</h3>
+              <p class="text-slate-600 text-sm h-20 overflow-hidden">{{ post.excerpt }}</p>
+            </div>
+            <div class="flex items-center text-xs text-slate-500 border-t border-slate-100 mt-4 pt-4">
+              <img [src]="getCreatorAvatar(post.createdBy)" class="h-7 w-7 rounded-full object-cover mr-2"
+                [alt]="getCreatorName(post.createdBy)">
+              <span>By {{ getCreatorName(post.createdBy) }}</span>
+              <span class="mx-2">&bull;</span>
+              <span>{{ post.createdAt | date: 'hh:mm dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+        </a>
+        }
+      </div>
+      <!-- Pagination -->
+      @if(totalPages() > 1) {
+      <div class="mt-12">
+        <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+      }
+      } @else {
+      <div class="text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-slate-800">No Articles Found</h3>
+        <p class="mt-1 text-sm text-slate-500">No articles match your search. Please try different keywords.</p>
+      </div>
       }
     </div>
   </div>
