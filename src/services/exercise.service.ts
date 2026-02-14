@@ -33,7 +33,7 @@ export class ExerciseService {
       params = params.set('difficulty', filters.difficulty);
     }
 
-    return this.http.get<PaginatedResponse<Exercise>>(this.API_URL, { params });
+    return this.http.get<PaginatedResponse<Exercise>>(`${environment.apiUrl}/public/exercises`, { params });
   }
 
   getPaginatedAdminExercises(
@@ -67,8 +67,14 @@ export class ExerciseService {
     );
   }
 
+  getPublicExercises(): Observable<Exercise[]> {
+    return this.http.get<PaginatedResponse<Exercise>>(`${environment.apiUrl}/public/exercises?limit=100&status=Published`).pipe(
+      map(response => response.results)
+    );
+  }
+
   getExercise(id: string): Observable<Exercise> {
-    return this.http.get<Exercise>(`${this.API_URL}/${id}`);
+    return this.http.get<Exercise>(`${environment.apiUrl}/public/exercises/${id}`);
   }
 
   addExercise(exercise: Omit<Exercise, 'id'>): Observable<Exercise> {

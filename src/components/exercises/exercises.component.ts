@@ -45,9 +45,9 @@ export class ExercisesComponent {
   selectedDifficulty = signal<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
 
   // All static data
-  private allTopics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
+  private allTopics = toSignal(this.topicService.getPublicTopics(), { initialValue: [] });
   private userProgress = toSignal(this.userProgressService.getUserProgress(), { initialValue: [] });
-  private allExercises = toSignal(this.exerciseService.getAllExercisesForSelect(), { initialValue: [] });
+  private allExercises = toSignal(this.exerciseService.getPublicExercises(), { initialValue: [] });
 
   // Topic map for quick lookup
   private topicsMap = computed(() => new Map(this.allTopics().map(t => [t.id, t])));

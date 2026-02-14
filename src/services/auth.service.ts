@@ -52,11 +52,30 @@ export class AuthService {
           const user: User = JSON.parse(storedUser);
           this.currentUser.set(user);
           this.isLoggedIn.set(true);
+
+          // Fetch fresh user data from backend
+          this.refreshUserProfile();
         } catch (e) {
           localStorage.removeItem(this.AUTH_KEY);
         }
       }
     }
+  }
+
+  refreshUserProfile() {
+    this.http.get<any>(`${environment.apiUrl}/auth/me`).subscribe({
+      next: (res) => {
+        if (res.user) {
+          this.currentUser.set(res.user);
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem(this.AUTH_KEY, JSON.stringify(res.user));
+          }
+        }
+      },
+      error: () => {
+        // Silent fail or logout if token invalid
+      }
+    });
   }
 
   login(email: string, password: string): Observable<AuthResult> {

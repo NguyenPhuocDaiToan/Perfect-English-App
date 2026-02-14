@@ -6,11 +6,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map, switchMap, tap } from 'rxjs/operators';
 
 import { BlogService } from '../../services/blog.service';
-import { UserService } from '../../services/user.service';
 import { TopicService } from '../../services/topic.service';
 import { LessonService } from '../../services/lesson.service';
 
-import { BlogPost } from '../../models/blog-post.model';
 import { User } from '../../models/user.model';
 import { Topic } from '../../models/topic.model';
 import { Lesson } from '../../models/lesson.model';
@@ -32,7 +30,6 @@ interface TocItem {
 export class BlogPostComponent {
   private route = inject(ActivatedRoute);
   private blogService = inject(BlogService);
-  private userService = inject(UserService);
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
   private titleService: Title = inject(Title);
@@ -46,7 +43,6 @@ export class BlogPostComponent {
 
   // Data for related posts
   allPosts = toSignal(this.blogService.getAllBlogPostsForSelect(), { initialValue: [] });
-  allUsers = toSignal(this.userService.getAllUsersForSelect(), { initialValue: [] });
 
   private post$ = this.route.paramMap.pipe(
     map(params => params.get('slug')!),
@@ -54,9 +50,14 @@ export class BlogPostComponent {
     tap(foundPost => {
       if (foundPost) {
         this.titleService.setTitle(`${foundPost.title} | Perfect English Grammar`);
-        // If creator is populated (object) use it, if not (string ID) search in list
-        const creatorId = typeof (foundPost as any).createdBy === 'string' ? (foundPost as any).createdBy : (foundPost as any).createdBy?.id;
-        this.author.set(this.allUsers().find(u => u.id === creatorId));
+
+        // Use populated createdBy if available
+        if (foundPost.createdBy && typeof foundPost.createdBy === 'object') {
+          this.author.set(foundPost.createdBy as any);
+        } else {
+          // Fallback
+          this.author.set({ name: 'Unknown', avatarUrl: '' } as any);
+        }
 
         if (foundPost.topic) {
           const topic = typeof foundPost.topic === 'string' ? foundPost.topic : foundPost.topic?.id;

@@ -48,7 +48,7 @@ export class ExplanationsComponent {
   categories: FilterCategory[] = ['All', ...TOPIC_CATEGORIES];
   selectedCategory = signal<FilterCategory>('All');
 
-  private allLessons = toSignal(this.lessonService.getAllLessonsForSelect(), { initialValue: [] });
+  private allLessons = toSignal(this.lessonService.getPublicLessons(), { initialValue: [] });
 
   constructor() {
     effect(() => {

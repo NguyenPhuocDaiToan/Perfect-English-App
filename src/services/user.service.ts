@@ -93,4 +93,8 @@ export class UserService {
   getUser(id: number | string): Observable<User> {
     return this.http.get<User>(`${this.USERS_URL}/${id}`);
   }
+
+  getLeaderboard(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.USERS_URL}/leaderboard`);
+  }
 }

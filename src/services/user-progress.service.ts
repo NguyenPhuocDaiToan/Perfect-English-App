@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExerciseService } from './exercise.service';
 import { TopicService } from './topic.service';
 import { Exercise } from '../models/exercise.model';
 import { environment } from '../environments/environment';
+import { AuthService } from './auth.service';
 
 export interface UserExerciseProgress {
   exercise: string;
@@ -20,9 +21,13 @@ export class UserProgressService {
   private http = inject(HttpClient);
   private exerciseService = inject(ExerciseService);
   private topicService = inject(TopicService);
+  private authService = inject(AuthService);
   private readonly API_URL = `${environment.apiUrl}/user-progress`;
 
   getUserProgress(): Observable<UserExerciseProgress[]> {
+    if (!this.authService.isLoggedIn()) {
+      return of([]);
+    }
     return this.http.get<UserExerciseProgress[]>(this.API_URL);
   }
 

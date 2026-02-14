@@ -23,7 +23,7 @@ export class TopicService {
       params = params.set('category', filters.category);
     }
 
-    return this.http.get<PaginatedResponse<Topic>>(this.API_URL, { params });
+    return this.http.get<PaginatedResponse<Topic>>(`${environment.apiUrl}/public/topics`, { params });
   }
 
   getPaginatedAdminTopics(
@@ -55,8 +55,14 @@ export class TopicService {
     );
   }
 
+  getPublicTopics(): Observable<Topic[]> {
+    return this.http.get<PaginatedResponse<Topic>>(`${environment.apiUrl}/public/topics?limit=100&status=Published`).pipe(
+      map(response => response.results)
+    );
+  }
+
   getTopic(id: string): Observable<Topic> {
-    return this.http.get<Topic>(`${this.API_URL}/${id}`);
+    return this.http.get<Topic>(`${environment.apiUrl}/public/topics/${id}`);
   }
 
   addTopic(topic: Omit<Topic, 'id'>): Observable<Topic> {

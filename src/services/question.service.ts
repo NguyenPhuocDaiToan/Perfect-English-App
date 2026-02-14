@@ -46,7 +46,7 @@ export class QuestionService {
 
   getQuestionByIds(ids: string[]): Observable<Question[]> {
     const params = new HttpParams().set('ids', ids.join(','));
-    return this.http.get<Question[]>(`${this.API_URL}/batch`, { params });
+    return this.http.get<Question[]>(`${environment.apiUrl}/public/questions/batch`, { params });
   }
 
   addQuestion(question: Omit<Question, 'id'>): Observable<Question> {

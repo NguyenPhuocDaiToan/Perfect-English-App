@@ -27,7 +27,7 @@ export class BlogService {
       params.search = filters.searchTerm;
     }
 
-    return this.http.get<PaginatedResponse<BlogPost>>(this.API_URL, { params });
+    return this.http.get<PaginatedResponse<BlogPost>>(`${environment.apiUrl}/public/blog-posts`, { params });
   }
 
   getPaginatedAdminPosts(
@@ -60,7 +60,7 @@ export class BlogService {
   }
 
   getBlogPostBySlug(slug: string): Observable<BlogPost> {
-    return this.http.get<BlogPost>(`${this.API_URL}/slug/${slug}`);
+    return this.http.get<BlogPost>(`${environment.apiUrl}/public/blog-posts/${slug}?populate=createdBy`);
   }
 
   getBlogPost(id: string): Observable<BlogPost> {

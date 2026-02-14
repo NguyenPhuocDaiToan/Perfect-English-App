@@ -19,6 +19,12 @@ export class LessonService {
     );
   }
 
+  getPublicLessons(): Observable<Lesson[]> {
+    return this.http.get<PaginatedResponse<Lesson>>(`${environment.apiUrl}/public/lessons?limit=100`).pipe(
+      map(response => response.results)
+    );
+  }
+
   getPaginatedLessons(
     page: number,
     limit: number,
@@ -46,7 +52,7 @@ export class LessonService {
   }
 
   getLesson(id: string): Observable<Lesson> {
-    return this.http.get<Lesson>(`${this.API_URL}/${id}`);
+    return this.http.get<Lesson>(`${environment.apiUrl}/public/lessons/${id}`);
   }
 
   addLesson(lesson: Omit<Lesson, 'id'>): Observable<Lesson> {
