@@ -78,8 +78,8 @@ Tài liệu này mô tả chi tiết các tác vụ cần thực hiện để x�
     slug: { type: String, unique: true },
     level: { type: String, enum: ['A1', 'A2', 'B1', 'B2', 'C1'] },
     content: String, // HTML content from CKEditor
-    topicIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Topic' }],
-    exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }, // Optional link
+    topics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Topic' }],
+    exercise: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }, // Optional link
     isPremium: Boolean,
     status: { type: String, enum: ['Published', 'Draft'] },
     views: { type: Number, default: 0 }
@@ -131,9 +131,9 @@ Tài liệu này mô tả chi tiết các tác vụ cần thực hiện để x�
     description: String,
     difficulty: { type: String, enum: ['Easy', 'Medium', 'Hard'] },
     timeLimit: Number, // Minutes
-    questionIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
-    topicIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Topic' }],
-    lessonIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+    questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
+    topics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Topic' }],
+    lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
     status: { type: String, enum: ['Published', 'Draft'] },
     isPremium: Boolean
   }
@@ -156,7 +156,7 @@ Tài liệu này mô tả chi tiết các tác vụ cần thực hiện để x�
   ```typescript
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' },
+    exercise: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' },
     status: { type: String, enum: ['In Progress', 'Completed'] },
     score: Number, // 0-100
     userAnswers: Map, // Lưu câu trả lời chi tiết: { questionId: answer }

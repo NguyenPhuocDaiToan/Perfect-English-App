@@ -1,123 +1,134 @@
 <div class="bg-white py-12">
     @if (post(); as post) {
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Breadcrumbs -->
-            <nav class="flex mb-8" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2 text-sm font-medium text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2 text-sm font-medium text-slate-500">
                 <li><a routerLink="/" class="hover:text-primary-600">Home</a></li>
                 <li><span class="mx-2">/</span></li>
                 <li><a routerLink="/blog" class="hover:text-primary-600">Learning Hub</a></li>
-                 <li><span class="mx-2">/</span></li>
+                <li><span class="mx-2">/</span></li>
                 <li class="text-slate-800 truncate" aria-current="page" [title]="post.title">{{ post.title }}</li>
-                </ol>
-            </nav>
+            </ol>
+        </nav>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12">
-                <!-- Main Content -->
-                <div class="lg:col-span-2">
-                    <article class="prose prose-lg prose-slate max-w-none prose-h2:text-slate-800 prose-h3:text-slate-700 prose-a:text-primary-600 hover:prose-a:text-primary-700">
-                        <!-- Article Header -->
-                        <header class="mb-8">
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                @for(tag of post.tags; track tag) {
-                                    <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full">{{tag}}</span>
-                                }
-                            </div>
-                            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-0">
-                                {{ post.title }}
-                            </h1>
-                            <p class="text-xl text-slate-500 mt-3">{{ post.excerpt }}</p>
-                        </header>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <article
+                    class="prose prose-lg prose-slate max-w-none prose-h2:text-slate-800 prose-h3:text-slate-700 prose-a:text-primary-600 hover:prose-a:text-primary-700">
+                    <!-- Article Header -->
+                    <header class="mb-8">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            @for(tag of post.tags; track tag) {
+                            <span
+                                class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full">{{tag}}</span>
+                            }
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-0">
+                            {{ post.title }}
+                        </h1>
+                        <p class="text-xl text-slate-500 mt-3">{{ post.excerpt }}</p>
+                    </header>
 
-                        <!-- Article Content -->
-                        <div [innerHTML]="post.content"></div>
-                    </article>
-                </div>
-
-                <!-- Sticky Sidebar -->
-                <aside class="lg:col-span-1 mt-12 lg:mt-0">
-                    <div class="sticky top-24 space-y-8">
-                        <!-- Author Box -->
-                         @if (author(); as author) {
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
-                                <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">About the Author</h3>
-                                <img [src]="author.avatarUrl" [alt]="author.name" class="w-20 h-20 rounded-full mx-auto mb-3 object-cover">
-                                <p class="font-semibold text-slate-800 text-lg">{{ author.name }}</p>
-                                <p class="text-sm text-slate-600">{{ author.role }}</p>
-                            </div>
-                        }
-
-                        <!-- Table of Contents -->
-                        @if (tableOfContents().length > 0) {
-                             <div class="border-t border-slate-200 pt-8">
-                                <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">On this page</h3>
-                                <ul class="space-y-2">
-                                    @for(item of tableOfContents(); track item.id) {
-                                        <li>
-                                            <a (click)="scrollTo(item.id, $event)" href="#{{item.id}}" 
-                                               class="block text-sm text-slate-600 hover:text-primary-600 transition-colors"
-                                               [class.pl-4]="item.level > 1">
-                                               {{ item.text }}
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        }
-                        
-                        <!-- Related Learning -->
-                        @if (relatedTopic() || relatedLesson()) {
-                            <div class="border-t border-slate-200 pt-8">
-                                 <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">Related Learning</h3>
-                                 <div class="space-y-3">
-                                     @if(relatedTopic(); as topic) {
-                                        <a [routerLink]="['/explanations']" [queryParams]="{topic: topic.id}" class="block bg-primary-50 p-4 rounded-lg hover:bg-primary-100 transition-colors">
-                                            <p class="font-semibold text-primary-800">Read the full explanation</p>
-                                            <p class="text-sm text-primary-700">{{topic.title}}</p>
-                                        </a>
-                                     }
-                                      @if(relatedLesson(); as lesson) {
-                                        @if(lesson.exerciseId) {
-                                            <a [routerLink]="['/exercises', lesson.exerciseId]" class="block bg-green-50 p-4 rounded-lg hover:bg-green-100 transition-colors">
-                                                <p class="font-semibold text-green-800">Practice this Topic</p>
-                                                <p class="text-sm text-green-700">{{lesson.title}} Exercise</p>
-                                            </a>
-                                        }
-                                     }
-                                 </div>
-                            </div>
-                        }
-                    </div>
-                </aside>
+                    <!-- Article Content -->
+                    <div [innerHTML]="post.content"></div>
+                </article>
             </div>
 
-             <!-- Related Posts -->
-            <section class="max-w-5xl mx-auto mt-16 pt-12 border-t border-slate-200">
-                 <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Continue Reading</h2>
-                 @if (relatedPosts().length > 0) {
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        @for (related of relatedPosts(); track related.id) {
-                            <a [routerLink]="['/blog', related.slug]" class="block bg-white rounded-lg shadow-sm overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300 border border-slate-200 hover:shadow-lg">
-                                <img [src]="related.thumbnail" alt="" class="h-48 w-full object-cover">
-                                <div class="p-6">
-                                    <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors">{{ related.title }}</h3>
-                                    <p class="text-slate-600 text-sm">{{ related.excerpt }}</p>
-                                </div>
+            <!-- Sticky Sidebar -->
+            <aside class="lg:col-span-1 mt-12 lg:mt-0">
+                <div class="sticky top-24 space-y-8">
+                    <!-- Author Box -->
+                    @if (author(); as author) {
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">About the Author
+                        </h3>
+                        <img [src]="author.avatarUrl" [alt]="author.name"
+                            class="w-20 h-20 rounded-full mx-auto mb-3 object-cover">
+                        <p class="font-semibold text-slate-800 text-lg">{{ author.name }}</p>
+                        <p class="text-sm text-slate-600">{{ author.role }}</p>
+                    </div>
+                    }
+
+                    <!-- Table of Contents -->
+                    @if (tableOfContents().length > 0) {
+                    <div class="border-t border-slate-200 pt-8">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">On this page</h3>
+                        <ul class="space-y-2">
+                            @for(item of tableOfContents(); track item.id) {
+                            <li>
+                                <a (click)="scrollTo(item.id, $event)" href="#{{item.id}}"
+                                    class="block text-sm text-slate-600 hover:text-primary-600 transition-colors"
+                                    [class.pl-4]="item.level > 1">
+                                    {{ item.text }}
+                                </a>
+                            </li>
+                            }
+                        </ul>
+                    </div>
+                    }
+
+                    <!-- Related Learning -->
+                    @if (relatedTopic() || relatedLesson()) {
+                    <div class="border-t border-slate-200 pt-8">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">Related Learning
+                        </h3>
+                        <div class="space-y-3">
+                            @if(relatedTopic(); as topic) {
+                            <a [routerLink]="['/explanations']" [queryParams]="{topic: topic.id}"
+                                class="block bg-primary-50 p-4 rounded-lg hover:bg-primary-100 transition-colors">
+                                <p class="font-semibold text-primary-800">Read the full explanation</p>
+                                <p class="text-sm text-primary-700">{{topic.title}}</p>
                             </a>
-                        }
-                     </div>
-                 } @else {
-                    <p class="text-center text-slate-500">No related posts found.</p>
-                 }
-            </section>
+                            }
+                            @if(relatedLesson(); as lesson) {
+                            @if(lesson.exercise) {
+                            <a [routerLink]="['/exercises', lesson.exercise]"
+                                class="block bg-green-50 p-4 rounded-lg hover:bg-green-100 transition-colors">
+                                <p class="font-semibold text-green-800">Practice this Topic</p>
+                                <p class="text-sm text-green-700">{{lesson.title}} Exercise</p>
+                            </a>
+                            }
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+            </aside>
         </div>
+
+        <!-- Related Posts -->
+        <section class="max-w-5xl mx-auto mt-16 pt-12 border-t border-slate-200">
+            <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Continue Reading</h2>
+            @if (relatedPosts().length > 0) {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                @for (related of relatedPosts(); track related.id) {
+                <a [routerLink]="['/blog', related.slug]"
+                    class="block bg-white rounded-lg shadow-sm overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300 border border-slate-200 hover:shadow-lg">
+                    <img [src]="related.thumbnail" alt="" class="h-48 w-full object-cover">
+                    <div class="p-6">
+                        <h3
+                            class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors">
+                            {{ related.title }}</h3>
+                        <p class="text-slate-600 text-sm">{{ related.excerpt }}</p>
+                    </div>
+                </a>
+                }
+            </div>
+            } @else {
+            <p class="text-center text-slate-500">No related posts found.</p>
+            }
+        </section>
+    </div>
     } @else {
-        <div class="text-center py-20">
-            <h1 class="text-3xl font-bold text-slate-800">Post not found</h1>
-            <p class="text-slate-600 mt-2">Sorry, we couldn't find the blog post you were looking for.</p>
-            <a routerLink="/blog" class="mt-6 inline-block bg-primary-600 text-white font-bold py-3 px-6 rounded-md hover:bg-primary-700 transition">
-                Back to Learning Hub
-            </a>
-        </div>
+    <div class="text-center py-20">
+        <h1 class="text-3xl font-bold text-slate-800">Post not found</h1>
+        <p class="text-slate-600 mt-2">Sorry, we couldn't find the blog post you were looking for.</p>
+        <a routerLink="/blog"
+            class="mt-6 inline-block bg-primary-600 text-white font-bold py-3 px-6 rounded-md hover:bg-primary-700 transition">
+            Back to Learning Hub
+        </a>
+    </div>
     }
 </div>

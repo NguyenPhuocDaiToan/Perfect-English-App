@@ -2,14 +2,14 @@
 import { DifficultyLevel, PublishStatus } from './constants';
 
 export interface Exercise {
-  id: number;
+  id: string;
   title: string;
   description: string;
   difficulty: DifficultyLevel;
   timeLimit: number; // in minutes
-  questionIds: number[];
+  questions: string[];
   status: PublishStatus;
-  topicIds?: number[];
-  lessonIds?: number[];
+  topics?: string[];
+  lessons?: string[];
   isPremium?: boolean; // Monetization feature
 }

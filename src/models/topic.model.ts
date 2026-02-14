@@ -2,7 +2,7 @@
 import { TopicCategory, PublishStatus } from './constants';
 
 export interface Topic {
-  id: number;
+  id: string;
   title: string;
   category: TopicCategory;
   description: string;

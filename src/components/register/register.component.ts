@@ -32,7 +32,7 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8)]], // Updated minLength to 8 to match backend standard
       confirmPassword: ['', Validators.required],
       terms: [false, Validators.requiredTrue],
     }, { validators: passwordMatchValidator });
@@ -43,22 +43,29 @@ export class RegisterComponent {
       this.registerForm.markAllAsTouched();
       return;
     }
-    
+
     this.registerState.set('loading');
     this.errorMessage.set('');
 
     const { name, email, password } = this.registerForm.value;
-    
-    setTimeout(() => {
-      const result = this.authService.register({ name, email, password });
 
-      if (result.success) {
-        this.registerState.set('success');
-        setTimeout(() => this.router.navigate(['/verify-email']), 1000);
-      } else {
+    this.authService.register({ name, email, password }).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.registerState.set('success');
+          // Backend logs in automatically, but maybe we want to show verify email page
+          // Backend sends verification email. 
+          // Previous logic redirected to verify-email. 
+          setTimeout(() => this.router.navigate(['/verify-email']), 1000);
+        } else {
+          this.registerState.set('error');
+          this.errorMessage.set(result.message || 'Registration failed. Please try again.');
+        }
+      },
+      error: () => {
         this.registerState.set('error');
-        this.errorMessage.set(result.message || 'Registration failed. Please try again.');
+        this.errorMessage.set('Network error or server unreachable.');
       }
-    }, 500);
+    });
   }
 }

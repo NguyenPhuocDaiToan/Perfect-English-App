@@ -39,11 +39,11 @@ export class UsersComponent {
   isEditing = signal(false);
   currentUser = signal<User | null>(null);
   saveState = signal<SaveButtonState>('idle');
-  
+
   // Select Options
   roleOptions = USER_ROLES;
   statusOptions = USER_STATUSES;
-  
+
   // Computed options for SelectComponent
   roleOptionsForSelect = computed(() => this.roleOptions.map(o => ({ value: o, label: o })));
   statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
@@ -62,7 +62,7 @@ export class UsersComponent {
     const end = start + this.users().length - 1;
     return `Showing ${start} to ${end} of ${total} results`;
   });
-  
+
   userForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
@@ -112,17 +112,17 @@ export class UsersComponent {
   openEditForm(user: User) {
     this.isEditing.set(true);
     this.currentUser.set(user);
-    this.userForm.setValue({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      status: user.status,
+    this.userForm.patchValue({
+      name: user.name || '',
+      email: user.email || '',
+      role: user.role || 'Student',
+      status: user.status || 'Active',
       avatarUrl: user.avatarUrl || ''
     });
     this.saveState.set('idle');
     this.showForm.set(true);
   }
-  
+
   closeForm() {
     this.showForm.set(false);
   }
@@ -133,7 +133,7 @@ export class UsersComponent {
     }
 
     this.saveState.set('loading');
-    
+
     const currentUserData = this.currentUser() || { createdAt: new Date().toISOString().split('T')[0] };
 
     const saveObservable = this.isEditing() && this.currentUser()
@@ -141,19 +141,19 @@ export class UsersComponent {
       : this.userService.addUser(this.userForm.value);
 
     saveObservable.subscribe({
-        next: () => {
-            this.toastService.show(this.isEditing() ? 'User updated successfully' : 'User added successfully', 'success');
-            this.closeForm();
-            this.refetchCurrentPage();
-        },
-        error: () => {
-            this.saveState.set('idle');
-            this.toastService.show('Failed to save user', 'error');
-        }
+      next: () => {
+        this.toastService.show(this.isEditing() ? 'User updated successfully' : 'User added successfully', 'success');
+        this.closeForm();
+        this.refetchCurrentPage();
+      },
+      error: () => {
+        this.saveState.set('idle');
+        this.toastService.show('Failed to save user', 'error');
+      }
     });
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     const confirmed = await this.confirmationService.confirm({
       title: 'Delete User',
       message: 'Are you sure you want to delete this user? This action cannot be undone.',
@@ -164,12 +164,12 @@ export class UsersComponent {
     if (confirmed) {
       this.userService.deleteUser(id).subscribe({
         next: () => {
-            this.toastService.show('User deleted successfully', 'success');
-            if (this.users().length === 1 && this.currentPage() > 1) {
-                this.currentPage.update(p => p - 1);
-            } else {
-                this.refetchCurrentPage();
-            }
+          this.toastService.show('User deleted successfully', 'success');
+          if (this.users().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+          } else {
+            this.refetchCurrentPage();
+          }
         },
         error: () => this.toastService.show('Failed to delete user', 'error')
       });
@@ -177,9 +177,9 @@ export class UsersComponent {
   }
 
   private refetchCurrentPage() {
-    this.fetchUsers(this.currentPage(), { 
-      searchTerm: this.searchTerm(), 
-      role: this.filterRoleControl.value ?? 'All', 
+    this.fetchUsers(this.currentPage(), {
+      searchTerm: this.searchTerm(),
+      role: this.filterRoleControl.value ?? 'All',
       status: this.filterStatusControl.value ?? 'All'
     });
   }

@@ -1,5 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -17,22 +18,22 @@ export class UserDashboardComponent {
   userProgressService = inject(UserProgressService);
 
   user = computed(() => this.authService.currentUser());
-  
+
   // Analytics
-  stats = this.userProgressService.getStats();
-  weakAreas = this.userProgressService.getWeakAreas();
-  
+  stats = toSignal(this.userProgressService.getStats(), { initialValue: { completedExercises: 0, averageScore: 0, mastery: {} } });
+  weakAreas = toSignal(this.userProgressService.getWeakAreas(), { initialValue: [] });
+
   // Gamification: Leaderboard (Mock Data)
   leaderboard = [
-      { name: 'David P.', xp: 50000, avatar: 'https://picsum.photos/seed/user4/200' },
-      { name: 'Admin User', xp: 15000, avatar: 'https://picsum.photos/seed/user1/200' },
-      { name: 'Maria S.', xp: 3400, avatar: 'https://picsum.photos/seed/user2/200' },
-      { name: 'Carlos G.', xp: 1200, avatar: 'https://picsum.photos/seed/user6/200' },
-      { name: 'You', xp: 0, avatar: '' } // Will be replaced by current user in template
+    { name: 'David P.', xp: 50000, avatar: 'https://picsum.photos/seed/user4/200' },
+    { name: 'Admin User', xp: 15000, avatar: 'https://picsum.photos/seed/user1/200' },
+    { name: 'Maria S.', xp: 3400, avatar: 'https://picsum.photos/seed/user2/200' },
+    { name: 'Carlos G.', xp: 1200, avatar: 'https://picsum.photos/seed/user6/200' },
+    { name: 'You', xp: 0, avatar: '' } // Will be replaced by current user in template
   ];
 
   dailyGoal = 50;
   currentDailyProgress = 30; // Mock daily progress
 
-  constructor() {}
+  constructor() { }
 }

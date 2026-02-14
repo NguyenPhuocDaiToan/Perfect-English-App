@@ -1,5 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +9,6 @@ import { map, filter } from 'rxjs/operators';
 import { BlogService } from '../../../services/blog.service';
 import { TopicService } from '../../../services/topic.service';
 import { LessonService } from '../../../services/lesson.service';
-import { UserService } from '../../../services/user.service';
 import { ToastService } from '../../../services/toast.service';
 import { SaveButtonComponent, SaveButtonState } from '../ui/save-button/save-button.component';
 import { SelectComponent } from '../../shared/select/select.component';
@@ -32,26 +32,23 @@ export class BlogFormComponent {
   private blogService = inject(BlogService);
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
-  private userService = inject(UserService);
   private toastService = inject(ToastService);
 
   blogForm: FormGroup;
   isEditing = signal(false);
-  currentPostId = signal<number | null>(null);
+  currentPostId = signal<string | null>(null);
   saveState = signal<SaveButtonState>('idle');
   public Editor = ClassicEditor;
 
   // Data for select dropdowns
-  allTopics = this.topicService.getTopics();
-  allLessons = this.lessonService.getLessons();
-  allUsers = this.userService.getUsers();
+  allTopics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
+  allLessons = toSignal(this.lessonService.getAllLessonsForSelect(), { initialValue: [] });
 
   statusOptions = PUBLISH_STATUSES;
 
   // Computed options for SelectComponent
   topicOptions = computed(() => this.allTopics().map(t => ({ value: t.id, label: t.title })));
   lessonOptions = computed(() => this.allLessons().map(l => ({ value: l.id, label: l.title })));
-  authorOptions = computed(() => this.allUsers().map(u => ({ value: u.id, label: u.name })));
   statusOptionsForSelect = computed(() => this.statusOptions.map(o => ({ value: o, label: o })));
 
   constructor() {
@@ -59,30 +56,30 @@ export class BlogFormComponent {
       title: ['', Validators.required],
       content: ['', Validators.required],
       thumbnail: ['', Validators.required],
-      authorId: [null, Validators.required],
-      topicId: [null],
-      lessonId: [null],
+      topic: [null],
+      lesson: [null],
       tags: [''],
       status: ['Draft', Validators.required],
     });
 
     this.route.paramMap.pipe(
       map(params => params.get('id')),
-      filter(id => id !== null),
-      map(id => Number(id)),
+      filter(id => id !== null)
     ).subscribe(id => {
       this.isEditing.set(true);
-      this.currentPostId.set(id);
-      const post = this.blogService.getBlogPost(id)();
-      if (post) {
-        this.blogForm.patchValue({
-          ...post,
-          tags: post.tags.join(', ')
-        });
-      } else {
-         this.toastService.show('Post not found', 'error');
-         this.router.navigate(['/admin/blog']);
-      }
+      this.currentPostId.set(id!);
+      this.blogService.getBlogPost(id!).subscribe({
+        next: (post) => {
+          this.blogForm.patchValue({
+            ...post,
+            tags: post.tags?.join(', ') || ''
+          });
+        },
+        error: () => {
+          this.toastService.show('Post not found', 'error');
+          this.router.navigate(['/admin/blog']);
+        }
+      });
     });
   }
 
@@ -94,11 +91,11 @@ export class BlogFormComponent {
     if (this.blogForm.invalid || this.saveState() !== 'idle') return;
 
     this.saveState.set('loading');
-    
+
     const formValue = this.blogForm.value;
     const postData = {
       ...formValue,
-      tags: formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t),
+      tags: formValue.tags ? formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : [],
     };
 
     const saveObservable = this.isEditing() && this.currentPostId() !== null

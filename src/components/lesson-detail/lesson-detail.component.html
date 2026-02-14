@@ -1,97 +1,110 @@
-
 <div class="bg-white py-12">
   @if (lesson(); as lesson) {
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- Breadcrumbs -->
-      <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm font-medium text-slate-500">
-          <li><a routerLink="/" class="hover:text-primary-600">Home</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li><a routerLink="/explanations" class="hover:text-primary-600">Explanations</a></li>
-          @if (topic(); as topic) {
-            <li><span class="mx-2">/</span></li>
-            <li class="truncate" [title]="topic.title">{{ topic.title }}</li>
-          }
-          <li><span class="mx-2">/</span></li>
-          <li class="text-slate-800 truncate" aria-current="page" [title]="lesson.title">{{ lesson.title }}</li>
-        </ol>
-      </nav>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <main class="max-w-4xl mx-auto">
-        <!-- Article Header -->
-        <header class="mb-8">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full">
-                {{ lesson.level }}
-            </span>
-            @if(lesson.isPremium) {
-                <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5">
-                      <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clip-rule="evenodd" />
-                    </svg>
-                    Premium
-                </span>
-            }
-          </div>
-          <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
-            {{ lesson.title }}
-          </h1>
-        </header>
-
-        @if (isLocked()) {
-            <!-- Paywall UI -->
-            <div class="relative rounded-xl overflow-hidden border border-slate-200">
-                <!-- Blurred Content Preview -->
-                <div class="p-8 filter blur-sm select-none opacity-50 h-96 overflow-hidden" aria-hidden="true">
-                     <article class="prose prose-lg prose-slate max-w-none" [innerHTML]="lesson.content"></article>
-                </div>
-                
-                <!-- Call to Action Overlay -->
-                <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-white/80 to-white">
-                    <div class="bg-white p-8 rounded-2xl shadow-2xl border border-slate-100 max-w-md text-center mx-4">
-                        <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-amber-500">
-                                <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-900 mb-2">Unlock this Premium Lesson</h2>
-                        <p class="text-slate-600 mb-6">Get unlimited access to all {{lesson.level}} lessons, exercises, and advanced grammar topics.</p>
-                        <a routerLink="/membership" class="block w-full py-3 px-6 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                            Upgrade to Pro
-                        </a>
-                        <p class="mt-4 text-xs text-slate-400">Already a member? <a routerLink="/login" class="text-primary-600 hover:underline">Log in</a></p>
-                    </div>
-                </div>
-            </div>
-        } @else {
-            <!-- Article Content -->
-            <article class="prose prose-lg prose-slate max-w-none" [innerHTML]="lesson.content"></article>
-            
-            <!-- Footer Actions -->
-            <footer class="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <a routerLink="/explanations" class="font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2">
-                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-                Back to Lessons
-              </a>
-              @if (lesson.exerciseId) {
-                <a [routerLink]="['/exercises', lesson.exerciseId]" class="w-full sm:w-auto text-center bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200">
-                  Go to Practice Exercise
-                </a>
-              }
-            </footer>
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm font-medium text-slate-500">
+        <li><a routerLink="/" class="hover:text-primary-600">Home</a></li>
+        <li><span class="mx-2">/</span></li>
+        <li><a routerLink="/explanations" class="hover:text-primary-600">Explanations</a></li>
+        @if (topic(); as topic) {
+        <li><span class="mx-2">/</span></li>
+        <li class="truncate" [title]="topic.title">{{ topic.title }}</li>
         }
-      </main>
-    </div>
+        <li><span class="mx-2">/</span></li>
+        <li class="text-slate-800 truncate" aria-current="page" [title]="lesson.title">{{ lesson.title }}</li>
+      </ol>
+    </nav>
+
+    <main class="max-w-4xl mx-auto">
+      <!-- Article Header -->
+      <header class="mb-8">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-3 py-1 rounded-full">
+            {{ lesson.level }}
+          </span>
+          @if(lesson.isPremium) {
+          <span
+            class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5">
+              <path fill-rule="evenodd"
+                d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                clip-rule="evenodd" />
+            </svg>
+            Premium
+          </span>
+          }
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+          {{ lesson.title }}
+        </h1>
+      </header>
+
+      @if (isLocked()) {
+      <!-- Paywall UI -->
+      <div class="relative rounded-xl overflow-hidden border border-slate-200">
+        <!-- Blurred Content Preview -->
+        <div class="p-8 filter blur-sm select-none opacity-50 h-96 overflow-hidden" aria-hidden="true">
+          <article class="prose prose-lg prose-slate max-w-none" [innerHTML]="lesson.content"></article>
+        </div>
+
+        <!-- Call to Action Overlay -->
+        <div
+          class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-white/80 to-white">
+          <div class="bg-white p-8 rounded-2xl shadow-2xl border border-slate-100 max-w-md text-center mx-4">
+            <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-8 h-8 text-amber-500">
+                <path fill-rule="evenodd"
+                  d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                  clip-rule="evenodd" />
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Unlock this Premium Lesson</h2>
+            <p class="text-slate-600 mb-6">Get unlimited access to all {{lesson.level}} lessons, exercises, and advanced
+              grammar topics.</p>
+            <a routerLink="/membership"
+              class="block w-full py-3 px-6 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              Upgrade to Pro
+            </a>
+            <p class="mt-4 text-xs text-slate-400">Already a member? <a routerLink="/login"
+                class="text-primary-600 hover:underline">Log in</a></p>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <!-- Article Content -->
+      <article class="prose prose-lg prose-slate max-w-none" [innerHTML]="lesson.content"></article>
+
+      <!-- Footer Actions -->
+      <footer class="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <a routerLink="/explanations"
+          class="font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back to Lessons
+        </a>
+        @if (lesson.exercise) {
+        <a [routerLink]="['/exercises', lesson.exercise]"
+          class="w-full sm:w-auto text-center bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg hover:-translate-y-px transition-all duration-200">
+          Go to Practice Exercise
+        </a>
+        }
+      </footer>
+      }
+    </main>
+  </div>
   } @else {
-    <div class="text-center py-20">
-      <h1 class="text-3xl font-bold text-slate-800">Lesson not found</h1>
-      <p class="text-slate-600 mt-2">Sorry, we couldn't find the lesson you were looking for.</p>
-      <a routerLink="/explanations" class="mt-6 inline-block bg-primary-600 text-white font-bold py-3 px-6 rounded-md hover:bg-primary-700 transition">
-        Back to Explanations
-      </a>
-    </div>
+  <div class="text-center py-20">
+    <h1 class="text-3xl font-bold text-slate-800">Lesson not found</h1>
+    <p class="text-slate-600 mt-2">Sorry, we couldn't find the lesson you were looking for.</p>
+    <a routerLink="/explanations"
+      class="mt-6 inline-block bg-primary-600 text-white font-bold py-3 px-6 rounded-md hover:bg-primary-700 transition">
+      Back to Explanations
+    </a>
+  </div>
   }
 </div>

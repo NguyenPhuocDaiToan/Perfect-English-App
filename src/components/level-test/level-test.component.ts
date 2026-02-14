@@ -36,17 +36,18 @@ export class LevelTestComponent {
 
   level = computed(() => {
     const percentage = (this.score() / this.questions().length) * 100;
-    if (percentage < 30) return { name: 'A1', description: 'Beginner' };
-    if (percentage < 50) return { name: 'A2', description: 'Elementary' };
-    if (percentage < 70) return { name: 'B1', description: 'Intermediate' };
-    if (percentage < 90) return { name: 'B2', description: 'Upper-Intermediate' };
-    return { name: 'C1+', description: 'Advanced' };
+    if (percentage < 20) return { name: 'A1', description: 'Beginner' };
+    if (percentage < 40) return { name: 'A2', description: 'Elementary' };
+    if (percentage < 60) return { name: 'B1', description: 'Intermediate' };
+    if (percentage < 80) return { name: 'B2', description: 'Upper-Intermediate' };
+    if (percentage < 95) return { name: 'C1', description: 'Advanced' };
+    return { name: 'C2', description: 'Proficiency' };
   });
 
   constructor() {
     this.questions$.subscribe(data => {
-        this.questions.set(data);
-        this.userAnswers.set(new Array(data.length).fill(-1));
+      this.questions.set(data);
+      this.userAnswers.set(new Array(data.length).fill(-1));
     });
   }
 
@@ -56,7 +57,7 @@ export class LevelTestComponent {
       return [...answers];
     });
   }
-  
+
   nextQuestion() {
     if (this.currentQuestionIndex() < this.questions().length - 1) {
       this.currentQuestionIndex.update(i => i + 1);

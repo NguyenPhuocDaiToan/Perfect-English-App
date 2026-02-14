@@ -1,88 +1,96 @@
 
-import { Injectable, signal, computed } from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { PaginatedResponse } from '../models/paginated-response.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private users = signal<User[]>([
-    { id: 1, name: 'Admin User', email: 'admin@example.com', role: 'Admin', status: 'Active', isPremium: true, streak: 150, xp: 15000, avatarUrl: 'https://picsum.photos/seed/user1/200', createdAt: '2023-01-15', lastLogin: '2024-05-20', password: 'admin' },
-    { id: 2, name: 'Maria S.', email: 'maria.s@example.com', role: 'Student', status: 'Active', isPremium: true, streak: 45, xp: 3400, avatarUrl: 'https://picsum.photos/seed/user2/200', createdAt: '2023-03-22', lastLogin: '2024-05-18', password: 'password' },
-    { id: 3, name: 'Kenji T.', email: 'kenji.t@example.com', role: 'Student', status: 'Inactive', isPremium: false, streak: 0, xp: 120, avatarUrl: 'https://picsum.photos/seed/user3/200', createdAt: '2023-05-10', lastLogin: '2024-03-10', password: 'password' },
-    { id: 4, name: 'David P.', email: 'david.p@example.com', role: 'Teacher', status: 'Active', isPremium: true, streak: 365, xp: 50000, avatarUrl: 'https://picsum.photos/seed/user4/200', createdAt: '2023-06-01', lastLogin: '2024-05-21', password: 'password' },
-    { id: 5, name: 'Jane Doe', email: 'jane.d@example.com', role: 'Editor', status: 'Suspended', isPremium: false, streak: 2, xp: 500, avatarUrl: 'https://picsum.photos/seed/user5/200', createdAt: '2023-08-19', lastLogin: '2024-04-01', password: 'password' },
-    { id: 6, name: 'Carlos Gomez', email: 'carlos.g@example.com', role: 'Teacher', status: 'Active', isPremium: true, streak: 12, xp: 1200, avatarUrl: 'https://picsum.photos/seed/user6/200', createdAt: '2023-09-05', lastLogin: '2024-05-19', password: 'password' },
-    // Free Student for testing
-    { id: 7, name: 'Free Student', email: 'student@example.com', role: 'Student', status: 'Active', isPremium: false, streak: 3, xp: 150, avatarUrl: 'https://picsum.photos/seed/user7/200', createdAt: '2024-01-01', lastLogin: '2024-05-22', password: 'password' },
-  ]);
+  private http = inject(HttpClient);
+  private readonly USERS_URL = `${environment.apiUrl}/users`;
 
-  private nextId = signal(8);
+  // Cache for components relying on synchronous access (dashboard, etc.)
+  private users = signal<User[]>([]);
 
-  getPaginatedUsers(
-    page: number, 
-    limit: number, 
-    filters: { searchTerm: string, role: string, status: string }
-  ): Observable<PaginatedResponse<User>> {
-
-    const allUsers = this.users();
-
-    const filtered = allUsers.filter(user => {
-      const termMatch = filters.searchTerm 
-        ? user.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) || user.email.toLowerCase().includes(filters.searchTerm.toLowerCase())
-        : true;
-      const roleMatch = filters.role === 'All' ? true : user.role === filters.role;
-      const statusMatch = filters.status === 'All' ? true : user.status === filters.status;
-      return termMatch && roleMatch && statusMatch;
-    });
-
-    const totalResults = filtered.length;
-    const totalPages = Math.ceil(totalResults / limit);
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const results = filtered.slice(start, end);
-
-    const response: PaginatedResponse<User> = {
-      results,
-      page,
-      limit,
-      totalPages,
-      totalResults
-    };
-
-    return of(response).pipe(delay(300));
+  constructor() {
+    this.fetchUsers();
   }
 
+  fetchUsers() {
+    this.getPaginatedUsers(1, 100, { searchTerm: '', role: 'All', status: 'All' }).subscribe(response => {
+      this.users.set(response.results);
+    });
+  }
+
+  // Helper for dropdowns to get "all" users (first 100)
+  getAllUsersForSelect(): Observable<User[]> {
+    return this.getPaginatedUsers(1, 100, { searchTerm: '', role: 'All', status: 'All' }).pipe(
+      map(response => response.results)
+    );
+  }
+
+  // Deprecated: Refactor components to use getAllUsersForSelect or getPaginatedUsers
   getUsers() {
     return computed(() => this.users());
   }
-  
-  addUser(user: Omit<User, 'id' | 'createdAt' | 'lastLogin'>): Observable<User> {
-    const newUser: User = { 
-      ...user, 
-      id: this.nextId(),
-      createdAt: new Date().toISOString().split('T')[0],
-      isPremium: false,
-      streak: 0,
-      xp: 0
-    };
-    this.users.update(users => [...users, newUser]);
-    this.nextId.update(id => id + 1);
-    return of(newUser).pipe(delay(500));
+
+  getPaginatedUsers(
+    page: number,
+    limit: number,
+    filters: { searchTerm: string, role: string, status: string }
+  ): Observable<PaginatedResponse<User>> {
+
+    let params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit);
+
+    if (filters.searchTerm) {
+      params = params.set('name', filters.searchTerm);
+    }
+
+    if (filters.role && filters.role !== 'All') {
+      params = params.set('role', filters.role);
+    }
+
+    if (filters.status && filters.status !== 'All') {
+      params = params.set('status', filters.status);
+    }
+
+    return this.http.get<PaginatedResponse<User>>(this.USERS_URL, { params });
+  }
+
+  addUser(user: Partial<User>): Observable<User> {
+    return this.http.post<User>(this.USERS_URL, user).pipe(
+      tap(newUser => {
+        this.users.update(current => [...current, newUser]);
+      })
+    );
   }
 
   updateUser(updatedUser: User): Observable<User> {
-    this.users.update(users => 
-      users.map(u => u.id === updatedUser.id ? updatedUser : u)
+    const userId = updatedUser.id || (updatedUser as any)._id;
+    const { id, ...data } = updatedUser as any;
+    return this.http.patch<User>(`${this.USERS_URL}/${userId}`, data).pipe(
+      tap(savedUser => {
+        this.users.update(current => current.map(u => (u.id === userId || (u as any)._id === userId) ? savedUser : u));
+      })
     );
-    return of(updatedUser).pipe(delay(500));
   }
 
-  deleteUser(id: number): Observable<{}> {
-    this.users.update(users => users.filter(u => u.id !== id));
-    return of({}).pipe(delay(500));
+  deleteUser(id: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.USERS_URL}/${id}`).pipe(
+      tap(() => {
+        this.users.update(current => current.filter(u => u.id !== id && (u as any)._id !== id));
+      })
+    );
+  }
+
+  getUser(id: number | string): Observable<User> {
+    return this.http.get<User>(`${this.USERS_URL}/${id}`);
   }
 }

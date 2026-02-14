@@ -2,10 +2,10 @@
 import { DifficultyLevel, QuestionTopic } from './constants';
 
 export enum QuestionType {
-  MCQ = 'Multiple Choice',
-  MultiSelect = 'Multi-Select',
-  FillBlank = 'Fill in the Blank',
-  TrueFalse = 'True/False',
+  MCQ = 'MCQ',
+  MultiSelect = 'MultiSelect',
+  FillBlank = 'FillBlank',
+  TrueFalse = 'TrueFalse',
 }
 
 export interface McqOption {
@@ -14,7 +14,7 @@ export interface McqOption {
 }
 
 export interface Question {
-  id: number;
+  id: string;
   type: QuestionType;
   topic: QuestionTopic;
   subTopic: string;

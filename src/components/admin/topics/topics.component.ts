@@ -1,5 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -40,7 +41,7 @@ export class TopicsComponent {
   // Filter options
   categoryOptions = TOPIC_CATEGORIES;
   statusOptions = PUBLISH_STATUSES;
-  
+
   // Computed options for SelectComponent
   categoryOptionsForSelect = computed(() => [{ value: 'All', label: 'All Categories' }, ...this.categoryOptions.map(o => ({ value: o, label: o }))]);
   statusOptionsForSelect = computed(() => [{ value: 'All', label: 'All Statuses' }, ...this.statusOptions.map(o => ({ value: o, label: o }))]);
@@ -51,8 +52,8 @@ export class TopicsComponent {
   filterStatusControl = new FormControl('All');
 
   // Data sources
-  private allLessons = this.lessonService.getLessons();
-  private allExercises = this.exerciseService.getExercises();
+  private allLessons = toSignal(this.lessonService.getAllLessonsForSelect(), { initialValue: [] });
+  private allExercises = toSignal(this.exerciseService.getAllExercisesForSelect(), { initialValue: [] });
 
   resultsText = computed(() => {
     const total = this.totalResults();
@@ -98,10 +99,10 @@ export class TopicsComponent {
     this.currentPage.set(newPage);
   }
 
-  getLessonCount = (topicId: number) => computed(() => this.allLessons().filter(l => l.topicIds.includes(topicId)).length);
-  getExerciseCount = (topicId: number) => computed(() => this.allExercises().filter(e => e.topicIds?.includes(topicId)).length);
+  getLessonCount = (topic: string) => computed(() => this.allLessons().filter(l => l.topics.includes(topic)).length);
+  getExerciseCount = (topic: string) => computed(() => this.allExercises().filter(e => e.topics?.includes(topic)).length);
 
-  async deleteTopic(id: number) {
+  async deleteTopic(id: string) {
     const confirmed = await this.confirmationService.confirm({
       title: 'Delete Topic',
       message: 'Are you sure you want to delete this topic? This action cannot be undone.',
@@ -110,17 +111,17 @@ export class TopicsComponent {
     });
 
     if (confirmed) {
-        this.topicService.deleteTopic(id).subscribe({
-          next: () => {
-            this.toastService.show('Topic deleted successfully', 'success');
-            if (this.topics().length === 1 && this.currentPage() > 1) {
-              this.currentPage.update(p => p - 1);
-            } else {
-              this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategoryControl.value ?? 'All', status: this.filterStatusControl.value ?? 'All' });
-            }
-          },
-          error: () => this.toastService.show('Failed to delete topic', 'error')
-        });
+      this.topicService.deleteTopic(id).subscribe({
+        next: () => {
+          this.toastService.show('Topic deleted successfully', 'success');
+          if (this.topics().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+          } else {
+            this.fetchTopics(this.currentPage(), { searchTerm: this.searchTerm(), category: this.filterCategoryControl.value ?? 'All', status: this.filterStatusControl.value ?? 'All' });
+          }
+        },
+        error: () => this.toastService.show('Failed to delete topic', 'error')
+      });
     }
   }
 }
