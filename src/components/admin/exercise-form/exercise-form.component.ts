@@ -1,10 +1,9 @@
 
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, filter, switchMap } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ExerciseService } from '../../../services/exercise.service';
 import { QuestionService } from '../../../services/question.service';
 import { TopicService } from '../../../services/topic.service';
@@ -17,7 +16,7 @@ import { DIFFICULTY_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 @Component({
   selector: 'app-exercise-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent],
   templateUrl: './exercise-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,18 +34,18 @@ export class ExerciseFormComponent {
 
   exerciseForm: FormGroup;
   isEditing = signal(false);
-  currentexercise = signal<string | null>(null);
+  currentExerciseId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
 
   // Data for selectors
-  allQuestions = toSignal(this.questionService.getAllQuestionsForSelect(), { initialValue: [] });
-  allTopics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
-  allLessons = toSignal(this.lessonService.getAllLessonsForSelect(), { initialValue: [] });
+  allQuestions = this.questionService.getQuestions();
+  allTopics = this.topicService.getTopics();
+  allLessons = this.lessonService.getLessons();
 
   // Form State
   showQuestionSelector = signal(false);
-  selectedQuestionIds = signal<Set<string>>(new Set());
-
+  selectedQuestionIds = signal<Set<number>>(new Set());
+  
   difficultyOptions = DIFFICULTY_LEVELS;
   statusOptions = PUBLISH_STATUSES;
 
@@ -65,8 +64,8 @@ export class ExerciseFormComponent {
     this.exerciseForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      topics: [[]],
-      lessons: [[]],
+      topicIds: [[]],
+      lessonIds: [[]],
       difficulty: ['Easy', Validators.required],
       timeLimit: [10, [Validators.required, Validators.min(1)]],
       isPremium: [false],
@@ -75,24 +74,23 @@ export class ExerciseFormComponent {
 
     this.route.paramMap.pipe(
       map(params => params.get('id')),
-      filter(id => id !== null)
+      filter(id => id !== null),
+      map(id => Number(id))
     ).subscribe(id => {
       this.isEditing.set(true);
-      this.currentexercise.set(id);
-      this.exerciseService.getExercise(id!).subscribe({
-        next: (exercise) => {
-          this.exerciseForm.patchValue({
-            ...exercise,
-            topics: exercise.topics || [],
-            lessons: exercise.lessons || []
-          });
-          this.selectedQuestionIds.set(new Set(exercise.questions));
-        },
-        error: () => {
-          this.toastService.show('Exercise not found', 'error');
-          this.router.navigate(['/admin/exercises']);
-        }
-      });
+      this.currentExerciseId.set(id);
+      const exercise = this.exerciseService.getExercise(id)();
+      if (exercise) {
+        this.exerciseForm.patchValue({
+          ...exercise,
+          topicIds: exercise.topicIds || [],
+          lessonIds: exercise.lessonIds || []
+        });
+        this.selectedQuestionIds.set(new Set(exercise.questionIds));
+      } else {
+        this.toastService.show('Exercise not found', 'error');
+        this.router.navigate(['/admin/exercises']);
+      }
     });
   }
 
@@ -103,42 +101,42 @@ export class ExerciseFormComponent {
   openQuestionSelector() { this.showQuestionSelector.set(true); }
   closeQuestionSelector() { this.showQuestionSelector.set(false); }
 
-  toggleQuestionSelection(questionId: string, event: Event) {
+  toggleQuestionSelection(questionId: number, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.selectedQuestionIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      if (isChecked) {
-        newSet.add(questionId);
-      } else {
-        newSet.delete(questionId);
-      }
-      return newSet;
+        const newSet = new Set(currentSet);
+        if (isChecked) {
+            newSet.add(questionId);
+        } else {
+            newSet.delete(questionId);
+        }
+        return newSet;
     });
   }
 
   saveExercise() {
     if (this.exerciseForm.invalid || this.saveState() !== 'idle') return;
-
+    
     this.saveState.set('loading');
     const formValue = this.exerciseForm.value;
     const exerciseData = {
-      ...formValue,
-      questions: Array.from(this.selectedQuestionIds())
+        ...formValue,
+        questionIds: Array.from(this.selectedQuestionIds())
     };
 
-    const saveObservable = this.isEditing() && this.currentexercise() !== null
-      ? this.exerciseService.updateExercise({ ...exerciseData, id: this.currentexercise()! })
-      : this.exerciseService.addExercise(exerciseData);
-
+    const saveObservable = this.isEditing() && this.currentExerciseId() !== null
+        ? this.exerciseService.updateExercise({ ...exerciseData, id: this.currentExerciseId()! })
+        : this.exerciseService.addExercise(exerciseData);
+    
     saveObservable.subscribe({
-      next: () => {
-        this.toastService.show(this.isEditing() ? 'Exercise updated successfully' : 'Exercise created successfully', 'success');
-        this.router.navigate(['/admin/exercises']);
-      },
-      error: () => {
-        this.saveState.set('idle');
-        this.toastService.show('Failed to save exercise', 'error');
-      }
+        next: () => {
+            this.toastService.show(this.isEditing() ? 'Exercise updated successfully' : 'Exercise created successfully', 'success');
+            this.router.navigate(['/admin/exercises']);
+        },
+        error: () => {
+            this.saveState.set('idle');
+            this.toastService.show('Failed to save exercise', 'error');
+        }
     });
   }
 }

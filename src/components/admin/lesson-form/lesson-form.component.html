@@ -1,9 +1,9 @@
+
 <div class="max-w-6xl mx-auto">
   <!-- Header -->
   <div class="flex items-center gap-4 mb-8">
     <button (click)="goBack()" class="p-2 rounded-full hover:bg-slate-200 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor" stroke-width="2">
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
     </button>
@@ -14,14 +14,13 @@
 
   <form [formGroup]="lessonForm" (ngSubmit)="saveLesson()">
     <div class="space-y-8">
-
+      
       <!-- Main Content Card -->
       <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
         <div class="space-y-6">
           <div>
             <label for="title" class="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
-            <input type="text" id="title" formControlName="title" placeholder="e.g., Present Simple Tense"
-              class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
+            <input type="text" id="title" formControlName="title" placeholder="e.g., Present Simple Tense" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-sm">
           </div>
           <div>
             <label for="content" class="block text-sm font-medium text-slate-700 mb-1.5">Lesson Content</label>
@@ -34,62 +33,68 @@
       <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-lg font-semibold text-slate-800 mb-6 border-b border-slate-200 pb-4">Details & Linking</h3>
         <div class="space-y-6">
-          <app-select label="Topics" formControlName="topics" [options]="topicOptions()" [multiple]="true"
-            placeholder="Select topics...">
-          </app-select>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <app-select label="Level" formControlName="level" [options]="levelOptionsForSelect()">
+           <app-select
+              label="Topics"
+              formControlName="topicIds"
+              [options]="topicOptions()"
+              [multiple]="true"
+              placeholder="Select topics...">
             </app-select>
-            <app-select label="Status" formControlName="status" [options]="statusOptionsForSelect()">
-            </app-select>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <app-select label="Linked Exercise (Optional)" formControlName="exercise" [options]="exerciseOptions()"
-              placeholder="None">
-            </app-select>
-
-            <!-- Premium Toggle -->
-            <div
-              class="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50 mt-6 md:mt-0">
-              <div>
-                <h4 class="text-sm font-medium text-slate-900">Premium Content</h4>
-                <p class="text-xs text-slate-500">Only accessible to Pro members.</p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" formControlName="isPremium" class="sr-only peer">
-                <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
-                </div>
-              </label>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <app-select
+                label="Level"
+                formControlName="level"
+                [options]="levelOptionsForSelect()">
+              </app-select>
+              <app-select
+                label="Status"
+                formControlName="status"
+                [options]="statusOptionsForSelect()">
+              </app-select>
             </div>
-          </div>
+          
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+               <app-select
+                  label="Linked Exercise (Optional)"
+                  formControlName="exerciseId"
+                  [options]="exerciseOptions()"
+                  placeholder="None">
+                </app-select>
+                
+                <!-- Premium Toggle -->
+                <div class="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50 mt-6 md:mt-0">
+                   <div>
+                       <h4 class="text-sm font-medium text-slate-900">Premium Content</h4>
+                       <p class="text-xs text-slate-500">Only accessible to Pro members.</p>
+                   </div>
+                   <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" formControlName="isPremium" class="sr-only peer">
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
+                </div>
+           </div>
         </div>
       </div>
     </div>
-
+  
     <!-- Action Buttons -->
     <div class="mt-8 pt-6 border-t border-slate-200 flex justify-end items-center gap-4">
-      <button type="button" (click)="goBack()"
-        class="px-5 py-2.5 bg-white text-slate-800 rounded-lg border border-slate-300 hover:bg-slate-100 font-semibold text-sm transition-colors">Cancel</button>
+      <button type="button" (click)="goBack()" class="px-5 py-2.5 bg-white text-slate-800 rounded-lg border border-slate-300 hover:bg-slate-100 font-semibold text-sm transition-colors">Cancel</button>
       <div class="w-40">
-        <app-save-button [state]="saveState()" [isDisabled]="lessonForm.invalid"
-          [idleLabel]="isEditing() ? 'Save Changes' : 'Create Lesson'"></app-save-button>
+        <app-save-button [state]="saveState()" [isDisabled]="lessonForm.invalid" [idleLabel]="isEditing() ? 'Save Changes' : 'Create Lesson'"></app-save-button>
       </div>
     </div>
   </form>
 </div>
 <style>
   .ck-editor__editable_inline {
-    min-height: 400px;
-    border: 1px solid #cbd5e1;
-    /* slate-300 */
-    border-radius: 0 0 0.5rem 0.5rem;
-    --ck-focus-ring: 2px solid rgb(var(--primary-500) / 0.2);
-    --ck-focus-border: 1px solid rgb(var(--primary-500));
+      min-height: 400px;
+      border: 1px solid #cbd5e1; /* slate-300 */
+      border-radius: 0 0 0.5rem 0.5rem;
+      --ck-focus-ring: 2px solid rgb(var(--primary-500) / 0.2);
+      --ck-focus-border: 1px solid rgb(var(--primary-500));
   }
-
   .ck-editor__top .ck-sticky-panel .ck-toolbar {
     border-radius: 0.5rem 0.5rem 0 0;
     border-color: #cbd5e1;

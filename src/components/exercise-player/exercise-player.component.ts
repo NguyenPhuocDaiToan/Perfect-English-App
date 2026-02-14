@@ -2,7 +2,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, filter, switchMap } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 
 import { ExerciseService } from '../../services/exercise.service';
@@ -14,7 +14,7 @@ import { Exercise } from '../../models/exercise.model';
 import { Question, QuestionType } from '../../models/question.model';
 
 type QuizState = 'playing' | 'finished';
-type UserAnswer = { questionId: string, answer: any, isCorrect: boolean };
+type UserAnswer = { questionId: number, answer: any, isCorrect: boolean };
 
 @Component({
   selector: 'app-exercise-player',
@@ -37,9 +37,9 @@ export class ExercisePlayerComponent {
   exercise = signal<Exercise | undefined>(undefined);
   questions = signal<Question[]>([]);
   currentQuestionIndex = signal(0);
-  userAnswers = signal<Map<string, any>>(new Map());
+  userAnswers = signal<Map<number, any>>(new Map());
   isLocked = signal(false);
-
+  
   // Gamification State
   earnedXp = signal(0);
 
@@ -65,21 +65,21 @@ export class ExercisePlayerComponent {
     this.route.paramMap.pipe(
       map(params => params.get('id')),
       filter((id): id is string => id !== null),
-      switchMap(id => this.exerciseService.getExercise(id))
-    ).subscribe(exercise => {
+      map(id => Number(id))
+    ).subscribe(id => {
+      const exercise = this.exerciseService.getExercise(id)();
       if (exercise) {
         this.exercise.set(exercise);
-
+        
         // Check Paywall
         const currentUser = this.authService.currentUser();
         if (exercise.isPremium && (!currentUser || !currentUser.isPremium)) {
-          this.isLocked.set(true);
+            this.isLocked.set(true);
         } else {
-          this.isLocked.set(false);
-          this.questionService.getQuestionByIds(exercise.questions).subscribe(questions => {
+            this.isLocked.set(false);
+            const questions = this.questionService.getQuestionByIds(exercise.questionIds)();
             this.questions.set(questions);
             this.startExercise();
-          });
         }
 
       } else {
@@ -95,14 +95,14 @@ export class ExercisePlayerComponent {
     this.fillBlankForm.reset();
   }
 
-  selectAnswer(questionId: string, answer: any) {
+  selectAnswer(questionId: number, answer: any) {
     this.userAnswers.update(answers => {
       answers.set(questionId, answer);
       return new Map(answers);
     });
   }
-
-  toggleMultiSelectAnswer(questionId: string, optionText: string) {
+  
+  toggleMultiSelectAnswer(questionId: number, optionText: string) {
     this.userAnswers.update(answers => {
       const current = answers.get(questionId) as string[] || [];
       const newSelection = current.includes(optionText)
@@ -112,8 +112,7 @@ export class ExercisePlayerComponent {
       return new Map(answers);
     });
   }
-
-
+  
   nextQuestion() {
     if (this.currentQuestionIndex() < this.questions().length - 1) {
       this.currentQuestionIndex.update(i => i + 1);
@@ -131,21 +130,21 @@ export class ExercisePlayerComponent {
   finishExercise() {
     this.calculateResults();
     this.quizState.set('finished');
-
+    
     // Gamification & Progress
     if (this.exercise() && this.authService.currentUser()) {
-      // Save Progress
-      this.userProgressService.saveProgress(this.exercise()!.id, this.results().score);
+        // Save Progress
+        this.userProgressService.saveProgress(this.exercise()!.id, this.results().score);
 
-      // Award XP (e.g., 10 XP per correct answer + 50 bonus for 100%)
-      const correctCount = this.results().results.filter(r => r.isCorrect).length;
-      let xp = correctCount * 10;
-      if (this.results().score === 100) xp += 50;
-
-      this.earnedXp.set(xp);
-
-      // Update User XP in AuthService (Mock)
-      this.authService.currentUser.update(u => u ? ({ ...u, xp: (u.xp || 0) + xp }) : null);
+        // Award XP (e.g., 10 XP per correct answer + 50 bonus for 100%)
+        const correctCount = this.results().results.filter(r => r.isCorrect).length;
+        let xp = correctCount * 10;
+        if (this.results().score === 100) xp += 50;
+        
+        this.earnedXp.set(xp);
+        
+        // Update User XP in AuthService (Mock)
+        this.authService.currentUser.update(u => u ? ({ ...u, xp: (u.xp || 0) + xp }) : null);
     }
   }
 
@@ -154,8 +153,8 @@ export class ExercisePlayerComponent {
     const detailedResults: UserAnswer[] = this.questions().map(q => {
       const userAnswer = this.userAnswers().get(q.id);
       let isCorrect = false;
-
-      switch (q.type) {
+      
+      switch(q.type) {
         case QuestionType.MCQ:
           const correctOption = q.options?.find(opt => opt.isCorrect);
           isCorrect = correctOption?.text === userAnswer;
@@ -170,7 +169,7 @@ export class ExercisePlayerComponent {
           break;
         case QuestionType.FillBlank:
           if (q.correctAnswerText && userAnswer) {
-            isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswerText.toLowerCase().trim();
+             isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswerText.toLowerCase().trim();
           }
           break;
       }
@@ -178,7 +177,7 @@ export class ExercisePlayerComponent {
       if (isCorrect) {
         correctAnswers++;
       }
-
+      
       return { questionId: q.id, answer: userAnswer, isCorrect };
     });
 
@@ -186,27 +185,27 @@ export class ExercisePlayerComponent {
     this.results.set({ score: Math.round(score), results: detailedResults });
   }
 
-  getQuestionResult(questionId: string): UserAnswer | undefined {
+  getQuestionResult(questionId: number): UserAnswer | undefined {
     return this.results().results.find(r => r.questionId === questionId);
   }
 
   getCorrectAnswerText(question: Question): string {
-    switch (question.type) {
-      case QuestionType.MCQ:
-        return question.options?.find(o => o.isCorrect)?.text ?? 'N/A';
-      case QuestionType.MultiSelect:
-        return question.options?.filter(o => o.isCorrect).map(o => o.text).join(', ') ?? 'N/A';
-      case QuestionType.TrueFalse:
-        return question.correctAnswer ? 'True' : 'False';
-      case QuestionType.FillBlank:
-        return question.correctAnswerText || 'N/A';
-      default:
-        return 'N/A';
+    switch(question.type) {
+        case QuestionType.MCQ:
+            return question.options?.find(o => o.isCorrect)?.text ?? 'N/A';
+        case QuestionType.MultiSelect:
+            return question.options?.filter(o => o.isCorrect).map(o => o.text).join(', ') ?? 'N/A';
+        case QuestionType.TrueFalse:
+            return question.correctAnswer ? 'True' : 'False';
+        case QuestionType.FillBlank:
+            return question.correctAnswerText || 'N/A';
+        default:
+            return 'N/A';
     }
   }
-
-  isMultiSelectOptionSelected(questionId: string, optionText: string): boolean {
-    const selected = this.userAnswers().get(questionId) as string[] | undefined;
-    return selected ? selected.includes(optionText) : false;
+  
+  isMultiSelectOptionSelected(questionId: number, optionText: string): boolean {
+      const selected = this.userAnswers().get(questionId) as string[] | undefined;
+      return selected ? selected.includes(optionText) : false;
   }
 }

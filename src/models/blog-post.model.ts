@@ -1,20 +1,16 @@
 
 import { PublishStatus } from './constants';
 
-import { User } from './user.model';
-import { Topic } from './topic.model';
-import { Lesson } from './lesson.model';
-
 export interface BlogPost {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   content: string;
   excerpt: string;
   thumbnail: string;
-  createdBy: string | User;
-  topic?: string | Topic;
-  lesson?: string | Lesson;
+  authorId: number;
+  topicId?: number;
+  lessonId?: number;
   tags: string[];
   status: PublishStatus;
   createdAt: string;

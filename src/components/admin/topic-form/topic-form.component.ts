@@ -13,7 +13,7 @@ import { TOPIC_CATEGORIES, PUBLISH_STATUSES } from '../../../models/constants';
 @Component({
   selector: 'app-topic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent],
   templateUrl: './topic-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,7 +27,7 @@ export class TopicFormComponent {
 
   topicForm: FormGroup;
   isEditing = signal(false);
-  currentTopicId = signal<string | null>(null);
+  currentTopicId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
 
   categoryOptions = TOPIC_CATEGORIES;
@@ -46,26 +46,25 @@ export class TopicFormComponent {
 
     this.route.paramMap.pipe(
       map(params => params.get('id')),
-      filter(id => id !== null)
+      filter(id => id !== null),
+      map(id => Number(id)),
     ).subscribe(id => {
       this.isEditing.set(true);
-      this.currentTopicId.set(id!);
-      this.topicService.getTopic(id!).subscribe({
-        next: (topic) => {
-          this.topicForm.patchValue(topic);
-        },
-        error: () => {
-          this.toastService.show('Topic not found', 'error');
-          this.router.navigate(['/admin/topics']);
-        }
-      });
+      this.currentTopicId.set(id);
+      const topic = this.topicService.getTopic(id)();
+      if (topic) {
+        this.topicForm.patchValue(topic);
+      } else {
+        this.toastService.show('Topic not found', 'error');
+        this.router.navigate(['/admin/topics']);
+      }
     });
   }
 
   goBack() {
     this.location.back();
   }
-
+  
   saveTopic() {
     if (this.topicForm.invalid || this.saveState() !== 'idle') return;
 

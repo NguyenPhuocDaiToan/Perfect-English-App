@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@a
 import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { LessonService } from '../../services/lesson.service';
 import { TopicService } from '../../services/topic.service';
@@ -29,28 +29,28 @@ export class LessonDetailComponent {
   topic = signal<Topic | undefined>(undefined);
   isLocked = signal(false);
 
+  private lessonId$ = this.route.paramMap.pipe(map(params => Number(params.get('lessonId'))));
+
   constructor() {
-    this.route.paramMap.pipe(
-      map(params => params.get('lessonId')),
-      switchMap(id => {
-        if (!id) return [];
-        return this.lessonService.getLesson(id);
-      })
-    ).subscribe(foundLesson => {
+    this.lessonId$.subscribe(id => {
+      if (isNaN(id)) return;
+
+      const foundLesson = this.lessonService.getLesson(id)();
       this.lesson.set(foundLesson);
 
       if (foundLesson) {
         // Check premium access
         const currentUser = this.authService.currentUser();
         if (foundLesson.isPremium && (!currentUser || !currentUser.isPremium)) {
-          this.isLocked.set(true);
+           this.isLocked.set(true);
         } else {
-          this.isLocked.set(false);
+           this.isLocked.set(false);
         }
 
-        const primaryTopicId = foundLesson.topics && foundLesson.topics.length > 0 ? foundLesson.topics[0] : undefined;
+        const primaryTopicId = foundLesson.topicIds[0];
         if (primaryTopicId) {
-          this.topicService.getTopic(primaryTopicId).subscribe(t => this.topic.set(t));
+          const foundTopic = this.topicService.getTopic(primaryTopicId)();
+          this.topic.set(foundTopic);
         }
         this.titleService.setTitle(`${foundLesson.title} | Perfect English Grammar`);
       } else {

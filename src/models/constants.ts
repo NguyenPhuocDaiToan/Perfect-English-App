@@ -5,7 +5,7 @@ export type TopicCategory = typeof TOPIC_CATEGORIES[number];
 export const DIFFICULTY_LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 export type DifficultyLevel = typeof DIFFICULTY_LEVELS[number];
 
-export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'] as const;
 export type CEFRLevel = typeof CEFR_LEVELS[number];
 
 export const PUBLISH_STATUSES = ['Published', 'Draft'] as const;

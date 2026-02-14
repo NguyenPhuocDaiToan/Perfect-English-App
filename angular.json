@@ -34,7 +34,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 4200
+            "port": 3000
           },
           "configurations": {
             "production": {
@@ -48,8 +48,5 @@
         }
       }
     }
-  },
-  "cli": {
-    "analytics": "a1890037-de72-471c-8291-47afc698d98c"
   }
 }

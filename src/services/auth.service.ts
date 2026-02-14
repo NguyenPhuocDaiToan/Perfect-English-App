@@ -1,41 +1,26 @@
 
-import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { User } from '../models/user.model';
-import { Router } from '@angular/router';
-import { environment } from '../environments/environment';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap, finalize } from 'rxjs/operators';
+import { UserService } from './user.service';
 import { UserActivityService } from './user-activity.service';
+import { Router } from '@angular/router';
 
-export type AuthResult = {
+type AuthResult = {
   success: boolean;
   message?: string;
-  reason?: 'invalid-credentials' | 'pending-verification' | 'email-exists' | 'server-error';
-}
-
-interface AuthResponse {
-  user: User;
-  tokens: {
-    access: { token: string, expires: string };
-    refresh: { token: string, expires: string };
-  };
-  permissions?: any;
+  reason?: 'invalid-credentials' | 'pending-verification' | 'email-exists';
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private userService = inject(UserService);
   private activityService = inject(UserActivityService);
+  private router = inject(Router);
 
   private readonly AUTH_KEY = 'currentUser';
-  private readonly LOGOUT_URL = `${environment.apiUrl}/auth/logout`;
-  private readonly LOGIN_URL = `${environment.apiUrl}/auth/login`;
-  private readonly REGISTER_URL = `${environment.apiUrl}/auth/register`;
-
+  
   isLoggedIn = signal(false);
   currentUser = signal<User | null>(null);
   emailForVerification = signal<string | null>(null);
@@ -43,135 +28,121 @@ export class AuthService {
   constructor() {
     this.checkAuthStatus();
   }
-
+  
   checkAuthStatus() {
     if (typeof window !== 'undefined' && window.localStorage) {
       const storedUser = localStorage.getItem(this.AUTH_KEY);
       if (storedUser) {
-        try {
-          const user: User = JSON.parse(storedUser);
-          this.currentUser.set(user);
-          this.isLoggedIn.set(true);
-
-          // Fetch fresh user data from backend
-          this.refreshUserProfile();
-        } catch (e) {
-          localStorage.removeItem(this.AUTH_KEY);
-        }
+        const user: User = JSON.parse(storedUser);
+        this.currentUser.set(user);
+        this.isLoggedIn.set(true);
       }
     }
   }
 
-  refreshUserProfile() {
-    this.http.get<any>(`${environment.apiUrl}/auth/me`).subscribe({
-      next: (res) => {
-        if (res.user) {
-          this.currentUser.set(res.user);
-          if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem(this.AUTH_KEY, JSON.stringify(res.user));
-          }
-        }
-      },
-      error: () => {
-        // Silent fail or logout if token invalid
+  login(email: string, password: string): AuthResult {
+    const user = this.userService.getUsers()().find(u => u.email === email && u.password === password);
+    
+    if (!user) {
+      // Optionally log failed attempts if we had a way to identify the user attempting or just log as 'Unknown'
+      return { success: false, message: 'Login failed — please check your email and password.', reason: 'invalid-credentials' };
+    }
+
+    if (user.status === 'Pending') {
+      this.emailForVerification.set(user.email);
+      return { success: false, message: 'Your account is not verified. Please check your email.', reason: 'pending-verification' };
+    }
+
+    // Streak Logic
+    const today = new Date().toISOString().split('T')[0];
+    const lastLogin = user.lastLogin ? user.lastLogin.split('T')[0] : null;
+    
+    let newStreak = user.streak || 0;
+
+    if (lastLogin === today) {
+      // Already logged in today, do nothing to streak
+    } else if (lastLogin) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      if (lastLogin === yesterdayStr) {
+        newStreak++;
+      } else {
+        newStreak = 1; // Streak broken or first time
       }
+    } else {
+      newStreak = 1; // First login ever
+    }
+
+    const updatedUser = { 
+      ...user, 
+      lastLogin: new Date().toISOString(),
+      streak: newStreak
+    };
+
+    this.currentUser.set(updatedUser);
+    this.isLoggedIn.set(true);
+    
+    // Update the backend
+    this.userService.updateUser(updatedUser).subscribe();
+    
+    // Log Activity
+    this.activityService.logActivity({
+        userId: updatedUser.id,
+        userName: updatedUser.name,
+        userAvatar: updatedUser.avatarUrl,
+        action: 'Login',
+        target: 'Web App',
+        status: 'Success'
     });
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.AUTH_KEY, JSON.stringify(updatedUser));
+    }
+    return { success: true };
   }
 
-  login(email: string, password: string): Observable<AuthResult> {
-    return this.http.post<AuthResponse>(this.LOGIN_URL, { email, password }).pipe(
-      tap((response) => {
-        this.handleAuthSuccess(response);
-        this.logActivity(response.user, 'Login');
-      }),
-      map(() => ({ success: true })),
-      catchError((error: HttpErrorResponse) => {
-        let message = 'Login failed — please check your email and password.';
-        let reason: AuthResult['reason'] = 'invalid-credentials';
+  register(userData: any): AuthResult {
+    const emailExists = this.userService.getUsers()().some(u => u.email === userData.email);
+    if (emailExists) {
+        return { success: false, message: 'An account with this email already exists.', reason: 'email-exists' };
+    }
 
-        if (error.status === 401) {
-          // specialized handling if needed
-        }
+    const newUser: Omit<User, 'id' | 'createdAt' | 'lastLogin'> = {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: 'Student',
+        status: 'Pending',
+        avatarUrl: `https://picsum.photos/seed/${userData.email}/200`,
+        isPremium: false,
+        streak: 0,
+        xp: 0
+    };
 
-        return of({ success: false, message, reason });
-      })
-    );
-  }
-
-  register(userData: any): Observable<AuthResult> {
-    return this.http.post<AuthResponse>(this.REGISTER_URL, userData).pipe(
-      tap(() => {
-        this.emailForVerification.set(userData.email);
-        // Log Registration Activity ? The user is not fully logged in yet usually, but we receive the user object
-      }),
-      map((response) => {
-        // Backend returns user and tokens on register, meaning auto-login
-        // BUT validation flow might require email verification first.
-        // Based on provided backend code: verifyEmailToken is sent, but also tokens are returned.
-        // So the user IS logged in. 
-        this.handleAuthSuccess(response);
-        this.logActivity(response.user, 'Register');
-        return { success: true };
-      }),
-      catchError((error: HttpErrorResponse) => {
-        let message = 'Registration failed. Please try again.';
-        let reason: AuthResult['reason'] = 'server-error';
-
-        if (error.status === 400 && error.error?.message?.includes('Email')) {
-          message = 'An account with this email already exists.';
-          reason = 'email-exists';
-        }
-
-        return of({ success: false, message, reason });
-      })
-    );
+    this.userService.addUser(newUser).subscribe(user => {
+         // Log Registration Activity
+         this.activityService.logActivity({
+            userId: user.id,
+            userName: user.name,
+            userAvatar: user.avatarUrl,
+            action: 'Register',
+            target: 'Web App',
+            status: 'Success'
+        });
+    });
+    
+    this.emailForVerification.set(userData.email);
+    return { success: true };
   }
 
   logout() {
-    const refreshToken = this.getRefreshToken();
-    if (refreshToken) {
-      this.http.post(this.LOGOUT_URL, { refreshToken }).subscribe();
-    }
-
-    this.clearLocalData();
-    this.router.navigate(['/']);
-  }
-
-  private handleAuthSuccess(response: AuthResponse) {
-    const { user, tokens } = response;
-    this.currentUser.set(user);
-    this.isLoggedIn.set(true);
-
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(this.AUTH_KEY, JSON.stringify(user));
-      localStorage.setItem('refreshToken', tokens.refresh.token); // Store refresh token for logout
-    }
-  }
-
-  private clearLocalData() {
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(this.AUTH_KEY);
-      localStorage.removeItem('refreshToken');
-    }
-  }
-
-  private getRefreshToken(): string | null {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return localStorage.getItem('refreshToken');
-    }
-    return null;
-  }
-
-  private logActivity(user: User, action: 'Login' | 'Register') {
-    this.activityService.logActivity({
-      userId: user.id || (user as any)._id,
-      userName: user.name,
-      userAvatar: user.avatarUrl,
-      action: action,
-      target: 'Web App',
-      status: 'Success'
-    });
+     if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem(this.AUTH_KEY);
+     }
+    this.router.navigate(['/']);
   }
 }

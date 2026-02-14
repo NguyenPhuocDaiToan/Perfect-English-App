@@ -1,230 +1,163 @@
+
 <header class="bg-white/80 backdrop-blur-lg border-b border-slate-200/50 sticky top-0 z-50">
   <nav class="max-w-7xl mx-auto px-6 py-4">
     <div class="flex items-center justify-between">
       <div class="text-2xl font-bold text-primary-600">
         <a routerLink="/" class="flex items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-500" viewBox="0 0 20 20"
-            fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.002 6.002 0 0111.336 0 1 1 0 01-1.998.22c-1.33-3.033-5.006-3.033-6.336 0a1 1 0 01-1.998-.22zM10 14a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1z"
-              clip-rule="evenodd" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.002 6.002 0 0111.336 0 1 1 0 01-1.998.22c-1.33-3.033-5.006-3.033-6.336 0a1 1 0 01-1.998-.22zM10 14a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1z" clip-rule="evenodd" />
           </svg>
           <span>Perfect English</span>
         </a>
       </div>
-
+      
       <!-- Desktop Menu -->
       <div class="hidden md:flex items-center space-x-6">
-        @if(authService.isLoggedIn()) {
-        <a routerLink="/level-test" routerLinkActive="text-primary-600 border-b-2 border-primary-600"
-          [routerLinkActiveOptions]="{exact: true}"
-          class="text-gray-600 hover:text-primary-600 transition duration-300">Level Test</a>
-        }
-        <a routerLink="/explanations" routerLinkActive="text-primary-600 border-b-2 border-primary-600"
-          class="text-gray-600 hover:text-primary-600 transition duration-300">Explanations</a>
-        <a routerLink="/exercises" routerLinkActive="text-primary-600 border-b-2 border-primary-600"
-          class="text-gray-600 hover:text-primary-600 transition duration-300">Exercises</a>
-        <a routerLink="/blog" routerLinkActive="text-primary-600 border-b-2 border-primary-600"
-          class="text-gray-600 hover:text-primary-600 transition duration-300">Blog</a>
-        <a routerLink="/membership" routerLinkActive="text-primary-600 border-b-2 border-primary-600"
-          class="text-gray-600 hover:text-primary-600 transition duration-300">Membership</a>
-
+        <a routerLink="/level-test" routerLinkActive="text-primary-600 border-b-2 border-primary-600" [routerLinkActiveOptions]="{exact: true}" class="text-gray-600 hover:text-primary-600 transition duration-300">Level Test</a>
+        <a routerLink="/explanations" routerLinkActive="text-primary-600 border-b-2 border-primary-600" class="text-gray-600 hover:text-primary-600 transition duration-300">Explanations</a>
+        <a routerLink="/exercises" routerLinkActive="text-primary-600 border-b-2 border-primary-600" class="text-gray-600 hover:text-primary-600 transition duration-300">Exercises</a>
+        <a routerLink="/blog" routerLinkActive="text-primary-600 border-b-2 border-primary-600" class="text-gray-600 hover:text-primary-600 transition duration-300">Blog</a>
+        <a routerLink="/membership" routerLinkActive="text-primary-600 border-b-2 border-primary-600" class="text-gray-600 hover:text-primary-600 transition duration-300">Membership</a>
+        
         @if (!authService.isLoggedIn()) {
-        <div class="flex items-center gap-4">
-          <a routerLink="/login"
-            class="px-4 py-2 text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition duration-300 font-medium">Login</a>
-        </div>
+          <div class="flex items-center gap-4">
+             <a routerLink="/login" class="text-gray-600 hover:text-primary-600 font-medium">Login</a>
+             <a routerLink="/register" class="px-4 py-2 text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition duration-300">Sign Up</a>
+          </div>
         } @else {
-        <!-- Gamification Stats -->
-        <div class="hidden lg:flex items-center space-x-4 mr-2">
-          <div
-            class="flex items-center space-x-1 px-2 py-1 rounded-md bg-orange-50 border border-orange-100 text-orange-600"
-            title="Day Streak">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-              <path fill-rule="evenodd"
-                d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-                clip-rule="evenodd" />
-            </svg>
-            <span class="font-bold text-sm">{{ authService.currentUser()?.streak || 0 }}</span>
-          </div>
-          <div class="flex items-center space-x-1 px-2 py-1 rounded-md bg-blue-50 border border-blue-100 text-blue-600"
-            title="Total XP">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-              <path fill-rule="evenodd"
-                d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813a3.75 3.75 0 0 0 2.576-2.576l.813-2.846A.75.75 0 0 1 9 4.5ZM9 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 9 15ZM15 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 15 15Z"
-                clip-rule="evenodd" />
-            </svg>
-            <span class="font-bold text-sm">{{ authService.currentUser()?.xp || 0 }} XP</span>
-          </div>
-        </div>
-
-        <!-- Avatar Dropdown -->
-        <div class="relative">
-          <button (click)="toggleDropdown()" class="flex items-center focus:outline-none">
-            <div class="relative">
-              <img class="h-9 w-9 rounded-full object-cover ring-2 ring-white"
-                [src]="authService.currentUser()?.avatarUrl" [alt]="authService.currentUser()?.name">
-              @if(authService.currentUser()?.isPremium) {
-              <div class="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-0.5 border-2 border-white"
-                title="Premium Member">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
-                  <path fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z"
-                    clip-rule="evenodd" />
+          <!-- Gamification Stats -->
+          <div class="hidden lg:flex items-center space-x-4 mr-2">
+             <div class="flex items-center space-x-1 px-2 py-1 rounded-md bg-orange-50 border border-orange-100 text-orange-600" title="Day Streak">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
                 </svg>
-              </div>
-              }
-            </div>
-          </button>
-          @if(isDropdownOpen()) {
-          <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg py-2 z-50">
-            @if (authService.currentUser()?.role === 'Admin') {
-            <a routerLink="/admin" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              (click)="toggleDropdown()">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-                <path d="M12 2.252A8.014 8.014 0 0117.748 12H12V2.252z" />
-              </svg>
-              <span>Admin Panel</span>
-            </a>
-            }
-            <a routerLink="/dashboard" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              (click)="toggleDropdown()">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fill-rule="evenodd"
-                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>My Dashboard</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              (click)="toggleDropdown()">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.5 5.5 0 00-5.5 5.5v.004c0 .242.158.463.39.544a7.58 7.58 0 005.11 0c.232-.08.39-.302.39-.544V17.5A5.5 5.5 0 0010 12z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>Profile Settings</span>
-            </a>
-            @if(!authService.currentUser()?.isPremium) {
-            <a routerLink="/membership"
-              class="flex items-center gap-3 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 font-medium"
-              (click)="toggleDropdown()">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                <path fill-rule="evenodd"
-                  d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>Upgrade to Pro</span>
-            </a>
-            }
-            <div class="my-1 border-t border-gray-100"></div>
-            <button (click)="logout()"
-              class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>Logout</span>
-            </button>
+                <span class="font-bold text-sm">{{ authService.currentUser()?.streak || 0 }}</span>
+             </div>
+             <div class="flex items-center space-x-1 px-2 py-1 rounded-md bg-blue-50 border border-blue-100 text-blue-600" title="Total XP">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813a3.75 3.75 0 0 0 2.576-2.576l.813-2.846A.75.75 0 0 1 9 4.5ZM9 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 9 15ZM15 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 15 15Z" clip-rule="evenodd" />
+                </svg>
+                <span class="font-bold text-sm">{{ authService.currentUser()?.xp || 0 }} XP</span>
+             </div>
           </div>
-          }
-        </div>
+
+          <!-- Avatar Dropdown -->
+          <div class="relative">
+            <button (click)="toggleDropdown()" class="flex items-center focus:outline-none">
+              <div class="relative">
+                 <img class="h-9 w-9 rounded-full object-cover ring-2 ring-white" [src]="authService.currentUser()?.avatarUrl" [alt]="authService.currentUser()?.name">
+                 @if(authService.currentUser()?.isPremium) {
+                    <div class="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-0.5 border-2 border-white" title="Premium Member">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                 }
+              </div>
+            </button>
+            @if(isDropdownOpen()) {
+              <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg py-2 z-50">
+                @if (authService.currentUser()?.role === 'Admin') {
+                   <a routerLink="/admin" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" /><path d="M12 2.252A8.014 8.014 0 0117.748 12H12V2.252z" /></svg>
+                      <span>Admin Panel</span>
+                    </a>
+                }
+                 <a routerLink="/dashboard" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                  <span>My Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleDropdown()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.5 5.5 0 00-5.5 5.5v.004c0 .242.158.463.39.544a7.58 7.58 0 005.11 0c.232-.08.39-.302.39-.544V17.5A5.5 5.5 0 0010 12z" clip-rule="evenodd" /></svg>
+                  <span>Profile Settings</span>
+                </a>
+                @if(!authService.currentUser()?.isPremium) {
+                    <a routerLink="/membership" class="flex items-center gap-3 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 font-medium" (click)="toggleDropdown()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                          <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Upgrade to Pro</span>
+                    </a>
+                }
+                <div class="my-1 border-t border-gray-100"></div>
+                <button (click)="logout()" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" /></svg>
+                  <span>Logout</span>
+                </button>
+              </div>
+            }
+          </div>
         }
       </div>
-
+      
       <!-- Mobile Menu Button -->
       <div class="md:hidden">
         <button (click)="toggleMenu()" class="text-gray-600 hover:text-primary-600 focus:outline-none">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             @if (!isMenuOpen()) {
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             } @else {
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             }
           </svg>
         </button>
       </div>
     </div>
-
+    
     <!-- Mobile Menu -->
     @if (isMenuOpen()) {
-    <div class="md:hidden mt-4">
-      <a routerLink="/level-test" routerLinkActive="text-primary-600 bg-primary-50"
-        class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Level Test</a>
-      <a routerLink="/explanations" routerLinkActive="text-primary-600 bg-primary-50"
-        class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded"
-        (click)="toggleMenu()">Explanations</a>
-      <a routerLink="/exercises" routerLinkActive="text-primary-600 bg-primary-50"
-        class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Exercises</a>
-      <a routerLink="/blog" routerLinkActive="text-primary-600 bg-primary-50"
-        class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Blog</a>
-      <a routerLink="/membership" routerLinkActive="text-primary-600 bg-primary-50"
-        class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Membership</a>
-
-      <div class="border-t border-gray-200 mt-4 pt-4">
-        @if (!authService.isLoggedIn()) {
-        <div>
-          <a routerLink="/login"
-            class="block w-full text-center py-2 px-4 text-white bg-primary-500 rounded-md hover:bg-primary-600 transition duration-300"
-            (click)="toggleMenu()">Login</a>
-        </div>
-        } @else {
-        <div class="flex items-center px-4 mb-3">
-          <img class="h-10 w-10 rounded-full object-cover" [src]="authService.currentUser()?.avatarUrl"
-            [alt]="authService.currentUser()?.name">
-          <div class="ml-3">
-            <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-              {{ authService.currentUser()?.name }}
-              @if(authService.currentUser()?.isPremium) {
-              <span class="text-xs bg-yellow-400 text-white px-1.5 rounded font-bold">PRO</span>
-              }
-            </p>
-            <p class="text-xs text-gray-500">{{ authService.currentUser()?.email }}</p>
-            <!-- Mobile Stats -->
-            <div class="flex items-center gap-3 mt-2">
-              <div class="flex items-center text-orange-600 text-xs font-bold">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-1">
-                  <path fill-rule="evenodd"
-                    d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-                    clip-rule="evenodd" />
-                </svg>
-                {{ authService.currentUser()?.streak || 0 }}
-              </div>
-              <div class="flex items-center text-blue-600 text-xs font-bold">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-1">
-                  <path fill-rule="evenodd"
-                    d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813a3.75 3.75 0 0 0 2.576-2.576l.813-2.846A.75.75 0 0 1 9 4.5ZM9 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 9 15ZM15 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 15 15Z"
-                    clip-rule="evenodd" />
-                </svg>
-                {{ authService.currentUser()?.xp || 0 }}
-              </div>
+      <div class="md:hidden mt-4">
+        <a routerLink="/level-test" routerLinkActive="text-primary-600 bg-primary-50" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Level Test</a>
+        <a routerLink="/explanations" routerLinkActive="text-primary-600 bg-primary-50" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Explanations</a>
+        <a routerLink="/exercises" routerLinkActive="text-primary-600 bg-primary-50" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Exercises</a>
+        <a routerLink="/blog" routerLinkActive="text-primary-600 bg-primary-50" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Blog</a>
+        <a routerLink="/membership" routerLinkActive="text-primary-600 bg-primary-50" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Membership</a>
+        
+        <div class="border-t border-gray-200 mt-4 pt-4">
+          @if (!authService.isLoggedIn()) {
+             <div>
+                <a routerLink="/login" class="block w-full text-center py-2 px-4 text-white bg-primary-500 rounded-md hover:bg-primary-600 transition duration-300" (click)="toggleMenu()">Login</a>
+             </div>
+          } @else {
+            <div class="flex items-center px-4 mb-3">
+               <img class="h-10 w-10 rounded-full object-cover" [src]="authService.currentUser()?.avatarUrl" [alt]="authService.currentUser()?.name">
+               <div class="ml-3">
+                 <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                    {{ authService.currentUser()?.name }}
+                     @if(authService.currentUser()?.isPremium) {
+                        <span class="text-xs bg-yellow-400 text-white px-1.5 rounded font-bold">PRO</span>
+                     }
+                 </p>
+                 <p class="text-xs text-gray-500">{{ authService.currentUser()?.email }}</p>
+                 <!-- Mobile Stats -->
+                 <div class="flex items-center gap-3 mt-2">
+                    <div class="flex items-center text-orange-600 text-xs font-bold">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-1">
+                            <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
+                        </svg>
+                        {{ authService.currentUser()?.streak || 0 }}
+                    </div>
+                     <div class="flex items-center text-blue-600 text-xs font-bold">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-1">
+                             <path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813a3.75 3.75 0 0 0 2.576-2.576l.813-2.846A.75.75 0 0 1 9 4.5ZM9 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 9 15ZM15 15a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 15 15Z" clip-rule="evenodd" />
+                         </svg>
+                        {{ authService.currentUser()?.xp || 0 }}
+                    </div>
+                 </div>
+               </div>
             </div>
-          </div>
+             @if (authService.currentUser()?.role === 'Admin') {
+              <a routerLink="/admin" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Admin Panel</a>
+            }
+            <a routerLink="/dashboard" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">My Dashboard</a>
+            <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded" (click)="toggleMenu()">Profile Settings</a>
+             @if(!authService.currentUser()?.isPremium) {
+                <a routerLink="/membership" class="block py-2 px-4 text-sm text-amber-600 font-medium hover:bg-amber-50 rounded" (click)="toggleMenu()">Upgrade to Pro</a>
+            }
+            <button (click)="logout(); toggleMenu()" class="w-full text-left block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded">Logout</button>
+          }
         </div>
-        @if (authService.currentUser()?.role === 'Admin') {
-        <a routerLink="/admin" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded"
-          (click)="toggleMenu()">Admin Panel</a>
-        }
-        <a routerLink="/dashboard" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded"
-          (click)="toggleMenu()">My Dashboard</a>
-        <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded"
-          (click)="toggleMenu()">Profile Settings</a>
-        @if(!authService.currentUser()?.isPremium) {
-        <a routerLink="/membership" class="block py-2 px-4 text-sm text-amber-600 font-medium hover:bg-amber-50 rounded"
-          (click)="toggleMenu()">Upgrade to Pro</a>
-        }
-        <button (click)="logout(); toggleMenu()"
-          class="w-full text-left block py-2 px-4 text-sm text-gray-600 hover:bg-primary-50 rounded">Logout</button>
-        }
       </div>
-    </div>
     }
   </nav>
 </header>

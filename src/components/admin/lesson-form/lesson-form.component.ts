@@ -1,6 +1,5 @@
 
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -19,7 +18,7 @@ import { CEFR_LEVELS, PUBLISH_STATUSES } from '../../../models/constants';
 @Component({
   selector: 'app-lesson-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent, CKEditorModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SaveButtonComponent, SelectComponent, CKEditorModule],
   templateUrl: './lesson-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,13 +35,13 @@ export class LessonFormComponent {
 
   lessonForm: FormGroup;
   isEditing = signal(false);
-  currentLessonId = signal<string | null>(null);
+  currentLessonId = signal<number | null>(null);
   saveState = signal<SaveButtonState>('idle');
   public Editor = ClassicEditor;
 
   // Data for select dropdowns
-  allTopics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
-  allExercises = toSignal(this.exerciseService.getAllExercisesForSelect(), { initialValue: [] });
+  allTopics = this.topicService.getTopics();
+  allExercises = this.exerciseService.getExercises();
 
   levelOptions = CEFR_LEVELS;
   statusOptions = PUBLISH_STATUSES;
@@ -56,39 +55,28 @@ export class LessonFormComponent {
   constructor() {
     this.lessonForm = this.fb.group({
       title: ['', Validators.required],
-      topics: [[], Validators.required],
+      topicIds: [[], Validators.required],
       level: ['A1', Validators.required],
       content: ['', Validators.required],
-      exercise: [null],
+      exerciseId: [null],
       isPremium: [false],
       status: ['Draft', Validators.required],
     });
 
     this.route.paramMap.pipe(
       map(params => params.get('id')),
-      filter(id => id !== null)
+      filter(id => id !== null),
+      map(id => Number(id)),
     ).subscribe(id => {
       this.isEditing.set(true);
-      this.currentLessonId.set(id!);
-      this.lessonService.getLesson(id!).subscribe({
-        next: (lesson) => {
-          // Ensure topics and exercise are IDs (handle populated objects if any)
-          const params = {
-            ...lesson,
-            topics: Array.isArray(lesson.topics)
-              ? lesson.topics.map((t: any) => (typeof t === 'object' && t.id) ? t.id : t)
-              : [],
-            exercise: (lesson.exercise && typeof lesson.exercise === 'object' && (lesson.exercise as any).id)
-              ? (lesson.exercise as any).id
-              : lesson.exercise
-          };
-          this.lessonForm.patchValue(params);
-        },
-        error: () => {
-          this.toastService.show('Lesson not found', 'error');
-          this.router.navigate(['/admin/lessons']);
-        }
-      });
+      this.currentLessonId.set(id);
+      const lesson = this.lessonService.getLesson(id)();
+      if (lesson) {
+        this.lessonForm.patchValue(lesson);
+      } else {
+         this.toastService.show('Lesson not found', 'error');
+         this.router.navigate(['/admin/lessons']);
+      }
     });
   }
 
@@ -100,25 +88,25 @@ export class LessonFormComponent {
     if (this.lessonForm.invalid || this.saveState() !== 'idle') return;
 
     this.saveState.set('loading');
-
+    
     const formValue = this.lessonForm.value;
     const lessonData = {
-      ...formValue,
+        ...formValue,
     };
-
+    
     const saveObservable = this.isEditing() && this.currentLessonId() !== null
-      ? this.lessonService.updateLesson({ ...lessonData, id: this.currentLessonId()! })
-      : this.lessonService.addLesson(lessonData);
+        ? this.lessonService.updateLesson({ ...lessonData, id: this.currentLessonId()! })
+        : this.lessonService.addLesson(lessonData);
 
     saveObservable.subscribe({
-      next: () => {
-        this.toastService.show(this.isEditing() ? 'Lesson updated successfully' : 'Lesson created successfully', 'success');
-        this.router.navigate(['/admin/lessons']);
-      },
-      error: () => {
-        this.saveState.set('idle');
-        this.toastService.show('Failed to save lesson', 'error');
-      }
+        next: () => {
+            this.toastService.show(this.isEditing() ? 'Lesson updated successfully' : 'Lesson created successfully', 'success');
+            this.router.navigate(['/admin/lessons']);
+        },
+        error: () => {
+            this.saveState.set('idle');
+            this.toastService.show('Failed to save lesson', 'error');
+        }
     });
   }
 }

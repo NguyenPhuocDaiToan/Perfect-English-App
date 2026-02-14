@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TopicService } from '../../services/topic.service';
@@ -19,31 +18,25 @@ export class HomeComponent {
   private blogService = inject(BlogService);
   private userService = inject(UserService);
 
-  topics = toSignal(this.topicService.getAllTopicsForSelect(), { initialValue: [] });
-  posts = toSignal(this.blogService.getAllBlogPostsForSelect(), { initialValue: [] });
-
-  popularTopics = computed(() =>
-    this.topics()
+  popularTopics = computed(() => 
+    this.topicService.getTopics()()
       .filter(t => t.status === 'Published')
       .slice(0, 3)
   );
-
-  latestPosts = computed(() =>
-    this.posts()
+  
+  latestPosts = computed(() => 
+    this.blogService.getBlogPosts()()
       .filter(p => p.status === 'Published')
       .slice(0, 3)
   );
 
-  private allUsers = toSignal(this.userService.getAllUsersForSelect(), { initialValue: [] });
-
   private usersMap = computed(() => {
-    const map = new Map<string, string>();
-    this.allUsers().forEach(user => map.set(user.id, user.name));
+    const map = new Map<number, string>();
+    this.userService.getUsers()().forEach(user => map.set(user.id, user.name));
     return map;
   });
 
-  getCreatorName(createdBy: any): string {
-    const userId = typeof createdBy === 'object' ? createdBy?.id || createdBy?._id : createdBy;
-    return this.usersMap().get(userId) || 'Unknown Creator';
+  getAuthorName(authorId: number): string {
+    return this.usersMap().get(authorId) || 'Unknown Author';
   }
 }
