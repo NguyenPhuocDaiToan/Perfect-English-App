@@ -5,6 +5,7 @@ import { BlogService } from '../../services/blog.service';
 import { UserService } from '../../services/user.service';
 import { BlogPost } from '../../models/blog-post.model';
 import { PaginationComponent } from '../shared/pagination/pagination.component';
+import { DEFAULT_AVATAR_URL } from '../../constants/app.constants';
 
 @Component({
   selector: 'app-blog',
@@ -68,7 +69,7 @@ export class BlogComponent {
   }
 
   getCreatorAvatar(createdBy: any): string {
-    return createdBy?.avatarUrl || '';
+    return createdBy?.avatarUrl || DEFAULT_AVATAR_URL;
   }
 
   getTagColor(tag: string): string {

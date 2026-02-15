@@ -6,6 +6,7 @@ import { tap, map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { PaginatedResponse } from '../models/paginated-response.model';
 import { environment } from '../environments/environment';
+import { DEFAULT_AVATAR_URL } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -61,12 +62,21 @@ export class UserService {
       params = params.set('status', filters.status);
     }
 
-    return this.http.get<PaginatedResponse<User>>(this.USERS_URL, { params });
+    return this.http.get<PaginatedResponse<User>>(this.USERS_URL, { params }).pipe(
+      map(response => ({
+        ...response,
+        results: response.results.map(user => ({
+          ...user,
+          avatarUrl: user.avatarUrl || DEFAULT_AVATAR_URL
+        }))
+      }))
+    );
   }
 
   addUser(user: Partial<User>): Observable<User> {
     return this.http.post<User>(this.USERS_URL, user).pipe(
       tap(newUser => {
+        if (!newUser.avatarUrl) newUser.avatarUrl = DEFAULT_AVATAR_URL;
         this.users.update(current => [...current, newUser]);
       })
     );
@@ -77,6 +87,7 @@ export class UserService {
     const { id, ...data } = updatedUser as any;
     return this.http.patch<User>(`${this.USERS_URL}/${userId}`, data).pipe(
       tap(savedUser => {
+        if (!savedUser.avatarUrl) savedUser.avatarUrl = DEFAULT_AVATAR_URL;
         this.users.update(current => current.map(u => (u.id === userId || (u as any)._id === userId) ? savedUser : u));
       })
     );
@@ -91,10 +102,20 @@ export class UserService {
   }
 
   getUser(id: number | string): Observable<User> {
-    return this.http.get<User>(`${this.USERS_URL}/${id}`);
+    return this.http.get<User>(`${this.USERS_URL}/${id}`).pipe(
+      map(user => ({
+        ...user,
+        avatarUrl: user.avatarUrl || DEFAULT_AVATAR_URL
+      }))
+    );
   }
 
   getLeaderboard(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.USERS_URL}/leaderboard`);
+    return this.http.get<User[]>(`${this.USERS_URL}/leaderboard`).pipe(
+      map(users => users.map(user => ({
+        ...user,
+        avatarUrl: user.avatarUrl || DEFAULT_AVATAR_URL
+      })))
+    );
   }
 }

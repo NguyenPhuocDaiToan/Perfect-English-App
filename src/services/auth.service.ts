@@ -7,6 +7,7 @@ import { environment } from '../environments/environment';
 import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, tap, finalize } from 'rxjs/operators';
 import { UserActivityService } from './user-activity.service';
+import { DEFAULT_AVATAR_URL } from '../constants/app.constants';
 
 export type AuthResult = {
   success: boolean;
@@ -50,6 +51,9 @@ export class AuthService {
       if (storedUser) {
         try {
           const user: User = JSON.parse(storedUser);
+          if (!user.avatarUrl) {
+            user.avatarUrl = DEFAULT_AVATAR_URL;
+          }
           this.currentUser.set(user);
           this.isLoggedIn.set(true);
 
@@ -66,6 +70,9 @@ export class AuthService {
     this.http.get<any>(`${environment.apiUrl}/auth/me`).subscribe({
       next: (res) => {
         if (res.user) {
+          if (!res.user.avatarUrl) {
+            res.user.avatarUrl = DEFAULT_AVATAR_URL;
+          }
           this.currentUser.set(res.user);
           if (typeof window !== 'undefined' && window.localStorage) {
             localStorage.setItem(this.AUTH_KEY, JSON.stringify(res.user));
@@ -139,6 +146,9 @@ export class AuthService {
 
   private handleAuthSuccess(response: AuthResponse) {
     const { user, tokens } = response;
+    if (!user.avatarUrl) {
+      user.avatarUrl = DEFAULT_AVATAR_URL;
+    }
     this.currentUser.set(user);
     this.isLoggedIn.set(true);
 

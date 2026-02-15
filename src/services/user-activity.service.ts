@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { UserActivity } from '../models/user-activity.model';
 import { PaginatedResponse } from '../models/paginated-response.model';
 import { environment } from '../environments/environment';
+import { map } from 'rxjs/operators';
+import { DEFAULT_AVATAR_URL } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +34,15 @@ export class UserActivityService {
       params = params.set('status', filters.status);
     }
 
-    return this.http.get<PaginatedResponse<UserActivity>>(this.API_URL, { params });
+    return this.http.get<PaginatedResponse<UserActivity>>(this.API_URL, { params }).pipe(
+      map(response => ({
+        ...response,
+        results: response.results.map(activity => ({
+          ...activity,
+          userAvatar: activity.userAvatar || DEFAULT_AVATAR_URL
+        }))
+      }))
+    );
   }
 
   logActivity(activity: Omit<UserActivity, 'id' | 'timestamp'>): Observable<UserActivity> {
