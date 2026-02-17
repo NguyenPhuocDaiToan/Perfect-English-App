@@ -53,9 +53,11 @@
                   [class]="getTagColor(tag)">{{tag}}</span>
                 }
               </div>
-              <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors h-14">{{
+              <h3
+                class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors line-clamp-2">
+                {{
                 post.title }}</h3>
-              <p class="text-slate-600 text-sm h-20 overflow-hidden">{{ post.excerpt }}</p>
+              <p class="text-slate-600 text-sm h-20 overflow-hidden" *ngIf="post.excerpt">{{ post.excerpt }}</p>
             </div>
             <div class="flex items-center text-xs text-slate-500 border-t border-slate-100 mt-4 pt-4">
               <img [src]="getCreatorAvatar(post.createdBy)" class="h-7 w-7 rounded-full object-cover mr-2"

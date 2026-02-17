@@ -15,12 +15,31 @@ import { SelectComponent } from '../../shared/select/select.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { PUBLISH_STATUSES } from '../../../models/constants';
+import { CustomUploadAdapter } from '../../../utils/ckeditor-upload-adapter';
+import { FileService } from '../../../services/file.service';
 
 @Component({
   selector: 'app-blog-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SaveButtonComponent, SelectComponent, CKEditorModule],
   templateUrl: './blog-form.component.html',
+  styles: [
+    `
+    :host ::ng-deep .ck-editor__editable_inline {
+      min-height: 400px;
+      border: 1px solid #cbd5e1;
+      /* slate-300 */
+      border-radius: 0 0 0.5rem 0.5rem;
+      --ck-focus-ring: 2px solid rgb(var(--primary-500) / 0.2);
+      --ck-focus-border: 1px solid rgb(var(--primary-500));
+    }
+
+    :host ::ng-deep .ck-editor__top .ck-sticky-panel .ck-toolbar {
+      border-radius: 0.5rem 0.5rem 0 0;
+      border-color: #cbd5e1;
+    }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlogFormComponent {
@@ -33,6 +52,7 @@ export class BlogFormComponent {
   private topicService = inject(TopicService);
   private lessonService = inject(LessonService);
   private toastService = inject(ToastService);
+  private fileService = inject(FileService);
 
   blogForm: FormGroup;
   isEditing = signal(false);
@@ -112,5 +132,11 @@ export class BlogFormComponent {
         this.toastService.show('Failed to save post', 'error');
       }
     });
+  }
+
+  onReady(editor: any) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+      return new CustomUploadAdapter(loader, this.fileService);
+    };
   }
 }

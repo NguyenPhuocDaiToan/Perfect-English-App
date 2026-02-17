@@ -12,6 +12,7 @@ import { LessonService } from '../../services/lesson.service';
 import { User } from '../../models/user.model';
 import { Topic } from '../../models/topic.model';
 import { Lesson } from '../../models/lesson.model';
+import { DEFAULT_AVATAR_URL } from '../../constants/app.constants';
 
 interface TocItem {
   level: number;
@@ -40,6 +41,7 @@ export class BlogPostComponent {
   relatedTopic = signal<Topic | undefined>(undefined);
   relatedLesson = signal<Lesson | undefined>(undefined);
   tableOfContents = signal<TocItem[]>([]);
+  defaultAvatar = DEFAULT_AVATAR_URL;
 
   // Data for related posts
   allPosts = toSignal(this.blogService.getAllBlogPostsForSelect(), { initialValue: [] });
@@ -56,7 +58,7 @@ export class BlogPostComponent {
           this.author.set(foundPost.createdBy as any);
         } else {
           // Fallback
-          this.author.set({ name: 'Unknown', avatarUrl: '' } as any);
+          this.author.set({ name: 'Unknown', avatarUrl: DEFAULT_AVATAR_URL } as any);
         }
 
         if (foundPost.topic) {

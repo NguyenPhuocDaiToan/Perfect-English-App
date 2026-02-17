@@ -44,7 +44,7 @@
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
                         <h3 class="text-sm font-semibold text-slate-800 mb-4 tracking-wider uppercase">About the Author
                         </h3>
-                        <img [src]="author.avatarUrl" [alt]="author.name"
+                        <img [src]="author.avatarUrl || defaultAvatar" [alt]="author.name"
                             class="w-20 h-20 rounded-full mx-auto mb-3 object-cover">
                         <p class="font-semibold text-slate-800 text-lg">{{ author.name }}</p>
                         <p class="text-sm text-slate-600">{{ author.role }}</p>
